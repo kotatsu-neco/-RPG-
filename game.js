@@ -1,4 +1,4 @@
-const SAVE_KEY = 'garugal_prototype_save_v1';
+const SAVE_KEY = 'garugal_prototype_save_v2';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -31,7 +31,7 @@ const assetPaths = {
 const state = {
   scene: 'home',
   player: { x: 720, y: 900, dir: 'down', moving: false, frameTick: 0, animFrame: 1 },
-  land: { x: 640, y: 940, dir: 'down', animFrame: 1 },
+  land: { x: 1185, y: 905, dir: 'left', animFrame: 1, follow: false },
   move: { up: false, down: false, left: false, right: false },
   dialogueQueue: [],
   currentDialogue: null,
@@ -43,6 +43,7 @@ const state = {
   nearHotspot: null,
   autoTriggered: {},
   overlayMessage: '',
+  transitionCooldown: 0,
 };
 
 const scenes = {
@@ -51,9 +52,11 @@ const scenes = {
     spawn: { x: 720, y: 930 },
     bounds: { x1: 70, y1: 110, x2: 1370, y2: 980 },
     hotspots: [
-      { id:'note', label:'母のメモ', x: 1040, y: 240, w: 170, h: 130, visible: s => s.progress === 0, action: 'readNote' },
-      { id:'door', label:'外へ', x: 640, y: 965, w: 160, h: 85, visible: s => s.progress >= 1, action: 'goVillageFromHome' },
-      { id:'land', label:'ランド', x: 1180, y: 900, w: 180, h: 120, visible: s => s.progress === 0, action: 'talkLandHome' }
+      { id:'note', label:'母のメモ', x: 565, y: 430, w: 320, h: 190, visible: s => true, action: 'readNote' },
+      { id:'land', label:'ランド', x: 1130, y: 835, w: 200, h: 150, visible: s => s.scene === 'home' && !s.land.follow, action: 'talkLandHome' }
+    ],
+    exitZones: [
+      { x: 610, y: 945, w: 190, h: 95, visible: s => s.progress >= 1, action: 'goVillageFromHome' }
     ]
   },
   village: {
@@ -61,7 +64,7 @@ const scenes = {
     spawn: { x: 705, y: 980 },
     bounds: { x1: 40, y1: 40, x2: 1408, y2: 1045 },
     hotspots: [
-      { id:'rurugarExt', label:'ルルガーの家', x: 560, y: 110, w: 350, h: 280, visible: s => true, action: 'enterRurugar' },
+      { id:'rurugarExt', label:'ルルガーの家', x: 560, y: 110, w: 350, h: 280, visible: s => s.progress !== 12, action: 'enterRurugar' },
       { id:'homeExt', label:'コルパンの家', x: 585, y: 650, w: 250, h: 220, visible: s => true, action: 'enterHome' },
       { id:'mogamoExt', label:'モガモの家', x: 825, y: 645, w: 260, h: 250, visible: s => true, action: 'enterMogamo' },
       { id:'mel', label:'メル', x: 590, y: 450, w: 120, h: 120, visible: s => s.progress === 4, action: 'meetMel' },
@@ -78,9 +81,11 @@ const scenes = {
     bounds: { x1: 60, y1: 50, x2: 1390, y2: 1010 },
     hotspots: [
       { id:'table', label:'食卓', x: 520, y: 350, w: 420, h: 240, visible: s => s.progress === 2, action: 'lunchEvent' },
-      { id:'door', label:'外へ', x: 610, y: 975, w: 180, h: 80, visible: s => s.progress >= 4 && s.progress !== 13, action: 'exitToVillage' },
-      { id:'mail', label:'手紙の束', x: 1005, y: 785, w: 300, h: 200, visible: s => s.progress === 3, action: 'mailScene' },
-      { id:'endDoor', label:'外へ', x: 610, y: 975, w: 180, h: 80, visible: s => s.progress === 13, action: 'endDemo' }
+      { id:'mail', label:'手紙の束', x: 1005, y: 785, w: 300, h: 200, visible: s => s.progress === 3, action: 'mailScene' }
+    ],
+    exitZones: [
+      { x: 610, y: 965, w: 180, h: 95, visible: s => s.progress >= 4 && s.progress !== 13, action: 'exitToVillage' },
+      { x: 610, y: 965, w: 180, h: 95, visible: s => s.progress === 13, action: 'endDemo' }
     ]
   },
   mogamo: {
@@ -88,8 +93,10 @@ const scenes = {
     spawn: { x: 210, y: 900 },
     bounds: { x1: 50, y1: 40, x2: 1390, y2: 1025 },
     hotspots: [
-      { id:'mogamoTalk', label:'モガモ', x: 170, y: 170, w: 350, h: 260, visible: s => s.progress === 7, action: 'mogamoReveal' },
-      { id:'exit', label:'村へ戻る', x: 160, y: 935, w: 190, h: 95, visible: s => s.progress >= 8, action: 'backToVillage' }
+      { id:'mogamoTalk', label:'モガモ', x: 170, y: 170, w: 350, h: 260, visible: s => s.progress === 7, action: 'mogamoReveal' }
+    ],
+    exitZones: [
+      { x: 160, y: 935, w: 190, h: 95, visible: s => s.progress >= 8, action: 'backToVillage' }
     ]
   },
   cemetery: {
@@ -134,6 +141,8 @@ function loadGame() {
     state.lettersDone = data.lettersDone || { father:false, villagerA:false, villagerB:false };
     state.autoTriggered = data.autoTriggered || {};
     state.objective = data.objective || '';
+    state.land.follow = state.progress >= 1;
+    state.transitionCooldown = 0;
     warpToScene(state.scene, false);
     updateObjective();
     return true;
@@ -153,6 +162,7 @@ function resetState() {
   state.battle.active = false;
   state.battle.enemyHp = 12;
   state.battle.playerHp = 18;
+  state.land.follow = false;
   warpToScene('home', false);
   updateObjective();
   localStorage.removeItem(SAVE_KEY);
@@ -190,7 +200,7 @@ function advanceDialogue(onComplete) {
 
 function updateObjective() {
   const messages = {
-    0: '目的：机の上の母さんのメモを読む。',
+    0: '目的：真ん中のテーブルにある母さんのメモを読む。',
     1: '目的：ランドと一緒にルルガーおじさんの家へ行く。',
     2: '目的：ルルガーの家で昼食の支度を手伝う。',
     3: '目的：玄関脇の手紙の束を確認する。',
@@ -217,10 +227,17 @@ function warpToScene(sceneName, resetFollowers=true) {
   state.player.y = spawn.y;
   state.player.dir = 'down';
   state.player.animFrame = 1;
+  state.transitionCooldown = 18;
   if (resetFollowers) {
-    state.land.x = spawn.x - 60;
-    state.land.y = spawn.y + 40;
-    state.land.dir = 'down';
+    if (sceneName === 'home' && !state.land.follow) {
+      state.land.x = 1185;
+      state.land.y = 905;
+      state.land.dir = 'left';
+    } else {
+      state.land.x = spawn.x - 60;
+      state.land.y = spawn.y + 40;
+      state.land.dir = 'down';
+    }
   }
 }
 
@@ -232,7 +249,7 @@ function triggerSceneAuto() {
     state.autoTriggered[key] = true;
     showDialogue([
       { name:'ナレーション', text:'両親が出発した次の日の朝。\n家の中は少し静かだ。' },
-      { name:'ナレーション', text:'机の上に、母さんの走り書きのメモが置いてある。' }
+      { name:'ナレーション', text:'部屋の真ん中のテーブルに、母さんの走り書きのメモが置いてある。' }
     ], saveGame);
   }
 
@@ -264,11 +281,23 @@ function handleAction(action) {
   switch(action) {
     case 'readNote':
       showDialogue([
-        { name:'母のメモ', text:'急に決まって、先に出ます。\nお父さんの友だちのコットさんのお見舞いです。わたしも一緒に行ってきます。' },
-        { name:'母のメモ', text:'お願い\n・ルルガーおじさんの様子を毎日見に行く\n・できたら手伝う\n・ごはんは一緒に食べる\n・ランドのごはん\n・ランドの散歩\n\n3日くらいで帰れると思います。よろしく！\n母' }
+        { name:'母のメモ', text:`急に決まって、先に出ます。
+お父さんの友だちのコットさんのお見舞いです。わたしも一緒に行ってきます。` },
+        { name:'母のメモ', text:`お願い
+・ルルガーおじさんの様子を毎日見に行く
+・できたら手伝う
+・ごはんは一緒に食べる
+・ランドのごはん
+・ランドの散歩
+
+3日くらいで帰れると思います。よろしく！
+母` }
       ], () => {
-        state.progress = 1;
-        updateObjective();
+        if (state.progress === 0) {
+          state.progress = 1;
+          state.land.follow = false;
+          updateObjective();
+        }
         saveGame();
       });
       break;
@@ -276,12 +305,15 @@ function handleAction(action) {
       showDialogue([{ name:'ランド', text:'わふ……。しっぽをふって、コルパンを見上げている。' }], saveGame);
       break;
     case 'goVillageFromHome':
+      state.land.follow = true;
       warpToScene('village');
       updateObjective();
       saveGame();
       break;
     case 'enterRurugar':
+      if (state.progress === 1) state.progress = 2;
       warpToScene('rurugar');
+      updateObjective();
       triggerSceneAuto();
       saveGame();
       break;
@@ -495,6 +527,8 @@ document.querySelectorAll('[data-battle]').forEach(btn => btn.addEventListener('
 
 function updatePlayer() {
   if (dialogueBox.classList.contains('hidden') === false || state.battle.active) return;
+  if (state.transitionCooldown > 0) state.transitionCooldown -= 1;
+
   const speed = 4;
   let dx = 0, dy = 0;
   if (state.move.left) dx -= speed;
@@ -502,31 +536,146 @@ function updatePlayer() {
   if (state.move.up) dy -= speed;
   if (state.move.down) dy += speed;
   state.player.moving = dx !== 0 || dy !== 0;
+
   if (dx !== 0 || dy !== 0) {
-    state.player.x += dx;
-    state.player.y += dy;
-    const b = scenes[state.scene].bounds;
-    state.player.x = Math.max(b.x1, Math.min(b.x2, state.player.x));
-    state.player.y = Math.max(b.y1, Math.min(b.y2, state.player.y));
     if (Math.abs(dx) > Math.abs(dy)) state.player.dir = dx > 0 ? 'right' : 'left';
     else state.player.dir = dy > 0 ? 'down' : 'up';
+
+    state.player.x = tryMoveAxis('x', dx);
+    state.player.y = tryMoveAxis('y', dy);
   }
+
   state.player.frameTick = (state.player.frameTick + 1) % 24;
   if (state.player.moving && state.player.frameTick % 8 === 0) {
     state.player.animFrame = (state.player.animFrame + 1) % 3;
   }
   if (!state.player.moving) state.player.animFrame = 1;
 
-  // Land follow
+  updateLand();
+  state.nearHotspot = getNearHotspot();
+  interactBtn.style.display = state.nearHotspot ? 'block' : 'none';
+  checkAutoExit();
+}
+
+
+const sceneColliders = {
+  home: [
+    { x: 95, y: 120, w: 330, h: 290 },
+    { x: 420, y: 115, w: 345, h: 150 },
+    { x: 835, y: 115, w: 355, h: 130 },
+    { x: 1140, y: 120, w: 220, h: 270 },
+    { x: 995, y: 595, w: 340, h: 170 },
+    { x: 520, y: 385, w: 400, h: 220 },
+    { x: 70, y: 615, w: 250, h: 155 },
+    { x: 80, y: 790, w: 340, h: 145 },
+    { x: 1110, y: 810, w: 250, h: 150 }
+  ],
+  rurugar: [
+    { x: 60, y: 50, w: 1325, h: 45 },
+    { x: 80, y: 120, w: 350, h: 190 },
+    { x: 490, y: 115, w: 330, h: 215 },
+    { x: 900, y: 100, w: 430, h: 250 },
+    { x: 165, y: 340, w: 250, h: 150 },
+    { x: 455, y: 340, w: 500, h: 230 },
+    { x: 985, y: 360, w: 300, h: 120 },
+    { x: 1000, y: 720, w: 330, h: 220 },
+    { x: 80, y: 720, w: 250, h: 170 }
+  ],
+  mogamo: [
+    { x: 80, y: 80, w: 560, h: 260 },
+    { x: 85, y: 420, w: 360, h: 240 },
+    { x: 520, y: 110, w: 240, h: 250 },
+    { x: 455, y: 395, w: 285, h: 210 },
+    { x: 780, y: 120, w: 520, h: 230 },
+    { x: 820, y: 380, w: 420, h: 225 },
+    { x: 865, y: 650, w: 350, h: 120 }
+  ],
+  village: [],
+  cemetery: []
+};
+
+function getPlayerRect(x = state.player.x, y = state.player.y) {
+  return { x: x - 18, y: y - 14, w: 36, h: 28 };
+}
+
+function intersects(a, b) {
+  return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+}
+
+function tryMoveAxis(axis, amount) {
+  let next = axis === 'x' ? state.player.x + amount : state.player.x;
+  let other = axis === 'y' ? state.player.y + amount : state.player.y;
+  if (axis === 'y') {
+    next = state.player.x;
+    other = state.player.y + amount;
+  }
+  const b = scenes[state.scene].bounds;
+  let candidateX = axis === 'x' ? next : state.player.x;
+  let candidateY = axis === 'y' ? other : state.player.y;
+  candidateX = Math.max(b.x1, Math.min(b.x2, candidateX));
+  candidateY = Math.max(b.y1, Math.min(b.y2, candidateY));
+  const rect = getPlayerRect(candidateX, candidateY);
+  const blockers = sceneColliders[state.scene] || [];
+  for (const block of blockers) {
+    if (intersects(rect, block)) {
+      return axis === 'x' ? state.player.x : state.player.y;
+    }
+  }
+  return axis === 'x' ? candidateX : candidateY;
+}
+
+function updateLand() {
+  const visibleFollowerScenes = ['village', 'cemetery'];
+  if (state.scene === 'home' && !state.land.follow) {
+    state.land.x = 1185;
+    state.land.y = 905;
+    state.land.dir = 'left';
+    state.land.animFrame = 1;
+    return;
+  }
+  if (!visibleFollowerScenes.includes(state.scene)) return;
+  if (!state.land.follow) return;
   const tx = state.player.x - 54;
   const ty = state.player.y + 42;
   state.land.x += (tx - state.land.x) * 0.08;
   state.land.y += (ty - state.land.y) * 0.08;
   state.land.dir = state.player.dir;
   state.land.animFrame = state.player.moving ? state.player.animFrame : 1;
+}
 
-  state.nearHotspot = getNearHotspot();
-  interactBtn.style.display = state.nearHotspot ? 'block' : 'none';
+function pointInRect(x, y, r) {
+  return x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
+}
+
+function checkAutoExit() {
+  if (state.transitionCooldown > 0) return;
+  const zones = scenes[state.scene].exitZones || [];
+  for (const z of zones) {
+    if (z.visible && !z.visible(state)) continue;
+    if (pointInRect(state.player.x, state.player.y, z)) {
+      handleAction(z.action);
+      break;
+    }
+  }
+}
+
+function drawHomeNote() {
+  if (state.scene !== 'home') return;
+  const scaleX = canvas.width / 1448;
+  const scaleY = canvas.height / 1086;
+  const x = 685 * scaleX;
+  const y = 455 * scaleY;
+  const w = 52 * scaleX;
+  const h = 34 * scaleY;
+  ctx.fillStyle = '#efe4be';
+  ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = '#866f4a';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, w, h);
+  ctx.fillStyle = '#8f7f60';
+  for (let i = 0; i < 4; i++) {
+    ctx.fillRect(x + 6, y + 8 + i * 6, w - 12, 2);
+  }
 }
 
 function drawScene() {
@@ -535,21 +684,7 @@ function drawScene() {
   const bg = assets[scene.image];
   ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
 
-  // debug hotspots prototype markers
-  const scaleX = canvas.width / 1448;
-  const scaleY = canvas.height / 1086;
-  for (const h of availableHotspots()) {
-    ctx.fillStyle = state.nearHotspot && state.nearHotspot.id === h.id ? 'rgba(255, 221, 120, 0.35)' : 'rgba(80, 160, 220, 0.16)';
-    ctx.strokeStyle = state.nearHotspot && state.nearHotspot.id === h.id ? 'rgba(255, 220, 120, 0.9)' : 'rgba(180, 220, 255, 0.6)';
-    ctx.lineWidth = 2;
-    ctx.fillRect(h.x * scaleX, h.y * scaleY, h.w * scaleX, h.h * scaleY);
-    ctx.strokeRect(h.x * scaleX, h.y * scaleY, h.w * scaleX, h.h * scaleY);
-    ctx.fillStyle = 'rgba(0,0,0,0.65)';
-    ctx.fillRect(h.x * scaleX, (h.y - 22) * scaleY, Math.max(70, h.label.length * 18), 22);
-    ctx.fillStyle = '#fff6d6';
-    ctx.font = '14px sans-serif';
-    ctx.fillText(h.label, h.x * scaleX + 8, (h.y - 6) * scaleY);
-  }
+  drawHomeNote();
 
   // draw sprites
   drawDog();
@@ -568,6 +703,8 @@ function drawHero() {
 }
 
 function drawDog() {
+  const showDog = (state.scene === 'home' && !state.land.follow) || ['village', 'cemetery'].includes(state.scene);
+  if (!showDog) return;
   const dirRow = { down:0, left:1, right:2, up:3 };
   const size = 362;
   const dw = 58, dh = 58;
