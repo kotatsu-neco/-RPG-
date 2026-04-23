@@ -166,10 +166,35 @@ const sceneColliders = {
   cemetery: []
 };
 
+function makeFallbackSprite(label, w=96, h=96, fill='#775c36') {
+  const c = document.createElement('canvas');
+  c.width = w;
+  c.height = h;
+  const x = c.getContext('2d');
+  x.fillStyle = fill;
+  x.fillRect(0, 0, w, h);
+  x.strokeStyle = '#f2eedf';
+  x.lineWidth = 4;
+  x.strokeRect(2, 2, w - 4, h - 4);
+  x.fillStyle = '#f2eedf';
+  x.font = '16px sans-serif';
+  x.textAlign = 'center';
+  x.textBaseline = 'middle';
+  x.fillText(label, w / 2, h / 2);
+  const img = new Image();
+  img.src = c.toDataURL('image/png');
+  return img;
+}
+
 function loadAssets() {
   return Promise.all(Object.entries(assetPaths).map(([key, src]) => new Promise((resolve) => {
     const img = new Image();
     img.onload = () => { assets[key] = img; resolve(); };
+    img.onerror = () => {
+      console.warn('asset load failed:', src);
+      assets[key] = makeFallbackSprite(key.slice(0, 6));
+      resolve();
+    };
     img.src = src;
   })));
 }
@@ -773,8 +798,11 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
+setupControls();
+objectiveBox.textContent = '読み込み中…';
 loadAssets().then(() => {
-  setupControls();
   objectiveBox.textContent = '準備完了';
-  requestAnimationFrame(loop);
+}).catch(() => {
+  objectiveBox.textContent = '一部素材を読み込めませんでした';
 });
+requestAnimationFrame(loop);
