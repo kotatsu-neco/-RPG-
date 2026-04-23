@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>ガーガル村 試作版</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <div id="titleScreen" class="screen active">
+      <div class="titlePanel">
+        <h1>ガーガル村 試作版</h1>
+        <p>スマホ向けブラウザRPG試作</p>
+        <button id="newGameBtn">はじめから</button>
+        <button id="continueBtn">つづきから</button>
+        <div class="smallNote">
+          画面下の十字ボタンで移動 / 「調べる」で会話や移動<br>
+          これは導入イベントを遊べる試作版です
+        </div>
+      </div>
+    </div>
+
+    <div id="gameScreen" class="screen">
+      <div id="hudTop">
+        <div id="objectiveBox"></div>
+        <button id="resetBtn" class="hudBtn">タイトルへ</button>
+      </div>
+
+      <div id="viewportWrap">
+        <canvas id="gameCanvas" width="724" height="543"></canvas>
+        <button id="interactBtn">調べる</button>
+      </div>
+
+      <div id="dialogueBox" class="hidden">
+        <div id="dialogueName"></div>
+        <div id="dialogueText"></div>
+        <button id="nextDialogueBtn">つぎへ</button>
+      </div>
+
+      <div id="battleOverlay" class="hidden">
+        <div class="battlePanel">
+          <div class="battleHeader">野雉っぽい鳥 が あらわれた！</div>
+          <div class="battleBody">
+            <div class="battleEnemyArea">
+              <div id="battleEnemySprite"></div>
+              <div id="enemyHpText">敵HP: 12 / 12</div>
+            </div>
+            <div class="battleLog" id="battleLog"></div>
+            <div class="battleCommands">
+              <button data-battle="attack">たたかう</button>
+              <button data-battle="skill">ねらいうち</button>
+              <button data-battle="item">どうぐ</button>
+              <button data-battle="run">にげる</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="controls">
+        <div class="dpad">
+          <button data-dir="up">▲</button>
+          <div class="midrow">
+            <button data-dir="left">◀</button>
+            <button data-dir="down">▼</button>
+            <button data-dir="right">▶</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
