@@ -1,4 +1,4 @@
-const SAVE_KEY = 'garugal_prototype_save_v3';
+const SAVE_KEY = 'garugal_prototype_save_v4';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -30,7 +30,12 @@ const assetPaths = {
   hero: 'assets/hero.png',
   land: 'assets/land.png',
   bird: 'assets/bird.png',
-  rurugar: 'assets/rurugar.png'
+  rurugar: 'assets/rurugar.png',
+  taart: 'assets/taart.png',
+  meru: 'assets/meru.png',
+  mogamo: 'assets/mogamo.png',
+  meruFather: 'assets/meru_father.png',
+  lumina: 'assets/lumina.png'
 };
 
 const state = {
@@ -55,10 +60,10 @@ const scenes = {
     image: 'korupanHouse',
     spawn: { x: 720, y: 930 },
     bounds: { x1: 84, y1: 110, x2: 1362, y2: 994 },
-    zoom: 1.35,
+    zoom: 1.52,
     hotspots: [
       { id:'note', label:'母のメモ', x: 635, y: 445, w: 170, h: 110, visible: () => true, action: 'readNote' },
-      { id:'land', label:'ランド', x: 1125, y: 825, w: 180, h: 150, visible: () => state.scene === 'home' && !state.land.follow, action: 'talkLandHome' }
+      { id:'land', label:'ランド', x: 1120, y: 820, w: 180, h: 150, visible: () => state.scene === 'home' && !state.land.follow, action: 'talkLandHome' }
     ],
     exitZones: [
       { x: 620, y: 945, w: 160, h: 85, visible: s => s.progress >= 1, action: 'goVillageFromHome' }
@@ -68,30 +73,31 @@ const scenes = {
     image: 'village',
     spawn: { x: 705, y: 980 },
     bounds: { x1: 40, y1: 40, x2: 1408, y2: 1045 },
-    zoom: 1.75,
+    zoom: 2.15,
     hotspots: [
-      { id:'mel', label:'メル', x: 595, y: 450, w: 120, h: 120, visible: s => s.progress === 4, action: 'meetMel' },
-      { id:'father', label:'メルの父', x: 210, y: 610, w: 260, h: 240, visible: s => s.progress === 5, action: 'deliverFather' },
-      { id:'villagerA', label:'配達先A', x: 840, y: 445, w: 220, h: 205, visible: s => s.progress === 6 && !s.lettersDone.villagerA, action: 'deliverVillagerA' },
-      { id:'villagerB', label:'配達先B', x: 1080, y: 680, w: 240, h: 260, visible: s => s.progress === 6 && !s.lettersDone.villagerB, action: 'deliverVillagerB' },
+      { id:'mel', label:'メル', x: 650, y: 500, w: 120, h: 120, visible: s => s.progress === 4, action: 'meetMel' },
+      { id:'father', label:'メルの父', x: 255, y: 710, w: 180, h: 180, visible: s => s.progress === 5, action: 'deliverFather' },
+      { id:'villagerA', label:'配達先A', x: 930, y: 520, w: 160, h: 170, visible: s => s.progress === 6 && !s.lettersDone.villagerA, action: 'deliverVillagerA' },
+      { id:'villagerB', label:'配達先B', x: 1140, y: 770, w: 160, h: 170, visible: s => s.progress === 6 && !s.lettersDone.villagerB, action: 'deliverVillagerB' },
       { id:'cemeteryGate', label:'村はずれへ', x: 40, y: 140, w: 240, h: 270, visible: s => s.progress >= 8, action: 'goCemetery' }
     ],
     autoZones: [
-      { id:'enterRurugar', x: 675, y: 322, w: 90, h: 55, visible: s => s.progress !== 12, action: 'enterRurugar' },
-      { id:'reportRurugar', x: 675, y: 322, w: 90, h: 55, visible: s => s.progress === 12, action: 'reportRurugar' },
-      { id:'enterHome', x: 675, y: 835, w: 92, h: 48, visible: () => true, action: 'enterHome' },
-      { id:'enterMogamo', x: 935, y: 850, w: 96, h: 48, visible: () => true, action: 'enterMogamo' }
+      { id:'enterRurugar', x: 675, y: 324, w: 95, h: 55, visible: s => s.progress !== 12, action: 'enterRurugar' },
+      { id:'reportRurugar', x: 675, y: 324, w: 95, h: 55, visible: s => s.progress === 12, action: 'reportRurugar' },
+      { id:'enterHome', x: 673, y: 835, w: 98, h: 50, visible: () => true, action: 'enterHome' },
+      { id:'enterMogamo', x: 938, y: 850, w: 98, h: 50, visible: () => true, action: 'enterMogamo' }
     ]
   },
   rurugar: {
     image: 'rurugarHouse',
     spawn: { x: 724, y: 945 },
     bounds: { x1: 82, y1: 84, x2: 1372, y2: 996 },
-    zoom: 1.32,
+    zoom: 1.44,
     hotspots: [
-      { id:'rurugarTalk', label:'ルルガー', x: 1000, y: 230, w: 150, h: 180, visible: s => s.progress >= 2, action: 'talkRurugarAmbient' },
-      { id:'table', label:'食卓', x: 570, y: 405, w: 290, h: 130, visible: s => s.progress === 2, action: 'lunchEvent' },
-      { id:'mail', label:'手紙の束', x: 1080, y: 810, w: 120, h: 90, visible: s => s.progress === 3, action: 'mailScene' }
+      { id:'rurugarTalk', label:'ルルガー', x: 1005, y: 255, w: 140, h: 170, visible: s => s.progress >= 2, action: 'talkRurugarAmbient' },
+      { id:'taartTalk', label:'タート', x: 1115, y: 775, w: 120, h: 145, visible: s => s.progress === 3, action: 'mailScene' },
+      { id:'table', label:'食卓', x: 560, y: 405, w: 300, h: 150, visible: s => s.progress === 2, action: 'lunchEvent' },
+      { id:'mail', label:'手紙の束', x: 1065, y: 825, w: 145, h: 95, visible: s => s.progress === 3, action: 'mailScene' }
     ],
     exitZones: [
       { x: 620, y: 945, w: 170, h: 85, visible: s => s.progress >= 4 && s.progress !== 13, action: 'exitToVillage' },
@@ -102,9 +108,9 @@ const scenes = {
     image: 'mogamoHouse',
     spawn: { x: 210, y: 930 },
     bounds: { x1: 70, y1: 70, x2: 1375, y2: 1010 },
-    zoom: 1.32,
+    zoom: 1.40,
     hotspots: [
-      { id:'mogamoTalk', label:'モガモ', x: 185, y: 190, w: 150, h: 170, visible: s => s.progress === 7, action: 'mogamoReveal' }
+      { id:'mogamoTalk', label:'モガモ', x: 210, y: 235, w: 145, h: 180, visible: s => s.progress === 7, action: 'mogamoReveal' }
     ],
     exitZones: [
       { x: 160, y: 945, w: 170, h: 82, visible: s => s.progress >= 8, action: 'backToVillage' }
@@ -114,7 +120,7 @@ const scenes = {
     image: 'cemetery',
     spawn: { x: 170, y: 180 },
     bounds: { x1: 30, y1: 30, x2: 1410, y2: 1040 },
-    zoom: 1.58,
+    zoom: 1.82,
     hotspots: [
       { id:'migamu', label:'ミガムの墓', x: 895, y: 635, w: 220, h: 185, visible: s => s.progress === 9, action: 'inspectMigamu' },
       { id:'returnPath', label:'村へ戻る', x: 60, y: 80, w: 210, h: 230, visible: s => s.progress >= 10, action: 'leaveCemetery' }
@@ -138,8 +144,8 @@ const sceneColliders = {
     { x: 115, y: 135, w: 275, h: 140 },
     { x: 500, y: 145, w: 235, h: 155 },
     { x: 990, y: 130, w: 265, h: 165 },
-    { x: 570, y: 405, w: 290, h: 135 },
-    { x: 1045, y: 760, w: 240, h: 145 },
+    { x: 560, y: 405, w: 300, h: 150 },
+    { x: 1040, y: 760, w: 250, h: 150 },
     { x: 120, y: 760, w: 195, h: 120 }
   ],
   mogamo: [
@@ -153,7 +159,9 @@ const sceneColliders = {
   village: [
     { x: 560, y: 100, w: 350, h: 220 },
     { x: 580, y: 650, w: 255, h: 165 },
-    { x: 825, y: 645, w: 260, h: 185 }
+    { x: 825, y: 645, w: 260, h: 185 },
+    { x: 300, y: 650, w: 160, h: 140 },
+    { x: 1120, y: 420, w: 150, h: 120 }
   ],
   cemetery: []
 };
@@ -208,7 +216,6 @@ function resetState() {
   state.currentDialogue = null;
   state.battle.active = false;
   state.battle.enemyHp = 12;
-  state.battle.playerHp = 18;
   state.land.follow = false;
   warpToScene('home', false);
   updateObjective();
@@ -276,13 +283,9 @@ function warpToScene(sceneName, resetFollowers=true) {
   state.transitionCooldown = 18;
   if (resetFollowers) {
     if (sceneName === 'home' && !state.land.follow) {
-      state.land.x = 1185;
-      state.land.y = 905;
-      state.land.dir = 'left';
+      state.land.x = 1185; state.land.y = 905; state.land.dir = 'left';
     } else {
-      state.land.x = sc.spawn.x - 60;
-      state.land.y = sc.spawn.y + 40;
-      state.land.dir = 'down';
+      state.land.x = sc.spawn.x - 60; state.land.y = sc.spawn.y + 40; state.land.dir = 'down';
     }
   }
 }
@@ -290,7 +293,6 @@ function warpToScene(sceneName, resetFollowers=true) {
 function triggerSceneAuto() {
   const key = `${state.scene}_${state.progress}`;
   if (state.autoTriggered[key]) return;
-
   if (state.scene === 'home' && state.progress === 0) {
     state.autoTriggered[key] = true;
     showDialogue([
@@ -298,7 +300,6 @@ function triggerSceneAuto() {
       { name:'ナレーション', text:'部屋の真ん中のテーブルに、母さんの走り書きのメモが置いてある。' }
     ], saveGame);
   }
-
   if (state.scene === 'rurugar' && state.progress === 2) {
     state.autoTriggered[key] = true;
     showDialogue([
@@ -362,7 +363,7 @@ function handleAction(action) {
       saveGame();
       break;
     case 'talkRurugarAmbient':
-      showDialogue([{ name:'ルルガー', text:'今は村のあれこれで手が離せん。必要があれば声をかけてくれ。' }], saveGame);
+      showDialogue([{ name:'ルルガー', text:'今は昼の仕度と村のあれこれで手が離せん。必要があれば声をかけてくれ。' }], saveGame);
       break;
     case 'lunchEvent':
       showDialogue([
@@ -530,17 +531,17 @@ function endBattleWin() {
   });
 }
 
+document.querySelectorAll('[data-battle]').forEach(btn => btn.addEventListener('click', () => battleAction(btn.dataset.battle)));
+
 function battleAction(kind) {
   if (!state.battle.active || state.battle.turnLocked) return;
   state.battle.turnLocked = true;
   let playerText = '';
   let damage = 0;
   if (kind === 'attack') {
-    damage = 5;
-    playerText = 'コルパンの矢が鳥に当たった。';
+    damage = 5; playerText = 'コルパンの矢が鳥に当たった。';
   } else if (kind === 'skill') {
-    damage = 8;
-    playerText = 'ねらいうち！ 鳥の動きを見切って深く命中した。';
+    damage = 8; playerText = 'ねらいうち！ 鳥の動きを見切って深く命中した。';
   } else if (kind === 'item') {
     playerText = 'まだ使える道具はない。';
   } else if (kind === 'run') {
@@ -556,16 +557,13 @@ function battleAction(kind) {
   battleLog.textContent = playerText + '\n鳥はばたいて突いてきたが、大きな傷にはならなかった。';
   setTimeout(() => { state.battle.turnLocked = false; }, 350);
 }
-document.querySelectorAll('[data-battle]').forEach(btn => btn.addEventListener('click', () => battleAction(btn.dataset.battle)));
 
 function getPlayerRect(x = state.player.x, y = state.player.y) {
   return { x: x - 18, y: y - 16, w: 36, h: 32 };
 }
-
 function intersects(a, b) {
   return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 }
-
 function tryMoveAxis(axis, amount) {
   const b = scenes[state.scene].bounds;
   let candidateX = state.player.x;
@@ -616,8 +614,7 @@ function updateLand() {
     state.land.x = 1185; state.land.y = 905; state.land.dir = 'left'; state.land.animFrame = 1; return;
   }
   if (!visibleFollowerScenes.includes(state.scene) || !state.land.follow) return;
-  const tx = state.player.x - 54;
-  const ty = state.player.y + 42;
+  const tx = state.player.x - 54, ty = state.player.y + 42;
   state.land.x += (tx - state.land.x) * 0.08;
   state.land.y += (ty - state.land.y) * 0.08;
   state.land.dir = state.player.dir;
@@ -627,7 +624,6 @@ function updateLand() {
 function pointInRect(x, y, r) {
   return x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
 }
-
 function checkAutoZone() {
   if (state.transitionCooldown > 0) return;
   const zones = [ ...(scenes[state.scene].exitZones || []), ...(scenes[state.scene].autoZones || []) ];
@@ -646,37 +642,12 @@ function updateCamera() {
   camera.x = Math.max(0, Math.min(WORLD_W - camera.w, camera.x));
   camera.y = Math.max(0, Math.min(WORLD_H - camera.h, camera.y));
 }
-
 function worldToScreen(wx, wy) {
   return { x: (wx - camera.x) / camera.w * canvas.width, y: (wy - camera.y) / camera.h * canvas.height };
 }
 
-function drawScene() {
-  updateCamera();
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const scene = scenes[state.scene];
-  const bg = assets[scene.image];
-  ctx.drawImage(bg, camera.x, camera.y, camera.w, camera.h, 0, 0, canvas.width, canvas.height);
-  drawHomeNote();
-  drawNPCs();
-  drawDog();
-  drawHero();
-}
-
-function drawHomeNote() {
-  if (state.scene !== 'home') return;
-  const topLeft = worldToScreen(675, 462);
-  const bottomRight = worldToScreen(770, 515);
-  const x = topLeft.x, y = topLeft.y, w = bottomRight.x - topLeft.x, h = bottomRight.y - topLeft.y;
-  ctx.fillStyle = '#efe4be';
-  ctx.fillRect(x, y, w, h);
-  ctx.strokeStyle = '#866f4a'; ctx.lineWidth = 2;
-  ctx.strokeRect(x, y, w, h);
-  ctx.fillStyle = '#8f7f60';
-  for (let i = 0; i < 4; i++) ctx.fillRect(x + 6, y + 8 + i * 8, w - 12, 2);
-}
-
-function drawSpriteSheet(img, wx, wy, dir, frame, sizeSrc=362, dw=52, dh=52) {
+function drawSpriteSheet(img, wx, wy, dir, frame, sizeSrc=362, dw=64, dh=64) {
+  if (!img) return;
   const dirRow = { down:0, left:1, right:2, up:3 };
   const sx = frame * sizeSrc;
   const sy = dirRow[dir] * sizeSrc;
@@ -686,38 +657,81 @@ function drawSpriteSheet(img, wx, wy, dir, frame, sizeSrc=362, dw=52, dh=52) {
   ctx.drawImage(img, sx, sy, sizeSrc, sizeSrc, pos.x - screenW/2, pos.y - screenH/2, screenW, screenH);
 }
 
-function drawHero() { drawSpriteSheet(assets.hero, state.player.x, state.player.y, state.player.dir, state.player.animFrame, 362, 52, 52); }
+function drawScene() {
+  updateCamera();
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const bg = assets[scenes[state.scene].image];
+  ctx.drawImage(bg, camera.x, camera.y, camera.w, camera.h, 0, 0, canvas.width, canvas.height);
+  drawHomeNote();
+  drawStaticNPCs();
+  drawDog();
+  drawHero();
+}
 
+function drawHomeNote() {
+  if (state.scene !== 'home') return;
+  const p1 = worldToScreen(675, 462), p2 = worldToScreen(770, 515);
+  const x = p1.x, y = p1.y, w = p2.x-p1.x, h = p2.y-p1.y;
+  ctx.fillStyle = '#efe4be'; ctx.fillRect(x,y,w,h);
+  ctx.strokeStyle = '#866f4a'; ctx.lineWidth = 2; ctx.strokeRect(x,y,w,h);
+  ctx.fillStyle = '#8f7f60';
+  for (let i=0;i<4;i++) ctx.fillRect(x+6, y+8+i*8, w-12, 2);
+}
+
+function drawHero() { drawSpriteSheet(assets.hero, state.player.x, state.player.y, state.player.dir, state.player.animFrame, 362, 66, 66); }
 function drawDog() {
-  const showDog = (state.scene === 'home' && !state.land.follow) || ['village', 'cemetery'].includes(state.scene);
+  const showDog = (state.scene === 'home' && !state.land.follow) || ['village','cemetery'].includes(state.scene);
   if (!showDog) return;
-  drawSpriteSheet(assets.land, state.land.x, state.land.y, state.land.dir, state.land.animFrame, 362, 58, 58);
+  drawSpriteSheet(assets.land, state.land.x, state.land.y, state.land.dir, state.land.animFrame, 362, 78, 78);
 }
 
-function drawNPCs() {
-  if (state.scene === 'rurugar' && state.progress >= 2) {
-    drawSpriteSheet(assets.rurugar, 1070, 315, 'down', 1, 362, 56, 56);
-    const pos = worldToScreen(1070, 270);
-    ctx.fillStyle = 'rgba(22,22,22,0.86)';
-    ctx.fillRect(pos.x - 42, pos.y - 18, 84, 16);
-    ctx.fillStyle = '#f2eedf';
-    ctx.font = '12px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('ルルガー', pos.x, pos.y - 6);
+function label(text, wx, wy) {
+  const p = worldToScreen(wx, wy);
+  ctx.fillStyle = 'rgba(20,20,20,0.80)';
+  ctx.fillRect(p.x-42, p.y-20, 84, 16);
+  ctx.fillStyle = '#f2eedf';
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(text, p.x, p.y-8);
+}
+
+function drawStaticNPCs() {
+  if (state.scene === 'village') {
+    drawSpriteSheet(assets.lumina, 1145, 485, 'down', 1, 362, 58, 58);
+    label('ルミナ', 1145, 455);
+    if (state.progress >= 4 && state.progress < 8) {
+      drawSpriteSheet(assets.meru, 690, 560, 'down', 1, 362, 56, 56);
+      label('メル', 690, 530);
+    }
+    if (state.progress >= 5) {
+      drawSpriteSheet(assets.meruFather, 330, 780, 'down', 1, 362, 58, 58);
+      label('メルの父', 330, 750);
+    }
+    if (state.progress === 6 && !state.lettersDone.villagerA) {
+      drawSpriteSheet(assets.villagerFemaleA || assets.lumina, 980, 620, 'down', 1, 362, 54, 54);
+    }
+    if (state.progress === 6 && !state.lettersDone.villagerB) {
+      drawSpriteSheet(assets.villagerMaleA || assets.meruFather, 1195, 860, 'down', 1, 362, 54, 54);
+    }
   }
-}
-
-function loop() {
-  updatePlayer();
-  drawScene();
-  requestAnimationFrame(loop);
+  if (state.scene === 'rurugar' && state.progress >= 2) {
+    drawSpriteSheet(assets.rurugar, 1080, 320, 'down', 1, 362, 62, 62);
+    label('ルルガー', 1080, 290);
+    if (state.progress === 3) {
+      drawSpriteSheet(assets.taart, 1150, 835, 'left', 1, 362, 58, 58);
+      label('タート', 1150, 805);
+    }
+  }
+  if (state.scene === 'mogamo') {
+    drawSpriteSheet(assets.mogamo, 265, 300, 'down', 1, 362, 58, 58);
+    label('モガモ', 265, 270);
+  }
 }
 
 function interact() {
   if (state.currentDialogue || state.battle.active) return;
   const hotspot = state.nearHotspot;
-  if (!hotspot) return;
-  handleAction(hotspot.action);
+  if (hotspot) handleAction(hotspot.action);
 }
 
 function setupControls() {
@@ -727,9 +741,7 @@ function setupControls() {
     const end = e => { e.preventDefault(); state.move[dir] = false; };
     btn.addEventListener('touchstart', start, { passive:false });
     btn.addEventListener('touchend', end, { passive:false });
-    btn.addEventListener('mousedown', start);
-    btn.addEventListener('mouseup', end);
-    btn.addEventListener('mouseleave', end);
+    btn.addEventListener('mousedown', start); btn.addEventListener('mouseup', end); btn.addEventListener('mouseleave', end);
   });
   window.addEventListener('keydown', e => {
     if (e.key === 'ArrowUp' || e.key === 'w') state.move.up = true;
@@ -753,6 +765,12 @@ function setupControls() {
     dialogueBox.classList.add('hidden');
     battleOverlay.classList.add('hidden');
   });
+}
+
+function loop() {
+  updatePlayer();
+  drawScene();
+  requestAnimationFrame(loop);
 }
 
 loadAssets().then(() => {
