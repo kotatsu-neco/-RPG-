@@ -109,7 +109,6 @@ body { -webkit-tap-highlight-color: transparent; }
   align-items: center;
   justify-content: center;
   min-height: 0;
-  overflow: hidden;
 }
 #gameCanvas {
   width: 100%;
@@ -139,12 +138,12 @@ body { -webkit-tap-highlight-color: transparent; }
   right: 10px;
   bottom: 10px;
   z-index: 4;
-  background: var(--panel);
+  background: rgba(21, 21, 21, 0.96);
   border: 1px solid var(--border);
   border-radius: 14px;
-  padding: 16px 14px 14px;
-  box-shadow: 0 10px 24px rgba(0,0,0,.3);
-  max-height: min(42%, 240px);
+  padding: 14px 12px 12px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.32);
+  max-height: 42%;
   overflow: auto;
 }
 #dialogueName {
@@ -155,7 +154,7 @@ body { -webkit-tap-highlight-color: transparent; }
   border-bottom: 1px solid rgba(201,178,122,.25);
 }
 #dialogueText {
-  min-height: 84px;
+  min-height: 72px;
   white-space: pre-wrap;
   line-height: 1.8;
   font-size: 15px;
@@ -189,19 +188,4 @@ body { -webkit-tap-highlight-color: transparent; }
 @media (min-width: 900px) {
   #gameScreen { padding-inline: 14px; }
   #controls { justify-content: flex-end; }
-}
-
-@media (max-width: 480px) {
-  #dialogueBox {
-    left: 8px;
-    right: 8px;
-    bottom: 8px;
-    max-height: min(46%, 260px);
-  }
-
-  #dialogueText {
-    min-height: 72px;
-    font-size: 14px;
-    line-height: 1.7;
-  }
 }

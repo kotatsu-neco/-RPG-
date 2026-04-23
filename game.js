@@ -4,11 +4,13 @@ const VIEW_COLS = 15;
 const VIEW_ROWS = 11;
 const WORLD_W = VIEW_COLS * TILE;
 const WORLD_H = VIEW_ROWS * TILE;
-const MOVE_INTERVAL = 180;
+const STEP_INTERVAL_MS = 240;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false;
+canvas.width = WORLD_W;
+canvas.height = WORLD_H;
 
 const titleScreen = document.getElementById('titleScreen');
 const gameScreen = document.getElementById('gameScreen');
@@ -36,8 +38,8 @@ const assetPaths = {
 const state = {
   scene: 'home',
   move: { up: false, down: false, left: false, right: false },
-  player: { x: 7, y: 8, dir: 'down' },
-  land: { x: 8, y: 8, dir: 'left', follow: false },
+  player: { x: 7, y: 8, dir: 'down', stepFrame: 1 },
+  land: { x: 8, y: 8, dir: 'left', follow: false, stepFrame: 1 },
   progress: 0,
   objective: '',
   nearNpcId: null,
@@ -46,7 +48,6 @@ const state = {
   currentDialogue: null,
   sceneTriggered: {},
   interactLocked: false,
-  dialogueOnComplete: null,
   lastMoveAt: 0,
 };
 
@@ -93,10 +94,9 @@ function updateObjective() {
 }
 
 function createBorderMap(cols, rows, fill = 'floor') {
-  const map = Array.from({ length: rows }, (_, y) => Array.from({ length: cols }, (_, x) => (
+  return Array.from({ length: rows }, (_, y) => Array.from({ length: cols }, (_, x) => (
     x === 0 || y === 0 || x === cols - 1 || y === rows - 1 ? 'wall' : fill
   )));
-  return map;
 }
 
 function fillRect(map, x, y, w, h, tile) {
@@ -144,7 +144,8 @@ function buildVillageScene() {
       }
     }
     map[house.doorY][house.doorX] = 'door';
-    blocked.splice(blocked.indexOf(`${house.doorX},${house.doorY}`), 1);
+    const idx = blocked.indexOf(`${house.doorX},${house.doorY}`);
+    if (idx >= 0) blocked.splice(idx, 1);
     houseDoors.push({ id: house.id, x: house.doorX, y: house.doorY });
   }
 
@@ -287,10 +288,11 @@ function loadGame() {
     const data = JSON.parse(raw);
     if (!scenes[data.scene]) return false;
     state.scene = data.scene;
-    state.player = data.player || { x: 7, y: 8, dir: 'down' };
-    state.land = data.land || { x: 8, y: 8, dir: 'left', follow: false };
+    state.player = { ...(data.player || { x: 7, y: 8, dir: 'down' }), stepFrame: 1 };
+    state.land = { ...(data.land || { x: 8, y: 8, dir: 'left', follow: false }), stepFrame: 1 };
     state.progress = data.progress || 0;
     state.sceneTriggered = data.sceneTriggered || {};
+    state.lastMoveAt = 0;
     updateObjective();
     return true;
   } catch {
@@ -301,15 +303,14 @@ function loadGame() {
 function resetState() {
   state.scene = 'home';
   state.move = { up: false, down: false, left: false, right: false };
-  state.player = { x: 7, y: 8, dir: 'down' };
-  state.land = { x: 10, y: 8, dir: 'left', follow: false };
+  state.player = { x: 7, y: 8, dir: 'down', stepFrame: 1 };
+  state.land = { x: 10, y: 8, dir: 'left', follow: false, stepFrame: 1 };
   state.progress = 0;
   state.nearNpcId = null;
   state.nearHotspotId = null;
   state.dialogueQueue = [];
   state.currentDialogue = null;
   state.sceneTriggered = {};
-  state.dialogueOnComplete = null;
   state.lastMoveAt = 0;
   updateObjective();
   localStorage.removeItem(SAVE_KEY);
@@ -323,27 +324,26 @@ function startGame(load = false) {
     resetState();
     triggerSceneAutoEnter();
   }
+  updateInteractionTargets();
   saveGame();
 }
 
 function showDialogue(queue, onComplete) {
   state.dialogueQueue = queue.slice();
-  state.dialogueOnComplete = onComplete || null;
   dialogueBox.classList.remove('hidden');
   setControlsDisabled(true);
-  nextDialogueBtn.onclick = () => advanceDialogue();
-  advanceDialogue();
+  nextDialogueBtn.onclick = () => advanceDialogue(onComplete);
+  advanceDialogue(onComplete);
 }
 
-function advanceDialogue() {
+function advanceDialogue(onComplete) {
   const next = state.dialogueQueue.shift();
   if (!next) {
     dialogueBox.classList.add('hidden');
     state.currentDialogue = null;
     setControlsDisabled(false);
-    const onComplete = state.dialogueOnComplete;
-    state.dialogueOnComplete = null;
     if (onComplete) onComplete();
+    updateInteractionTargets();
     return;
   }
   state.currentDialogue = next;
@@ -358,6 +358,7 @@ function warpToScene(sceneName, overrideSpawn = null) {
   state.player.x = spawn.x;
   state.player.y = spawn.y;
   state.player.dir = 'down';
+  state.player.stepFrame = 1;
   if (state.land.follow) {
     if (scene.landPos) {
       state.land.x = scene.landPos.x;
@@ -369,9 +370,12 @@ function warpToScene(sceneName, overrideSpawn = null) {
       state.land.x = state.player.x + 1;
       state.land.y = state.player.y;
     }
+    state.land.stepFrame = 1;
   }
+  state.lastMoveAt = 0;
   triggerSceneAutoEnter();
   updateObjective();
+  updateInteractionTargets();
   saveGame();
 }
 
@@ -389,8 +393,7 @@ function triggerSceneAutoEnter() {
 
 function sceneBlocked(scene, x, y) {
   if (x < 0 || y < 0 || x >= scene.cols || y >= scene.rows) return true;
-  if (scene.blocked.has(`${x},${y}`)) return true;
-  return false;
+  return scene.blocked.has(`${x},${y}`);
 }
 
 function movePlayer(dx, dy, dir) {
@@ -404,10 +407,12 @@ function movePlayer(dx, dy, dir) {
   const prevY = state.player.y;
   state.player.x = nx;
   state.player.y = ny;
+  state.player.stepFrame = state.player.stepFrame === 1 ? 0 : state.player.stepFrame === 0 ? 2 : 1;
   if (state.land.follow) {
     state.land.x = prevX;
     state.land.y = prevY;
     state.land.dir = dir;
+    state.land.stepFrame = state.player.stepFrame;
   }
   updateInteractionTargets();
   if (scene.autoStep) scene.autoStep();
@@ -418,7 +423,7 @@ function movePlayer(dx, dy, dir) {
 function updateObjectiveByPosition() {
   if (state.scene === 'rurugar' && state.progress === 2) {
     const npc = currentScene().npcs.find(n => n.id === 'rurugar');
-    if (Math.abs(state.player.x - npc.x) + Math.abs(state.player.y - npc.y) <= 1) {
+    if (npc && Math.abs(state.player.x - npc.x) + Math.abs(state.player.y - npc.y) <= 1) {
       state.progress = 3;
       updateObjective();
       saveGame();
@@ -462,35 +467,48 @@ function interact() {
   }
 }
 
+function getCameraForScene(scene) {
+  if (scene.cols <= VIEW_COLS && scene.rows <= VIEW_ROWS) {
+    return { x: 0, y: 0, w: WORLD_W, h: WORLD_H };
+  }
+  const maxX = Math.max(0, scene.cols * TILE - WORLD_W);
+  const maxY = Math.max(0, scene.rows * TILE - WORLD_H);
+  let x = state.player.x * TILE + TILE / 2 - WORLD_W / 2;
+  let y = state.player.y * TILE + TILE / 2 - WORLD_H / 2;
+  x = Math.max(0, Math.min(maxX, x));
+  y = Math.max(0, Math.min(maxY, y));
+  return { x, y, w: WORLD_W, h: WORLD_H };
+}
+
 function draw() {
   const scene = currentScene();
+  const camera = getCameraForScene(scene);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const scale = Math.min(canvas.width / WORLD_W, canvas.height / WORLD_H);
-  const offsetX = (canvas.width - WORLD_W * scale) / 2;
-  const offsetY = (canvas.height - WORLD_H * scale) / 2;
-
   ctx.save();
-  ctx.translate(offsetX, offsetY);
-  ctx.scale(scale, scale);
+  ctx.beginPath();
+  ctx.rect(0, 0, WORLD_W, WORLD_H);
+  ctx.clip();
+  ctx.translate(-camera.x, -camera.y);
 
-  drawSceneTiles(scene);
+  drawSceneTiles(scene, camera);
   drawHotspots(scene);
   drawNpcs(scene);
-  if (state.land.follow || state.scene === 'home') drawActorSprite(assets.land, state.land.x, state.land.y, 0.9);
-  drawActorSprite(assets.hero, state.player.x, state.player.y, 1.0, true);
-  if (scene.drawDecor) scene.drawDecor(getCameraForScene(scene));
+  if (state.land.follow || state.scene === 'home') drawActorSprite(assets.land, state.land, 0.88);
+  drawActorSprite(assets.hero, state.player, 1.0, true);
+  if (scene.drawDecor) scene.drawDecor(camera);
 
   ctx.restore();
 }
 
-function getCameraForScene(scene) {
-  return { x: 0, y: 0, w: scene.cols * TILE, h: scene.rows * TILE };
-}
+function drawSceneTiles(scene, camera) {
+  const startX = Math.max(0, Math.floor(camera.x / TILE) - 1);
+  const endX = Math.min(scene.cols, Math.ceil((camera.x + camera.w) / TILE) + 1);
+  const startY = Math.max(0, Math.floor(camera.y / TILE) - 1);
+  const endY = Math.min(scene.rows, Math.ceil((camera.y + camera.h) / TILE) + 1);
 
-function drawSceneTiles(scene) {
-  for (let y = 0; y < scene.rows; y++) {
-    for (let x = 0; x < scene.cols; x++) {
+  for (let y = startY; y < endY; y++) {
+    for (let x = startX; x < endX; x++) {
       drawTile(scene.map[y][x], x, y);
     }
   }
@@ -629,23 +647,37 @@ function drawPebbles(px, py) {
   ctx.fillRect(px + 18, py + 32, 3, 3);
 }
 
-function drawActorSprite(img, tx, ty, scale = 1, emphasize = false) {
-  const w = TILE * 1.35 * scale;
-  const h = TILE * 1.55 * scale;
-  const x = tx * TILE + (TILE - w) / 2;
-  const y = ty * TILE + TILE - h + 4;
+function getSpriteFrameRect(img, dir, frameIndex) {
+  const cols = 3;
+  const rows = 4;
+  const frameW = Math.floor(img.width / cols);
+  const frameH = Math.floor(img.height / rows);
+  const rowMap = { down: 0, left: 1, right: 2, up: 3 };
+  const row = rowMap[dir] ?? 0;
+  const col = Math.max(0, Math.min(2, frameIndex ?? 1));
+  return { sx: col * frameW, sy: row * frameH, sw: frameW, sh: frameH };
+}
+
+function drawActorSprite(img, actor, scale = 1, emphasize = false) {
+  const { sx, sy, sw, sh } = getSpriteFrameRect(img, actor.dir, actor.stepFrame ?? 1);
+  const drawH = TILE * 1.72 * scale;
+  const drawW = (sw / sh) * drawH;
+  const x = actor.x * TILE + (TILE - drawW) / 2;
+  const y = actor.y * TILE + TILE - drawH + 4;
+
   if (emphasize) {
-    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
     ctx.beginPath();
-    ctx.ellipse(tx * TILE + TILE / 2, ty * TILE + TILE - 6, 16, 7, 0, 0, Math.PI * 2);
+    ctx.ellipse(actor.x * TILE + TILE / 2, actor.y * TILE + TILE - 6, 15, 6, 0, 0, Math.PI * 2);
     ctx.fill();
   }
-  ctx.drawImage(img, x, y, w, h);
+
+  ctx.drawImage(img, sx, sy, sw, sh, x, y, drawW, drawH);
 }
 
 function drawNpcs(scene) {
   for (const npc of scene.npcs) {
-    drawActorSprite(assets[npc.sprite], npc.x, npc.y, 1.0);
+    drawActorSprite(assets[npc.sprite], { x: npc.x, y: npc.y, dir: 'down', stepFrame: 1 }, 1.0);
   }
 }
 
@@ -656,41 +688,41 @@ function drawHotspots(scene) {
   }
 }
 
-function drawVillageLabels() {
+function drawVillageLabels(camera) {
   if (state.scene !== 'village') return;
   const labels = [
     ['コルパンの家', 3.8, 6.3],
     ['ルルガーの家', 13.4, 4.2],
     ['墓地方面', 27.7, 10.4]
   ];
-  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  ctx.font = '14px sans-serif';
   for (const [text, tx, ty] of labels) {
     const x = tx * TILE;
     const y = ty * TILE;
-    ctx.fillRect(x, y, ctx.measureText(text).width + 12, 20);
-    ctx.fillStyle = '#f2eedf';
-    ctx.font = '14px sans-serif';
-    ctx.fillText(text, x + 6, y + 14);
+    const width = ctx.measureText(text).width + 12;
+    if (x + width < camera.x || x > camera.x + camera.w || y + 20 < camera.y || y > camera.y + camera.h) continue;
     ctx.fillStyle = 'rgba(0,0,0,0.45)';
+    ctx.fillRect(x, y, width, 20);
+    ctx.fillStyle = '#f2eedf';
+    ctx.fillText(text, x + 6, y + 14);
   }
 }
 
+function stepMovement(now) {
+  if (isDialogueOpen()) return;
+  if (now - state.lastMoveAt < STEP_INTERVAL_MS) return;
+
+  if (state.move.up) movePlayer(0, -1, 'up');
+  else if (state.move.down) movePlayer(0, 1, 'down');
+  else if (state.move.left) movePlayer(-1, 0, 'left');
+  else if (state.move.right) movePlayer(1, 0, 'right');
+  else return;
+
+  state.lastMoveAt = now;
+}
+
 function loop(now = 0) {
-  if (!isDialogueOpen() && now - state.lastMoveAt >= MOVE_INTERVAL) {
-    if (state.move.up) {
-      movePlayer(0, -1, 'up');
-      state.lastMoveAt = now;
-    } else if (state.move.down) {
-      movePlayer(0, 1, 'down');
-      state.lastMoveAt = now;
-    } else if (state.move.left) {
-      movePlayer(-1, 0, 'left');
-      state.lastMoveAt = now;
-    } else if (state.move.right) {
-      movePlayer(1, 0, 'right');
-      state.lastMoveAt = now;
-    }
-  }
+  stepMovement(now);
   updateInteractionTargets();
   draw();
   requestAnimationFrame(loop);
@@ -705,8 +737,8 @@ function bindControls() {
     dialogueBox.classList.add('hidden');
     state.dialogueQueue = [];
     state.currentDialogue = null;
-    state.dialogueOnComplete = null;
     setControlsDisabled(false);
+    Object.keys(state.move).forEach(key => { state.move[key] = false; });
   });
   interactBtn.addEventListener('click', interact);
 
@@ -715,7 +747,9 @@ function bindControls() {
     const press = (e) => {
       e.preventDefault();
       if (isDialogueOpen()) return;
+      Object.keys(state.move).forEach(key => { state.move[key] = false; });
       state.move[dir] = true;
+      state.lastMoveAt = 0;
     };
     const release = (e) => {
       e.preventDefault();
@@ -735,10 +769,10 @@ function bindControls() {
       return;
     }
     if (isDialogueOpen()) return;
-    if (e.key === 'ArrowUp') state.move.up = true;
-    if (e.key === 'ArrowDown') state.move.down = true;
-    if (e.key === 'ArrowLeft') state.move.left = true;
-    if (e.key === 'ArrowRight') state.move.right = true;
+    if (e.key === 'ArrowUp') { state.move.up = true; state.lastMoveAt = 0; }
+    if (e.key === 'ArrowDown') { state.move.down = true; state.lastMoveAt = 0; }
+    if (e.key === 'ArrowLeft') { state.move.left = true; state.lastMoveAt = 0; }
+    if (e.key === 'ArrowRight') { state.move.right = true; state.lastMoveAt = 0; }
   });
   window.addEventListener('keyup', (e) => {
     if (e.key === 'ArrowUp') state.move.up = false;
