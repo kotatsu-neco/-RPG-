@@ -102,7 +102,7 @@ html, body {
 }
 #gameCanvas {
   width: 100%;
-  max-width: min(100vw - 16px, calc((100vh - 250px) * 4 / 3));
+  max-width: min(100vw - 16px, calc((100vh - 270px) * 4 / 3));
   aspect-ratio: 4 / 3;
   background: #000;
   border: 2px solid #53442c;
@@ -126,21 +126,28 @@ html, body {
 #dialogueBox {
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  margin-top: 8px;
-  padding: 10px 12px 12px;
+  border-radius: 14px;
+  margin-top: 10px;
+  padding: 16px 14px 14px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.22);
 }
+
 #dialogueName {
   color: var(--accent);
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(201,178,122,.25);
 }
+
 #dialogueText {
-  min-height: 70px;
+  min-height: 84px;
   white-space: pre-wrap;
-  line-height: 1.7;
+  line-height: 1.8;
   font-size: 15px;
+  padding-top: 2px;
 }
+
 #nextDialogueBtn {
   margin-top: 10px;
   width: 100%;
