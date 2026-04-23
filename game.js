@@ -15,6 +15,7 @@ const nextDialogueBtn = document.getElementById('nextDialogueBtn');
 const battleOverlay = document.getElementById('battleOverlay');
 const battleLog = document.getElementById('battleLog');
 const enemyHpText = document.getElementById('enemyHpText');
+const controls = document.getElementById('controls');
 
 const WORLD_W = 1448;
 const WORLD_H = 1086;
@@ -54,6 +55,12 @@ const state = {
   autoTriggered: {},
   transitionCooldown: 0,
 };
+
+function setControlsDisabled(disabled) {
+  if (!controls) return;
+  controls.classList.toggle('disabled', !!disabled);
+}
+
 
 const scenes = {
   home: {
@@ -260,6 +267,7 @@ function startGame(load=false) {
 function showDialogue(queue, onComplete) {
   state.dialogueQueue = queue.slice();
   dialogueBox.classList.remove('hidden');
+  setControlsDisabled(true);
   nextDialogueBtn.onclick = () => advanceDialogue(onComplete);
   advanceDialogue(onComplete);
 }
@@ -269,6 +277,7 @@ function advanceDialogue(onComplete) {
   if (!next) {
     dialogueBox.classList.add('hidden');
     state.currentDialogue = null;
+    setControlsDisabled(false);
     if (onComplete) onComplete();
     return;
   }
@@ -539,11 +548,13 @@ function startBattle() {
   enemyHpText.textContent = '敵HP: 12 / 12';
   battleLog.textContent = '野雉っぽい鳥がこちらをうかがっている。';
   battleOverlay.classList.remove('hidden');
+  setControlsDisabled(true);
 }
 
 function endBattleWin() {
   state.battle.active = false;
   battleOverlay.classList.add('hidden');
+  setControlsDisabled(false);
   showDialogue([
     { name:'ナレーション', text:'コルパンは鳥を仕留めた。今夜の食卓にのぼるだろう。' },
     { name:'メル', text:'やった。ルルガーおじさん、喜ぶね。' },
@@ -605,7 +616,10 @@ function tryMoveAxis(axis, amount) {
 }
 
 function updatePlayer() {
-  if (!dialogueBox.classList.contains('hidden') || state.battle.active) return;
+  if (!dialogueBox.classList.contains('hidden') || state.battle.active) {
+    state.move.up = state.move.down = state.move.left = state.move.right = false;
+    return;
+  }
   if (state.transitionCooldown > 0) state.transitionCooldown -= 1;
 
   const speed = 4;
@@ -789,6 +803,7 @@ function setupControls() {
     titleScreen.classList.add('active');
     dialogueBox.classList.add('hidden');
     battleOverlay.classList.add('hidden');
+    setControlsDisabled(false);
   });
 }
 

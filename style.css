@@ -233,3 +233,10 @@ html, body {
   #gameScreen { padding-inline: 14px; }
   #controls { justify-content: flex-end; }
 }
+
+
+#controls.disabled {
+  opacity: 0.35;
+  filter: grayscale(1);
+  pointer-events: none;
+}
