@@ -4,6 +4,7 @@ const VIEW_COLS = 15;
 const VIEW_ROWS = 11;
 const WORLD_W = VIEW_COLS * TILE;
 const WORLD_H = VIEW_ROWS * TILE;
+const MOVE_INTERVAL = 180;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -45,6 +46,8 @@ const state = {
   currentDialogue: null,
   sceneTriggered: {},
   interactLocked: false,
+  dialogueOnComplete: null,
+  lastMoveAt: 0,
 };
 
 function makeFallbackSprite(label) {
@@ -306,6 +309,8 @@ function resetState() {
   state.dialogueQueue = [];
   state.currentDialogue = null;
   state.sceneTriggered = {};
+  state.dialogueOnComplete = null;
+  state.lastMoveAt = 0;
   updateObjective();
   localStorage.removeItem(SAVE_KEY);
 }
@@ -323,18 +328,21 @@ function startGame(load = false) {
 
 function showDialogue(queue, onComplete) {
   state.dialogueQueue = queue.slice();
+  state.dialogueOnComplete = onComplete || null;
   dialogueBox.classList.remove('hidden');
   setControlsDisabled(true);
-  nextDialogueBtn.onclick = () => advanceDialogue(onComplete);
-  advanceDialogue(onComplete);
+  nextDialogueBtn.onclick = () => advanceDialogue();
+  advanceDialogue();
 }
 
-function advanceDialogue(onComplete) {
+function advanceDialogue() {
   const next = state.dialogueQueue.shift();
   if (!next) {
     dialogueBox.classList.add('hidden');
     state.currentDialogue = null;
     setControlsDisabled(false);
+    const onComplete = state.dialogueOnComplete;
+    state.dialogueOnComplete = null;
     if (onComplete) onComplete();
     return;
   }
@@ -667,12 +675,21 @@ function drawVillageLabels() {
   }
 }
 
-function loop() {
-  if (!isDialogueOpen()) {
-    if (state.move.up) movePlayer(0, -1, 'up');
-    else if (state.move.down) movePlayer(0, 1, 'down');
-    else if (state.move.left) movePlayer(-1, 0, 'left');
-    else if (state.move.right) movePlayer(1, 0, 'right');
+function loop(now = 0) {
+  if (!isDialogueOpen() && now - state.lastMoveAt >= MOVE_INTERVAL) {
+    if (state.move.up) {
+      movePlayer(0, -1, 'up');
+      state.lastMoveAt = now;
+    } else if (state.move.down) {
+      movePlayer(0, 1, 'down');
+      state.lastMoveAt = now;
+    } else if (state.move.left) {
+      movePlayer(-1, 0, 'left');
+      state.lastMoveAt = now;
+    } else if (state.move.right) {
+      movePlayer(1, 0, 'right');
+      state.lastMoveAt = now;
+    }
   }
   updateInteractionTargets();
   draw();
@@ -688,6 +705,7 @@ function bindControls() {
     dialogueBox.classList.add('hidden');
     state.dialogueQueue = [];
     state.currentDialogue = null;
+    state.dialogueOnComplete = null;
     setControlsDisabled(false);
   });
   interactBtn.addEventListener('click', interact);
