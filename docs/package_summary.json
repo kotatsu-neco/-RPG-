@@ -1,0 +1,14 @@
+{
+  "name": "matsuyoi_one_screen_proto_v0_1",
+  "type": "static_browser_prototype",
+  "entry": "index.html",
+  "requires_server_for_fetch": true,
+  "features": [
+    "fixed one-screen village prototype",
+    "player movement",
+    "simple land companion placement/follow",
+    "NPC interaction",
+    "dialog window and choices",
+    "touch controls"
+  ]
+}
