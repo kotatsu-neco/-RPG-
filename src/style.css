@@ -254,3 +254,38 @@ body {
 #touch-controls.hidden {
   display: none !important;
 }
+
+
+/* v0.3 iPhone SE fix: dialogue must own the lower overlay area. */
+#dialog-layer {
+  bottom: 96px !important;
+  z-index: 100 !important;
+}
+#dialog-window {
+  min-height: 96px;
+}
+body.dialogue-open #touch-controls,
+#dialog-layer:not(.hidden) ~ #touch-controls,
+#touch-controls.hidden {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+#debug-panel strong::after {
+  content: "";
+}
+@media (max-height: 680px) {
+  #dialog-layer {
+    left: 5% !important;
+    right: 5% !important;
+    bottom: 84px !important;
+  }
+  #dialog-window {
+    min-height: 84px;
+    padding: 11px 14px 18px;
+  }
+  #dialog-text {
+    font-size: 14px;
+    line-height: 1.55;
+  }
+}

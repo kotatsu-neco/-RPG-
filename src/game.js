@@ -64,10 +64,10 @@ async function boot() {
     "assets/sprites/colpan/spr_colpan_proto_seq01_frame04.png",
   ];
   const land = [
-    "assets/sprites/land/spr_land_proto_seq01_frame01.png",
-    "assets/sprites/land/spr_land_proto_seq01_frame02.png",
-    "assets/sprites/land/spr_land_proto_seq01_frame03.png",
-    "assets/sprites/land/spr_land_proto_seq01_frame04.png",
+    "assets/sprites/land/spr_land_large_dog_right_01.png?v=0.3",
+    "assets/sprites/land/spr_land_large_dog_right_02.png?v=0.3",
+    "assets/sprites/land/spr_land_large_dog_right_03.png?v=0.3",
+    "assets/sprites/land/spr_land_large_dog_right_04.png?v=0.3",
   ];
 
   state.images.colpan = await Promise.all(colpan.map(loadImage));
@@ -181,10 +181,15 @@ function getFacingTile() {
 
 
 function syncOverlayState() {
+  document.body.classList.toggle("dialogue-open", state.dialogueOpen);
   if (state.dialogueOpen) {
     touchControls.classList.add("hidden");
+    touchControls.setAttribute("aria-hidden", "true");
+    touchControls.style.display = "none";
   } else {
     touchControls.classList.remove("hidden");
+    touchControls.removeAttribute("aria-hidden");
+    touchControls.style.display = "flex";
   }
 }
 
@@ -361,8 +366,8 @@ function drawCharacters() {
   for (const item of drawable) {
     if (item.image) {
       const isHuman = item.type === "player" || item.type === "npc";
-      const w = isHuman ? 16 : 24;
-      const h = isHuman ? 32 : 24;
+      const w = isHuman ? 16 : 32;
+      const h = isHuman ? 32 : 28;
       const dx = item.x * TILE + (TILE - w) / 2;
       const dy = item.y * TILE + TILE - h;
       ctx.drawImage(item.image, dx, dy, w, h);
