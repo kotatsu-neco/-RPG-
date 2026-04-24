@@ -53,3 +53,38 @@ assets/ui/
 - セーブ/ロード
 - 複数NPCイベント
 - 条件分岐会話
+
+
+## 選択肢アクション
+
+会話選択肢には `action` を付けられる。
+
+```json
+{
+  "label": "もう一度聞く",
+  "action": "restart",
+  "close": false
+}
+```
+
+他ゲームで使う場合も、`Game.handleChoiceAction()` を拡張すれば、以下のような処理を追加できる。
+
+- item
+- flag
+- quest
+- shop
+- battle
+- save
+
+
+## v2.3 メニューUIの流用
+
+別ゲームに流用する場合、`matsuyoi.game.json` の以下を差し替える。
+
+- player.status
+- player.inventory
+- player.equipment
+- equipmentSlots
+- items
+
+メニュータブの種類を変更する場合は、`index.html` の `#menu-tabs` と `MenuManager.js` の `renderers` を対応させる。

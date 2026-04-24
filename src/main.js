@@ -5,7 +5,7 @@ const canvas = document.getElementById("game-canvas");
 const game = new Game({
   canvas,
   dataPath: "src/game/data/matsuyoi.game.json",
-  version: "2.1",
+  version: "2.2",
 });
 
 game.boot().catch((error) => {

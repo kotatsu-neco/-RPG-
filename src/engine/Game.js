@@ -7,6 +7,7 @@ import { DialogueManager } from "./DialogueManager.js";
 import { Renderer } from "./Renderer.js";
 import { directionDelta, ENGINE_VERSION } from "./constants.js";
 import { LayoutManager } from "./LayoutManager.js";
+import { MenuManager } from "./MenuManager.js";
 
 export class Game {
   constructor({ canvas, dataPath, version = ENGINE_VERSION }) {
@@ -30,7 +31,7 @@ export class Game {
   }
 
   async boot() {
-    this.ui.setDebugVersion("v2.1 Engine");
+    this.ui.setDebugVersion("v2.3 Engine");
     this.layoutManager.bind();
 
     this.gameData = await this.assetLoader.loadJSON(this.dataPath);
@@ -46,6 +47,7 @@ export class Game {
     this.dialogueManager = new DialogueManager({
       uiManager: this.ui,
       getDialogueById: (id) => this.gameData.dialogues[id],
+      onChoiceAction: (choice, dialogueManager) => this.handleChoiceAction(choice, dialogueManager),
       onClose: () => {
         this.syncUI();
         this.updateActionButtonLabel();
@@ -60,6 +62,16 @@ export class Game {
       actors: this.actors,
       images: this.images,
     });
+
+    this.menuManager = new MenuManager({
+      uiManager: this.ui,
+      gameData: this.gameData,
+      getState: () => ({
+        sceneId: this.sceneManager.currentSceneId,
+        sceneName: this.sceneManager.currentScene?.name || this.sceneManager.currentSceneId,
+      }),
+    });
+    this.menuManager.bind();
 
     this.input = new InputController({
       onDirection: (direction) => this.handleDirection(direction),
@@ -98,6 +110,8 @@ export class Game {
   }
 
   handleDirection(direction) {
+    if (this.menuManager?.isOpen) return;
+
     if (this.dialogueManager?.isChoiceOpen) {
       this.dialogueManager.moveChoice(direction);
       this.syncUI();
@@ -144,6 +158,11 @@ export class Game {
   }
 
   interact() {
+    if (this.menuManager?.isOpen) {
+      this.menuManager.close();
+      return;
+    }
+
     if (this.noticeOpen) {
       this.closeNotice();
       return;

@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "待宵物語",
-    "engineVersion": "2.0",
+    "engineVersion": "2.3",
     "description": "スマホ向けレトロRPG汎用基盤上の待宵物語プロトタイプ"
   },
   "canvas": {
@@ -42,7 +42,8 @@
         },
         {
           "label": "もう一度聞く",
-          "close": true
+          "action": "restart",
+          "close": false
         }
       ]
     }
@@ -1094,6 +1095,39 @@
               8
             ]
           ]
+        },
+        {
+          "id": "village_well",
+          "name": "古い井戸",
+          "actionLabel": "調べる",
+          "kind": "notice",
+          "tiles": [
+            [
+              4,
+              13
+            ],
+            [
+              5,
+              13
+            ],
+            [
+              4,
+              14
+            ],
+            [
+              5,
+              14
+            ],
+            [
+              4,
+              15
+            ],
+            [
+              5,
+              15
+            ]
+          ],
+          "text": "石組みの古い井戸だ。冷たい空気が、底のほうから静かに上がってくる。"
         }
       ],
       "triggers": [
@@ -2439,6 +2473,67 @@
         }
       ],
       "triggers": []
+    }
+  },
+  "player": {
+    "name": "コルパン",
+    "status": {
+      "hp": "24 / 24",
+      "strength": 6,
+      "defense": 4,
+      "speed": 5,
+      "sense": 7
+    },
+    "inventory": [
+      {
+        "itemId": "old_letter",
+        "count": 1
+      },
+      {
+        "itemId": "flint",
+        "count": 1
+      }
+    ],
+    "equipment": {
+      "weapon": "hunting_bow",
+      "body": "linen_jacket",
+      "feet": "work_shoes"
+    }
+  },
+  "equipmentSlots": [
+    {
+      "id": "weapon",
+      "label": "武器"
+    },
+    {
+      "id": "body",
+      "label": "体"
+    },
+    {
+      "id": "feet",
+      "label": "足"
+    }
+  ],
+  "items": {
+    "old_letter": {
+      "name": "古い手紙",
+      "description": "ミガム宛てに渡すよう頼まれた手紙。"
+    },
+    "flint": {
+      "name": "火打ち石",
+      "description": "村仕事で使う小さな道具。"
+    },
+    "hunting_bow": {
+      "name": "狩り弓",
+      "description": "コルパンが普段使っている弓。"
+    },
+    "linen_jacket": {
+      "name": "麻の上着",
+      "description": "村での日常着。動きやすい。"
+    },
+    "work_shoes": {
+      "name": "革の作業靴",
+      "description": "石の多い道でも歩きやすい。"
     }
   }
 }

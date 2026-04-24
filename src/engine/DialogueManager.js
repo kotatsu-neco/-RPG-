@@ -1,7 +1,8 @@
 export class DialogueManager {
-  constructor({ uiManager, getDialogueById, onClose }) {
+  constructor({ uiManager, getDialogueById, onChoiceAction, onClose }) {
     this.ui = uiManager;
     this.getDialogueById = getDialogueById;
+    this.onChoiceAction = onChoiceAction;
     this.onClose = onClose;
 
     this.activeDialogue = null;
@@ -91,11 +92,25 @@ export class DialogueManager {
     const choice = this.activeDialogue.choices[this.selectedChoiceIndex];
     if (!choice) return false;
 
+    const handled = this.onChoiceAction?.(choice, this);
+    if (handled) return true;
+
     if (choice.close !== false) {
       this.close();
     }
 
     return true;
+  }
+
+  restart() {
+    if (!this.activeDialogue) return;
+
+    this.index = 0;
+    this.selectedChoiceIndex = 0;
+    this.ui.showDialogue({
+      speaker: this.activeDialogue.speaker,
+      text: this.activeDialogue.lines[0] || "",
+    });
   }
 
   close() {
