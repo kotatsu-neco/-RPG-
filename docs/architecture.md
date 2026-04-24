@@ -124,3 +124,16 @@ CSSの `100svh` だけに依存せず、JS側で `--app-height` を更新し、`
 
 `#menu-layer` を grid中央配置から flex-start配置へ変更。
 メニュー内容の高さが変わっても、上端が動かない。
+
+
+## v2.5 修正
+
+### Choice Confirm
+
+選択肢表示中は `Game.interact()` が `DialogueManager.confirmChoice()` を明示的に呼ぶ。
+
+これにより、`advance()` の内部状態に依存せず、右下ボタン「選ぶ」で確実に選択できる。
+
+### Choice Layout
+
+`body.choice-open #dialog-layer` を上方向へ移動し、操作キーと会話ウィンドウの重なりを避ける。

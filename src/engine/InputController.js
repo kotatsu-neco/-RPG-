@@ -18,10 +18,13 @@ export class InputController {
     });
 
     const actionButton = document.getElementById("action-button");
-    actionButton.addEventListener("click", (event) => {
+    const handleActionButton = (event) => {
       event.preventDefault();
+      event.stopPropagation();
       this.onAction();
-    });
+    };
+    actionButton.addEventListener("click", handleActionButton);
+    actionButton.addEventListener("pointerdown", handleActionButton);
 
     const wideTap = document.getElementById("wide-tap-catcher");
     wideTap.addEventListener("click", (event) => {

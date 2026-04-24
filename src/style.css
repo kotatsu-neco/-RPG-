@@ -561,3 +561,24 @@ body.notice-open #menu-button {
     font-size: 11px;
   }
 }
+
+
+/* v2.5: 選択肢表示中は操作キーと会話ウィンドウが重ならないよう上へ逃がす */
+body.choice-open #dialog-layer {
+  bottom: 150px;
+}
+
+body.choice-open #touch-controls {
+  display: flex !important;
+  z-index: 120;
+}
+
+body.choice-open #action-button {
+  z-index: 130;
+}
+
+@media (max-height: 680px) {
+  body.choice-open #dialog-layer {
+    bottom: 136px;
+  }
+}

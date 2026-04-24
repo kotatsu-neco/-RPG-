@@ -1,6 +1,6 @@
 {
-  "name": "matsuyoi_rpg_engine_v2_4",
-  "version": "2.4",
+  "name": "matsuyoi_rpg_engine_v2_5",
+  "version": "2.5",
   "target": "iPhone SE 2nd generation / Safari",
   "architecture": "engine/game separated",
   "reusable_parts": [
@@ -36,6 +36,9 @@
     "player data foundation",
     "fixed dialogue choice confirm",
     "fixed restart dialogue choice",
-    "top-anchored menu window"
+    "top-anchored menu window",
+    "fixed action button choice confirmation",
+    "choice-open dialog position adjustment",
+    "action button pointerdown support"
   ]
 }
