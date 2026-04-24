@@ -1,0 +1,85 @@
+export class UIManager {
+  constructor() {
+    this.dialogLayer = document.getElementById("dialog-layer");
+    this.nameplate = document.getElementById("nameplate");
+    this.dialogText = document.getElementById("dialog-text");
+    this.choiceBox = document.getElementById("choice-box");
+    this.noticeLayer = document.getElementById("notice-layer");
+    this.noticeWindow = document.getElementById("notice-window");
+    this.actionButton = document.getElementById("action-button");
+    this.wideTapCatcher = document.getElementById("wide-tap-catcher");
+    this.touchControls = document.getElementById("touch-controls");
+    this.debugVersion = document.querySelector("#debug-panel strong");
+  }
+
+  setDebugVersion(text) {
+    if (this.debugVersion) {
+      this.debugVersion.textContent = text;
+    }
+  }
+
+  showDialogue({ speaker, text }) {
+    this.nameplate.textContent = speaker;
+    this.dialogText.textContent = text;
+    this.choiceBox.classList.add("hidden");
+    this.dialogLayer.classList.remove("hidden");
+  }
+
+  updateDialogueText(text) {
+    this.dialogText.textContent = text;
+  }
+
+  showChoices(choices, selectedIndex, onSelect) {
+    this.choiceBox.innerHTML = "";
+
+    choices.forEach((choice, index) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `choice ${index === selectedIndex ? "selected" : ""}`;
+      button.textContent = choice;
+      button.addEventListener("click", (event) => {
+        event.stopPropagation();
+        onSelect(index);
+      });
+      this.choiceBox.appendChild(button);
+    });
+
+    this.dialogText.textContent = "どうする？";
+    this.choiceBox.classList.remove("hidden");
+  }
+
+  syncChoiceSelection(selectedIndex) {
+    Array.from(this.choiceBox.querySelectorAll(".choice")).forEach((button, index) => {
+      button.classList.toggle("selected", index === selectedIndex);
+    });
+  }
+
+  hideDialogue() {
+    this.choiceBox.classList.add("hidden");
+    this.dialogLayer.classList.add("hidden");
+  }
+
+  showNotice(text) {
+    this.noticeWindow.textContent = text;
+    this.noticeLayer.classList.remove("hidden");
+  }
+
+  hideNotice() {
+    this.noticeLayer.classList.add("hidden");
+  }
+
+  setActionButton(label, className = "") {
+    this.actionButton.textContent = label;
+    this.actionButton.className = className;
+  }
+
+  syncBodyState({ dialogueOpen, choiceOpen, noticeOpen }) {
+    document.body.classList.toggle("dialogue-open", dialogueOpen);
+    document.body.classList.toggle("choice-open", choiceOpen);
+    document.body.classList.toggle("notice-open", noticeOpen);
+
+    const showWideTap = (dialogueOpen && !choiceOpen) || noticeOpen;
+    this.wideTapCatcher.classList.toggle("hidden", !showWideTap);
+    this.touchControls.classList.remove("hidden");
+  }
+}

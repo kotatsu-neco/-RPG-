@@ -1,0 +1,379 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+:root {
+  --bg-page: #1f2429;
+  --frame: #4a4a4a;
+  --paper: #d8d5cf;
+  --ink: #222222;
+  --dialog-bg: #222938;
+  --dialog-border: #c6a35f;
+  --choice-bg: #beb8ae;
+  --choice-selected: #cfc3a4;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+  background: var(--bg-page);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+#app {
+  width: 100vw;
+  height: 100svh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(env(safe-area-inset-top), 4px) 4px max(env(safe-area-inset-bottom), 4px);
+  background: var(--bg-page);
+}
+
+#game-shell {
+  position: relative;
+  width: min(100vw, 390px);
+  height: 100%;
+  max-height: 100svh;
+  overflow: hidden;
+  background: #14171b;
+  image-rendering: pixelated;
+}
+
+#game-canvas {
+  position: absolute;
+  left: 50%;
+  top: 4px;
+  transform: translateX(-50%);
+  width: min(100%, calc((100svh - 156px) * 2 / 3));
+  height: auto;
+  aspect-ratio: 2 / 3;
+  display: block;
+  background: #5e7a4e;
+  border: 2px solid var(--frame);
+  image-rendering: pixelated;
+}
+
+#debug-panel {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  z-index: 20;
+  display: grid;
+  gap: 2px;
+  padding: 6px 8px;
+  color: #f5efe2;
+  background: rgba(34, 41, 56, 0.82);
+  border: 1px solid rgba(198, 163, 95, 0.85);
+  font-size: 10px;
+  line-height: 1.35;
+  pointer-events: none;
+}
+
+#touch-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  z-index: 120;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 18px;
+  pointer-events: none;
+}
+
+.dpad {
+  position: relative;
+  width: 126px;
+  height: 126px;
+  flex: 0 0 126px;
+  pointer-events: auto;
+}
+
+.dpad button,
+#action-button {
+  border: 2px solid var(--frame);
+  background: rgba(216, 213, 207, 0.96);
+  color: var(--ink);
+  font-weight: 700;
+  border-radius: 8px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.dpad button {
+  position: absolute;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  font-size: 18px;
+}
+
+.dpad [data-dir="up"] {
+  left: 42px;
+  top: 0;
+}
+
+.dpad [data-dir="left"] {
+  left: 0;
+  top: 42px;
+}
+
+.dpad [data-dir="right"] {
+  right: 0;
+  top: 42px;
+}
+
+.dpad [data-dir="down"] {
+  left: 42px;
+  bottom: 0;
+}
+
+#action-button {
+  position: relative;
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  pointer-events: auto;
+  font-size: 17px;
+}
+
+#action-button.action-talk {
+  background: rgba(207, 195, 164, 0.96);
+}
+
+#action-button.action-enter {
+  background: rgba(198, 163, 95, 0.96);
+}
+
+#action-button.action-exit {
+  background: rgba(190, 184, 174, 0.96);
+}
+
+.dpad button:active,
+#action-button:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+
+#dialog-layer {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: 116px;
+  z-index: 90;
+  pointer-events: auto;
+}
+
+#nameplate {
+  display: inline-block;
+  min-width: 88px;
+  padding: 5px 12px;
+  margin-left: 8px;
+  margin-bottom: -1px;
+  color: #f5efe2;
+  background: var(--dialog-bg);
+  border: 2px solid var(--dialog-border);
+  border-bottom: none;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+#dialog-window {
+  position: relative;
+  min-height: 88px;
+  padding: 14px 16px 20px;
+  color: #f5efe2;
+  background: var(--dialog-bg);
+  border: 2px solid var(--dialog-border);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+  pointer-events: auto;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#dialog-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.65;
+  letter-spacing: 0.02em;
+}
+
+#next-marker {
+  position: absolute;
+  right: 12px;
+  bottom: 6px;
+  font-size: 12px;
+  color: #f5efe2;
+  animation: blink 1s steps(2, end) infinite;
+}
+
+#choice-box {
+  margin-top: 8px;
+  display: grid;
+  gap: 6px;
+}
+
+.choice {
+  pointer-events: auto;
+  padding: 7px 10px;
+  color: var(--ink);
+  background: #d8d5cf;
+  border: 1px solid var(--frame);
+  font-size: 14px;
+  text-align: left;
+}
+
+.choice.selected {
+  background: var(--choice-selected);
+  font-weight: 700;
+}
+
+.choice.selected::before {
+  content: "▶ ";
+}
+
+#wide-tap-catcher {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 52%;
+  z-index: 70;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#notice-layer {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 56px;
+  z-index: 120;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#notice-window {
+  display: block;
+  position: relative;
+  padding: 10px 14px 18px;
+  color: #f5efe2;
+  background: rgba(34, 41, 56, 0.96);
+  border: 2px solid var(--dialog-border);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+#notice-window::after {
+  content: "タップで閉じる";
+  position: absolute;
+  right: 14px;
+  bottom: 5px;
+  font-size: 10px;
+  opacity: 0.78;
+}
+
+.hidden {
+  display: none !important;
+}
+
+body.dialogue-open:not(.choice-open):not(.notice-open) #touch-controls,
+body.notice-open #touch-controls {
+  display: none !important;
+}
+
+body.choice-open #touch-controls {
+  display: flex !important;
+  z-index: 140;
+}
+
+body:not(.dialogue-open):not(.notice-open) #wide-tap-catcher,
+body.choice-open #wide-tap-catcher {
+  display: none !important;
+}
+
+body.dialogue-open:not(.choice-open) #wide-tap-catcher,
+body.notice-open #wide-tap-catcher {
+  display: block !important;
+}
+
+body.choice-open .dpad [data-dir="left"],
+body.choice-open .dpad [data-dir="right"] {
+  opacity: 0.38;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (max-height: 680px) {
+  #game-canvas {
+    top: 4px;
+    width: min(100%, calc((100svh - 140px) * 2 / 3));
+  }
+
+  #dialog-layer {
+    bottom: 102px;
+  }
+
+  #touch-controls {
+    bottom: 8px;
+    padding: 0 20px;
+  }
+
+  .dpad {
+    width: 112px;
+    height: 112px;
+    flex-basis: 112px;
+  }
+
+  .dpad button {
+    width: 38px;
+    height: 38px;
+    font-size: 16px;
+  }
+
+  .dpad [data-dir="up"],
+  .dpad [data-dir="down"] {
+    left: 37px;
+  }
+
+  .dpad [data-dir="left"],
+  .dpad [data-dir="right"] {
+    top: 37px;
+  }
+
+  #action-button {
+    width: 76px;
+    height: 76px;
+    font-size: 16px;
+  }
+}

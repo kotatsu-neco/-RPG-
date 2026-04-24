@@ -2,52 +2,47 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>待宵物語 一画面プロトタイプ v0.9 操作復旧版</title>
-  <meta http-equiv="Cache-Control" content="no-store">
-  <link rel="stylesheet" href="src/style.css?v=0.9">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>待宵物語 RPG Engine v2.0</title>
+  <link rel="stylesheet" href="src/style.css?v=2.0">
 </head>
 <body>
   <main id="app">
-    <section id="game-shell" aria-label="待宵物語 一画面プロトタイプ">
+    <section id="game-shell" aria-label="待宵物語 RPG Engine v2.0">
       <canvas id="game-canvas" width="320" height="480" aria-label="ゲーム画面"></canvas>
 
+      <aside id="debug-panel">
+        <strong>v2.0 Engine</strong>
+        <span>汎用RPG基盤</span>
+      </aside>
+
       <div id="dialog-layer" class="hidden" aria-live="polite">
-        <div id="nameplate">ルルガー</div>
+        <div id="nameplate"></div>
         <div id="dialog-window">
           <p id="dialog-text"></p>
-          <div id="choice-box" class="hidden">
-            <button class="choice selected" type="button">わかりました</button>
-            <button class="choice" type="button">もう一度聞く</button>
-          </div>
+          <div id="choice-box" class="hidden" role="group" aria-label="会話選択肢"></div>
           <span id="next-marker">▼</span>
         </div>
       </div>
 
-      <button id="dialog-tap-catcher" class="hidden" type="button" aria-label="会話を進める"></button>
+      <button id="wide-tap-catcher" class="hidden" type="button" aria-label="会話または通知を進める"></button>
 
       <button id="notice-layer" class="hidden" type="button" aria-live="polite" aria-label="通知を閉じる">
         <span id="notice-window"></span>
       </button>
 
       <nav id="touch-controls" aria-label="移動操作">
-        <div class="dpad">
-          <button data-dir="up" aria-label="上">▲</button>
-          <button data-dir="left" aria-label="左">◀</button>
-          <button data-dir="right" aria-label="右">▶</button>
-          <button data-dir="down" aria-label="下">▼</button>
+        <div class="dpad" aria-label="十字キー">
+          <button data-dir="up" aria-label="上" type="button">▲</button>
+          <button data-dir="left" aria-label="左" type="button">◀</button>
+          <button data-dir="right" aria-label="右" type="button">▶</button>
+          <button data-dir="down" aria-label="下" type="button">▼</button>
         </div>
-        <button id="action-button" aria-label="決定">決定</button>
+        <button id="action-button" aria-label="決定" type="button">決定</button>
       </nav>
-
-      <aside id="debug-panel">
-        <strong>v0.9 操作復旧版</strong>
-        <span>矢印キー / WASD：移動</span>
-        <span>Enter / Space：決定</span>
-      </aside>
     </section>
   </main>
 
-  <script type="module" src="src/game.js?v=0.9"></script>
+  <script type="module" src="src/main.js?v=2.0"></script>
 </body>
 </html>
