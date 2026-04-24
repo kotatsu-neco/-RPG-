@@ -26,6 +26,7 @@ const state = {
   dialogueOpen: false,
   dialogueIndex: 0,
   activeNpc: null,
+  noticeTimer: null,
   keys: new Set(),
   images: {},
 };
@@ -34,6 +35,9 @@ const dialogLayer = document.getElementById("dialog-layer");
 const nameplate = document.getElementById("nameplate");
 const dialogText = document.getElementById("dialog-text");
 const dialogWindow = document.getElementById("dialog-window");
+const dialogTapCatcher = document.getElementById("dialog-tap-catcher");
+const noticeLayer = document.getElementById("notice-layer");
+const noticeWindow = document.getElementById("notice-window");
 const choiceBox = document.getElementById("choice-box");
 const actionButton = document.getElementById("action-button");
 const touchControls = document.getElementById("touch-controls");
@@ -117,6 +121,18 @@ function bindInput() {
     event.preventDefault();
     advanceDialogue();
   }, { passive: false });
+
+  dialogTapCatcher.addEventListener("click", (event) => {
+    if (!state.dialogueOpen) return;
+    event.preventDefault();
+    advanceDialogue();
+  });
+
+  dialogTapCatcher.addEventListener("touchend", (event) => {
+    if (!state.dialogueOpen) return;
+    event.preventDefault();
+    advanceDialogue();
+  }, { passive: false });
 }
 
 function keyToDirection(key) {
@@ -160,6 +176,8 @@ function movePlayer(dir) {
   state.land.x = oldX;
   state.land.y = oldY + 1 <= ROWS - 2 && !isBlocked(oldX, oldY + 1) ? oldY + 1 : oldY;
   state.land.frame = (state.land.frame + 1) % 4;
+
+  checkTileTriggers();
 }
 
 function isBlocked(x, y) {
@@ -167,7 +185,46 @@ function isBlocked(x, y) {
   return state.map.blockedTiles.some(([bx, by]) => bx === x && by === y);
 }
 
+
+function checkTileTriggers() {
+  if (!state.map.triggers || state.dialogueOpen) return;
+
+  const trigger = state.map.triggers.find((item) => {
+    return item.x === state.player.x && item.y === state.player.y;
+  });
+
+  if (!trigger) return;
+
+  if (trigger.type === "notice") {
+    showNotice(trigger.text);
+  }
+}
+
+function showNotice(text) {
+  if (state.noticeTimer) {
+    clearTimeout(state.noticeTimer);
+  }
+
+  noticeWindow.textContent = text;
+  noticeLayer.classList.remove("hidden");
+  document.body.classList.add("event-locked");
+
+  state.noticeTimer = setTimeout(() => {
+    noticeLayer.classList.add("hidden");
+    document.body.classList.remove("event-locked");
+    state.noticeTimer = null;
+  }, 1800);
+}
+
 function interact() {
+  if (state.noticeTimer) {
+    clearTimeout(state.noticeTimer);
+    noticeLayer.classList.add("hidden");
+    document.body.classList.remove("event-locked");
+    state.noticeTimer = null;
+    return;
+  }
+
   if (state.dialogueOpen) {
     advanceDialogue();
     return;
@@ -199,8 +256,10 @@ function syncOverlayState() {
   document.body.classList.toggle("dialogue-open", state.dialogueOpen);
   if (state.dialogueOpen) {
     touchControls.classList.add("hidden");
+    dialogTapCatcher.classList.remove("hidden");
   } else {
     touchControls.classList.remove("hidden");
+    dialogTapCatcher.classList.add("hidden");
   }
 }
 
@@ -337,6 +396,12 @@ function drawObjects() {
   // ルルガー家入口の目印
   ctx.fillStyle = "#d8d5cf";
   ctx.fillRect(9 * TILE, 6 * TILE, TILE * 2, 2);
+
+  // v0.5 entrance guide: 次工程確認用の入口判定エリア
+  ctx.fillStyle = "rgba(198, 163, 95, 0.22)";
+  ctx.fillRect(9 * TILE, 7 * TILE, TILE * 2, TILE);
+  ctx.strokeStyle = "rgba(198, 163, 95, 0.75)";
+  ctx.strokeRect(9 * TILE + 1, 7 * TILE + 1, TILE * 2 - 2, TILE - 2);
 }
 
 function drawHouse(x, y, w, h) {

@@ -1123,5 +1123,23 @@
       10,
       10
     ]
+  ],
+  "triggers": [
+    {
+      "id": "rulgar_house_entrance",
+      "type": "notice",
+      "x": 9,
+      "y": 7,
+      "text": "ルルガー家の入口だ。次の段階では、ここから屋内へ入れるようにする。",
+      "once": false
+    },
+    {
+      "id": "rulgar_house_entrance_2",
+      "type": "notice",
+      "x": 10,
+      "y": 7,
+      "text": "ルルガー家の入口だ。次の段階では、ここから屋内へ入れるようにする。",
+      "once": false
+    }
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "name": "matsuyoi_one_screen_proto_v0_4_dialogue_fix",
+  "name": "matsuyoi_one_screen_proto_v0_5_entrance_event",
   "type": "static_browser_prototype",
   "entry": "index.html",
   "requires_server_for_fetch": true,
@@ -10,7 +10,10 @@
     "NPC interaction",
     "dialog window and choices",
     "touch controls",
-    "dialogue window tap-to-advance on iPhone Safari"
+    "dialogue window tap-to-advance on iPhone Safari",
+    "wide lower-screen dialogue tap area",
+    "Rulgar house entrance trigger",
+    "notice window layer"
   ],
-  "version": "0.4"
+  "version": "0.5"
 }

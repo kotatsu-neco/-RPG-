@@ -56,7 +56,7 @@ body {
   left: 6%;
   right: 6%;
   bottom: 96px;
-  z-index: 80;
+  z-index: 90;
   pointer-events: auto;
 }
 
@@ -303,3 +303,52 @@ body.dialogue-open #touch-controls,
     line-height: 1.55;
   }
 }
+
+
+/* v0.5: 会話送り用の広い透明タップ領域。
+   iPhone SEでは会話窓そのものだけだと狭いため、下部方向へ受付範囲を広げる。 */
+#dialog-tap-catcher {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 48%;
+  z-index: 70;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body.dialogue-open #dialog-tap-catcher {
+  display: block;
+}
+
+#notice-layer {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 56px;
+  z-index: 95;
+  pointer-events: none;
+}
+
+#notice-window {
+  padding: 10px 14px;
+  color: #f5efe2;
+  background: rgba(34, 41, 56, 0.94);
+  border: 2px solid #c6a35f;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+body.dialogue-open #touch-controls,
+body.event-locked #touch-controls,
+#touch-controls.hidden {
+  display: none !important;
+}
+
