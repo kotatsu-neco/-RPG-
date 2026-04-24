@@ -35,6 +35,7 @@ const nameplate = document.getElementById("nameplate");
 const dialogText = document.getElementById("dialog-text");
 const choiceBox = document.getElementById("choice-box");
 const actionButton = document.getElementById("action-button");
+const touchControls = document.getElementById("touch-controls");
 
 function asset(path) {
   return path;
@@ -77,6 +78,7 @@ async function boot() {
   }
 
   bindInput();
+  syncOverlayState();
   requestAnimationFrame(loop);
 }
 
@@ -177,6 +179,15 @@ function getFacingTile() {
   };
 }
 
+
+function syncOverlayState() {
+  if (state.dialogueOpen) {
+    touchControls.classList.add("hidden");
+  } else {
+    touchControls.classList.remove("hidden");
+  }
+}
+
 function openDialogue(npc) {
   state.dialogueOpen = true;
   state.dialogueIndex = 0;
@@ -185,6 +196,7 @@ function openDialogue(npc) {
   dialogText.textContent = npc.dialogue[0];
   choiceBox.classList.add("hidden");
   dialogLayer.classList.remove("hidden");
+  syncOverlayState();
 }
 
 function advanceDialogue() {
@@ -219,6 +231,7 @@ function closeDialogue() {
   state.dialogueIndex = 0;
   state.activeNpc = null;
   dialogLayer.classList.add("hidden");
+  syncOverlayState();
 }
 
 function loop() {
