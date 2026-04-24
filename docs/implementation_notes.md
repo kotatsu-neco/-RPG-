@@ -64,3 +64,11 @@
 - 小通知は `setTimeout` 自動消去をやめ、`closeNotice()` をタップ/決定ボタンから呼ぶ方式に変更。
 - 次ステップとして、`state.scene` を導入し、village / interior を切り替え可能にした。
 - 仮内観はコード描画。正式タイル化は次段階。
+
+
+## v0.8 修正メモ
+
+- `dialog-tap-catcher` を通知表示中にも有効化し、下部操作パネル相当の範囲タップで通知を閉じられるようにした。
+- `choice-open` 状態を導入し、選択肢表示中のみ操作キーを再表示。
+- `selectedChoiceIndex` を導入し、上下操作で選択肢を移動できるようにした。
+- Safari長押し選択対策として `user-select: none` / `-webkit-touch-callout: none` を全体に適用。

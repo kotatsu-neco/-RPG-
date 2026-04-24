@@ -1,3 +1,36 @@
+
+/* v0.8: iPhone Safariの長押し文字選択・コールアウト抑制 */
+*,
+*::before,
+*::after {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+button,
+canvas,
+#game-shell,
+#touch-controls,
+#dialog-layer,
+#dialog-window,
+#notice-layer,
+#notice-window,
+#dialog-tap-catcher {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 52%;
+  z-index: 70;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -274,12 +307,7 @@ body {
   -webkit-tap-highlight-color: transparent;
   min-height: 96px;
 }
-body.dialogue-open #touch-controls,
-#touch-controls.hidden {
-  display: none !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-}
+
 #debug-panel strong::after {
   content: "";
 }
@@ -352,11 +380,7 @@ body.dialogue-open #dialog-tap-catcher {
   text-align: center;
 }
 
-body.dialogue-open #touch-controls,
-body.event-locked #touch-controls,
-#touch-controls.hidden {
-  display: none !important;
-}
+
 
 
 #action-button.action-talk {
@@ -378,4 +402,35 @@ body.event-locked #touch-controls,
 
 #action-button.action-exit {
   background: rgba(190, 184, 174, 0.96);
+}
+
+
+/* v0.8 state control */
+body.dialogue-open:not(.choice-open) #touch-controls,
+body.event-locked #touch-controls,
+#touch-controls.hidden {
+  display: none !important;
+}
+
+body.choice-open #touch-controls {
+  display: flex !important;
+  z-index: 110;
+}
+
+body.choice-open #dialog-tap-catcher {
+  display: none !important;
+}
+
+body.event-locked #dialog-tap-catcher {
+  display: block !important;
+}
+
+body.choice-open .dpad [data-dir="left"],
+body.choice-open .dpad [data-dir="right"] {
+  opacity: 0.38;
+}
+
+.choice.selected {
+  background: var(--choice-bg);
+  font-weight: 700;
 }

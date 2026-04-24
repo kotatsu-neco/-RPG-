@@ -26,6 +26,7 @@ const state = {
   dialogueOpen: false,
   dialogueIndex: 0,
   activeNpc: null,
+  selectedChoiceIndex: 0,
   noticeTimer: null,
   lastNoticeId: null,
   scene: "village",
@@ -102,11 +103,14 @@ function bindInput() {
     }
 
     const dir = keyToDirection(event.key);
-    if (dir) movePlayer(dir);
+    if (dir) handleDirectionInput(dir);
   });
 
   for (const button of document.querySelectorAll(".dpad button")) {
-    button.addEventListener("pointerdown", () => movePlayer(button.dataset.dir));
+    button.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      handleDirectionInput(button.dataset.dir);
+    });
   }
 
   actionButton.addEventListener("click", interact);
@@ -126,13 +130,23 @@ function bindInput() {
   }, { passive: false });
 
   dialogTapCatcher.addEventListener("click", (event) => {
-    if (!state.dialogueOpen) return;
+    if (state.noticeTimer) {
+      event.preventDefault();
+      closeNotice();
+      return;
+    }
+    if (!state.dialogueOpen || isChoiceOpen()) return;
     event.preventDefault();
     advanceDialogue();
   });
 
   dialogTapCatcher.addEventListener("touchend", (event) => {
-    if (!state.dialogueOpen) return;
+    if (state.noticeTimer) {
+      event.preventDefault();
+      closeNotice();
+      return;
+    }
+    if (!state.dialogueOpen || isChoiceOpen()) return;
     event.preventDefault();
     advanceDialogue();
   }, { passive: false });
@@ -244,8 +258,8 @@ function showNotice(text) {
 
   noticeWindow.textContent = text;
   noticeLayer.classList.remove("hidden");
-  document.body.classList.add("event-locked");
   state.noticeTimer = true;
+  syncOverlayState();
   updateActionButtonLabel();
 }
 
@@ -253,8 +267,8 @@ function closeNotice() {
   if (!state.noticeTimer) return;
 
   noticeLayer.classList.add("hidden");
-  document.body.classList.remove("event-locked");
   state.noticeTimer = null;
+  syncOverlayState();
   updateActionButtonLabel();
 }
 
@@ -290,6 +304,63 @@ function transitionScene(targetScene) {
 
 
 
+
+function isChoiceOpen() {
+  return state.dialogueOpen && !choiceBox.classList.contains("hidden");
+}
+
+function getChoiceButtons() {
+  return Array.from(choiceBox.querySelectorAll(".choice"));
+}
+
+function syncChoiceSelection() {
+  const buttons = getChoiceButtons();
+  buttons.forEach((button, index) => {
+    button.classList.toggle("selected", index === state.selectedChoiceIndex);
+  });
+}
+
+function moveChoiceSelection(dir) {
+  if (!isChoiceOpen()) return false;
+
+  const buttons = getChoiceButtons();
+  if (!buttons.length) return false;
+
+  if (dir === "up") {
+    state.selectedChoiceIndex = (state.selectedChoiceIndex - 1 + buttons.length) % buttons.length;
+  } else if (dir === "down") {
+    state.selectedChoiceIndex = (state.selectedChoiceIndex + 1) % buttons.length;
+  } else {
+    return false;
+  }
+
+  syncChoiceSelection();
+  updateActionButtonLabel();
+  return true;
+}
+
+function confirmChoiceSelection() {
+  if (!isChoiceOpen()) return false;
+
+  const buttons = getChoiceButtons();
+  const selected = buttons[state.selectedChoiceIndex];
+  if (selected) {
+    selected.click();
+    return true;
+  }
+
+  return false;
+}
+
+function handleDirectionInput(dir) {
+  if (isChoiceOpen()) {
+    moveChoiceSelection(dir);
+    return;
+  }
+
+  movePlayer(dir);
+}
+
 function getAdjacentNpc() {
   const target = getFacingTile();
   return state.map.npcs.find((n) => n.x === target.x && n.y === target.y) || null;
@@ -312,6 +383,12 @@ function getFacingInteractable() {
 }
 
 function updateActionButtonLabel() {
+  if (isChoiceOpen()) {
+    actionButton.textContent = "選ぶ";
+    actionButton.className = "action-talk";
+    return;
+  }
+
   if (state.dialogueOpen) {
     actionButton.textContent = "送る";
     actionButton.className = "";
@@ -349,6 +426,7 @@ function interact() {
   }
 
   if (state.dialogueOpen) {
+    if (confirmChoiceSelection()) return;
     advanceDialogue();
     return;
   }
@@ -387,12 +465,23 @@ function getFacingTile() {
 
 function syncOverlayState() {
   document.body.classList.toggle("dialogue-open", state.dialogueOpen);
-  if (state.dialogueOpen) {
-    touchControls.classList.add("hidden");
+  document.body.classList.toggle("choice-open", isChoiceOpen());
+  document.body.classList.toggle("event-locked", Boolean(state.noticeTimer));
+
+  const shouldShowWideTap = (state.dialogueOpen && !isChoiceOpen()) || Boolean(state.noticeTimer);
+
+  if (shouldShowWideTap) {
     dialogTapCatcher.classList.remove("hidden");
   } else {
-    touchControls.classList.remove("hidden");
     dialogTapCatcher.classList.add("hidden");
+  }
+
+  if (state.dialogueOpen && !isChoiceOpen()) {
+    touchControls.classList.add("hidden");
+  } else if (state.noticeTimer) {
+    touchControls.classList.add("hidden");
+  } else {
+    touchControls.classList.remove("hidden");
   }
 }
 
@@ -419,6 +508,7 @@ function advanceDialogue() {
 
   if (npc.choices && npc.choices.length && choiceBox.classList.contains("hidden")) {
     choiceBox.innerHTML = "";
+    state.selectedChoiceIndex = 0;
     npc.choices.forEach((choice, index) => {
       const button = document.createElement("button");
       button.type = "button";
@@ -432,7 +522,9 @@ function advanceDialogue() {
     });
     choiceBox.classList.remove("hidden");
     dialogText.textContent = "どうする？";
-    actionButton.textContent = "選ぶ";
+    syncChoiceSelection();
+    syncOverlayState();
+    updateActionButtonLabel();
     return;
   }
 
@@ -443,6 +535,8 @@ function closeDialogue() {
   state.dialogueOpen = false;
   state.dialogueIndex = 0;
   state.activeNpc = null;
+  choiceBox.classList.add("hidden");
+  state.selectedChoiceIndex = 0;
   dialogLayer.classList.add("hidden");
   syncOverlayState();
   updateActionButtonLabel();
@@ -588,7 +682,7 @@ function drawObjects() {
   ctx.fillStyle = "#d8d5cf";
   ctx.fillRect(9 * TILE, 6 * TILE, TILE * 2, 2);
 
-  // v0.7 entrance guide: 次工程確認用の入口判定エリア
+  // v0.8 entrance guide: 次工程確認用の入口判定エリア
   ctx.fillStyle = "rgba(198, 163, 95, 0.22)";
   ctx.fillRect(9 * TILE, 7 * TILE, TILE * 2, TILE);
   ctx.strokeStyle = "rgba(198, 163, 95, 0.75)";

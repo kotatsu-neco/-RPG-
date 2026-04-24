@@ -1,5 +1,5 @@
 {
-  "name": "matsuyoi_one_screen_proto_v0_7_interior_transition",
+  "name": "matsuyoi_one_screen_proto_v0_8_controls_fix",
   "type": "static_browser_prototype",
   "entry": "index.html",
   "requires_server_for_fetch": true,
@@ -20,7 +20,10 @@
     "tap-to-dismiss notice",
     "Rulgar house interior prototype",
     "scene transition village/interior",
-    "contextual action label enter/exit"
+    "contextual action label enter/exit",
+    "wide lower tap area closes notices",
+    "choice selection via dpad and action button",
+    "Safari long-press text selection suppression"
   ],
-  "version": "0.7"
+  "version": "0.8"
 }
