@@ -55,9 +55,9 @@ body {
   position: absolute;
   left: 6%;
   right: 6%;
-  bottom: 104px;
-  z-index: 50;
-  pointer-events: none;
+  bottom: 96px;
+  z-index: 80;
+  pointer-events: auto;
 }
 
 #nameplate {
@@ -75,6 +75,11 @@ body {
 }
 
 #dialog-window {
+  pointer-events: auto;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
   position: relative;
   min-height: 88px;
   padding: 14px 16px 20px;
@@ -262,10 +267,14 @@ body {
   z-index: 100 !important;
 }
 #dialog-window {
+  pointer-events: auto;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
   min-height: 96px;
 }
 body.dialogue-open #touch-controls,
-#dialog-layer:not(.hidden) ~ #touch-controls,
 #touch-controls.hidden {
   display: none !important;
   visibility: hidden !important;
@@ -281,6 +290,11 @@ body.dialogue-open #touch-controls,
     bottom: 84px !important;
   }
   #dialog-window {
+  pointer-events: auto;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
     min-height: 84px;
     padding: 11px 14px 18px;
   }

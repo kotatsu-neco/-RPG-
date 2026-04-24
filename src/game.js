@@ -33,6 +33,7 @@ const state = {
 const dialogLayer = document.getElementById("dialog-layer");
 const nameplate = document.getElementById("nameplate");
 const dialogText = document.getElementById("dialog-text");
+const dialogWindow = document.getElementById("dialog-window");
 const choiceBox = document.getElementById("choice-box");
 const actionButton = document.getElementById("action-button");
 const touchControls = document.getElementById("touch-controls");
@@ -102,6 +103,20 @@ function bindInput() {
   }
 
   actionButton.addEventListener("click", interact);
+
+  dialogWindow.addEventListener("click", (event) => {
+    if (!state.dialogueOpen) return;
+    if (event.target.closest(".choice")) return;
+    event.preventDefault();
+    advanceDialogue();
+  });
+
+  dialogWindow.addEventListener("touchend", (event) => {
+    if (!state.dialogueOpen) return;
+    if (event.target.closest(".choice")) return;
+    event.preventDefault();
+    advanceDialogue();
+  }, { passive: false });
 }
 
 function keyToDirection(key) {
@@ -184,12 +199,8 @@ function syncOverlayState() {
   document.body.classList.toggle("dialogue-open", state.dialogueOpen);
   if (state.dialogueOpen) {
     touchControls.classList.add("hidden");
-    touchControls.setAttribute("aria-hidden", "true");
-    touchControls.style.display = "none";
   } else {
     touchControls.classList.remove("hidden");
-    touchControls.removeAttribute("aria-hidden");
-    touchControls.style.display = "flex";
   }
 }
 
@@ -220,7 +231,10 @@ function advanceDialogue() {
       button.type = "button";
       button.className = `choice ${index === 0 ? "selected" : ""}`;
       button.textContent = choice;
-      button.addEventListener("click", closeDialogue);
+      button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      closeDialogue();
+    });
       choiceBox.appendChild(button);
     });
     choiceBox.classList.remove("hidden");

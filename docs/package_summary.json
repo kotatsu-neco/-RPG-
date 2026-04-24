@@ -1,5 +1,5 @@
 {
-  "name": "matsuyoi_one_screen_proto_v0_1",
+  "name": "matsuyoi_one_screen_proto_v0_4_dialogue_fix",
   "type": "static_browser_prototype",
   "entry": "index.html",
   "requires_server_for_fetch": true,
@@ -9,6 +9,8 @@
     "simple land companion placement/follow",
     "NPC interaction",
     "dialog window and choices",
-    "touch controls"
-  ]
+    "touch controls",
+    "dialogue window tap-to-advance on iPhone Safari"
+  ],
+  "version": "0.4"
 }
