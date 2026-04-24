@@ -57,3 +57,10 @@
 - v0.5の小通知は、接触判定位置が狭く、実際の歩行可能範囲とずれていた可能性が高い。
 - v0.6では `triggers.tiles` と `interactables.tiles` を導入し、範囲判定に変更した。
 - アクションボタンは `updateActionButtonLabel()` で毎移動・向き変更・会話開閉時に更新する。
+
+
+## v0.7 修正メモ
+
+- 小通知は `setTimeout` 自動消去をやめ、`closeNotice()` をタップ/決定ボタンから呼ぶ方式に変更。
+- 次ステップとして、`state.scene` を導入し、village / interior を切り替え可能にした。
+- 仮内観はコード描画。正式タイル化は次段階。

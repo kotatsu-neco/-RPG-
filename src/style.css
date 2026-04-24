@@ -332,13 +332,19 @@ body.dialogue-open #dialog-tap-catcher {
   right: 8%;
   top: 56px;
   z-index: 120;
-  pointer-events: none;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
 }
 
 #notice-window {
-  padding: 10px 14px;
+  display: block;
+  padding: 10px 14px 18px;
   color: #f5efe2;
-  background: rgba(34, 41, 56, 0.94);
+  background: rgba(34, 41, 56, 0.96);
   border: 2px solid #c6a35f;
   box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
   font-size: 14px;
@@ -359,4 +365,17 @@ body.event-locked #touch-controls,
 
 #action-button.action-enter {
   background: rgba(198, 163, 95, 0.96);
+}
+
+#notice-window::after {
+  content: "タップで閉じる";
+  position: absolute;
+  right: 14px;
+  bottom: 5px;
+  font-size: 10px;
+  opacity: 0.78;
+}
+
+#action-button.action-exit {
+  background: rgba(190, 184, 174, 0.96);
 }

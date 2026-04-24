@@ -1,5 +1,5 @@
 {
-  "name": "matsuyoi_one_screen_proto_v0_6_action_label_fix",
+  "name": "matsuyoi_one_screen_proto_v0_7_interior_transition",
   "type": "static_browser_prototype",
   "entry": "index.html",
   "requires_server_for_fetch": true,
@@ -16,7 +16,11 @@
     "notice window layer",
     "fixed reachable entrance notice trigger",
     "contextual action button labels",
-    "interactables definition in map JSON"
+    "interactables definition in map JSON",
+    "tap-to-dismiss notice",
+    "Rulgar house interior prototype",
+    "scene transition village/interior",
+    "contextual action label enter/exit"
   ],
-  "version": "0.6"
+  "version": "0.7"
 }

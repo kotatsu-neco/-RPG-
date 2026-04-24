@@ -28,6 +28,7 @@ const state = {
   activeNpc: null,
   noticeTimer: null,
   lastNoticeId: null,
+  scene: "village",
   keys: new Set(),
   images: {},
 };
@@ -135,6 +136,16 @@ function bindInput() {
     event.preventDefault();
     advanceDialogue();
   }, { passive: false });
+
+  noticeLayer.addEventListener("click", (event) => {
+    event.preventDefault();
+    closeNotice();
+  });
+
+  noticeLayer.addEventListener("touchend", (event) => {
+    event.preventDefault();
+    closeNotice();
+  }, { passive: false });
 }
 
 function keyToDirection(key) {
@@ -188,13 +199,20 @@ function movePlayer(dir) {
 
 function isBlocked(x, y) {
   if (x < 0 || y < 0 || x >= COLS || y >= ROWS) return true;
+
+  if (state.scene === "interior") {
+    const interiorBlocks = state.map.scenes?.interior?.blockedTiles || [];
+    return interiorBlocks.some(([bx, by]) => bx === x && by === y);
+  }
+
   return state.map.blockedTiles.some(([bx, by]) => bx === x && by === y);
 }
 
 
 
 function checkTileTriggers() {
-  if (!state.map.triggers || state.dialogueOpen) return;
+  if (state.scene !== "village") return;
+  if (!state.map.triggers || state.dialogueOpen || state.noticeTimer) return;
 
   const trigger = state.map.triggers.find((item) => {
     if (Array.isArray(item.tiles)) {
@@ -208,13 +226,14 @@ function checkTileTriggers() {
     return;
   }
 
-  if (trigger.id === state.lastNoticeId && state.noticeTimer) return;
+  if (trigger.id === state.lastNoticeId) return;
   state.lastNoticeId = trigger.id;
 
   if (trigger.type === "notice") {
     showNotice(trigger.text);
   }
 }
+
 
 
 
@@ -226,15 +245,48 @@ function showNotice(text) {
   noticeWindow.textContent = text;
   noticeLayer.classList.remove("hidden");
   document.body.classList.add("event-locked");
+  state.noticeTimer = true;
   updateActionButtonLabel();
-
-  state.noticeTimer = setTimeout(() => {
-    noticeLayer.classList.add("hidden");
-    document.body.classList.remove("event-locked");
-    state.noticeTimer = null;
-    updateActionButtonLabel();
-  }, 2200);
 }
+
+function closeNotice() {
+  if (!state.noticeTimer) return;
+
+  noticeLayer.classList.add("hidden");
+  document.body.classList.remove("event-locked");
+  state.noticeTimer = null;
+  updateActionButtonLabel();
+}
+
+function transitionScene(targetScene) {
+  closeNotice();
+
+  if (targetScene === "interior") {
+    state.scene = "interior";
+    const start = state.map.scenes?.interior?.playerStart || { x: 9, y: 23, facing: "up" };
+    const landStart = state.map.scenes?.interior?.landStart || { x: 8, y: 24 };
+    state.player.x = start.x;
+    state.player.y = start.y;
+    state.player.facing = start.facing || "up";
+    state.land.x = landStart.x;
+    state.land.y = landStart.y;
+    showNotice("ルルガー家に入った。仮内観マップです。出口へ戻ると外に出られる。");
+    updateActionButtonLabel();
+    return;
+  }
+
+  state.scene = "village";
+  const ret = state.map.scenes?.village?.playerReturn || { x: 9, y: 8, facing: "down" };
+  const landRet = state.map.scenes?.village?.landReturn || { x: 8, y: 9 };
+  state.player.x = ret.x;
+  state.player.y = ret.y;
+  state.player.facing = ret.facing || "down";
+  state.land.x = landRet.x;
+  state.land.y = landRet.y;
+  showNotice("外へ出た。");
+  updateActionButtonLabel();
+}
+
 
 
 
@@ -250,7 +302,11 @@ function tileMatches(tileList, x, y) {
 function getFacingInteractable() {
   if (!state.map.interactables) return null;
   const target = getFacingTile();
+
   return state.map.interactables.find((item) => {
+    const itemScene = item.scene || "village";
+    if (itemScene !== state.scene) return false;
+
     return tileMatches(item.tiles, target.x, target.y) || tileMatches(item.tiles, state.player.x, state.player.y);
   }) || null;
 }
@@ -262,8 +318,14 @@ function updateActionButtonLabel() {
     return;
   }
 
+  if (state.noticeTimer) {
+    actionButton.textContent = "閉じる";
+    actionButton.className = "";
+    return;
+  }
+
   const npc = getAdjacentNpc();
-  if (npc) {
+  if (npc && state.scene === "village") {
     actionButton.textContent = "話す";
     actionButton.className = "action-talk";
     return;
@@ -272,7 +334,7 @@ function updateActionButtonLabel() {
   const interactable = getFacingInteractable();
   if (interactable) {
     actionButton.textContent = interactable.actionLabel || "調べる";
-    actionButton.className = "action-enter";
+    actionButton.className = interactable.actionLabel === "出る" ? "action-exit" : "action-enter";
     return;
   }
 
@@ -282,11 +344,7 @@ function updateActionButtonLabel() {
 
 function interact() {
   if (state.noticeTimer) {
-    clearTimeout(state.noticeTimer);
-    noticeLayer.classList.add("hidden");
-    document.body.classList.remove("event-locked");
-    state.noticeTimer = null;
-    updateActionButtonLabel();
+    closeNotice();
     return;
   }
 
@@ -296,13 +354,17 @@ function interact() {
   }
 
   const npc = getAdjacentNpc();
-  if (npc) {
+  if (npc && state.scene === "village") {
     openDialogue(npc);
     return;
   }
 
   const interactable = getFacingInteractable();
   if (interactable) {
+    if (interactable.kind === "sceneTransition") {
+      transitionScene(interactable.targetScene);
+      return;
+    }
     showNotice(interactable.text || `${interactable.name}を調べた。`);
     return;
   }
@@ -400,6 +462,15 @@ function draw() {
 function drawBaseMap() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  if (state.scene === "interior") {
+    drawInteriorMap();
+    return;
+  }
+
+  drawVillageMap();
+}
+
+function drawVillageMap() {
   for (let y = 0; y < ROWS; y++) {
     for (let x = 0; x < COLS; x++) {
       const px = x * TILE;
@@ -424,7 +495,6 @@ function drawBaseMap() {
     }
   }
 
-  // 石畳っぽい家前導線
   for (let y = 8; y <= 12; y++) {
     for (let x = 8; x <= 11; x++) {
       ctx.fillStyle = palette.stone;
@@ -435,7 +505,54 @@ function drawBaseMap() {
   }
 }
 
+function drawInteriorMap() {
+  ctx.fillStyle = "#2d3034";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  for (let y = 5; y <= 26; y++) {
+    for (let x = 3; x <= 16; x++) {
+      const px = x * TILE;
+      const py = y * TILE;
+      ctx.fillStyle = (x + y) % 2 === 0 ? "#6f5940" : "#665039";
+      ctx.fillRect(px, py, TILE, TILE);
+      ctx.strokeStyle = "rgba(34, 24, 18, 0.25)";
+      ctx.strokeRect(px, py, TILE, TILE);
+    }
+  }
+
+  // 壁
+  ctx.fillStyle = "#7a6f63";
+  ctx.fillRect(3 * TILE, 5 * TILE, 14 * TILE, 3 * TILE);
+  ctx.strokeStyle = "#4f5964";
+  ctx.strokeRect(3 * TILE, 5 * TILE, 14 * TILE, 3 * TILE);
+
+  // テーブル
+  ctx.fillStyle = palette.wood;
+  ctx.fillRect(8 * TILE, 17 * TILE, 4 * TILE, TILE);
+  ctx.fillStyle = "#7b4a2f";
+  ctx.fillRect(8 * TILE + 2, 17 * TILE + 2, 4 * TILE - 4, TILE - 4);
+
+  // 棚
+  ctx.fillStyle = "#5a3e2b";
+  ctx.fillRect(5 * TILE, 9 * TILE, 3 * TILE, 2 * TILE);
+  ctx.fillRect(12 * TILE, 9 * TILE, 3 * TILE, 2 * TILE);
+
+  // かまど・作業台
+  ctx.fillStyle = "#6e7681";
+  ctx.fillRect(4 * TILE, 15 * TILE, 3 * TILE, TILE);
+  ctx.fillStyle = "#4a4a4a";
+  ctx.fillRect(13 * TILE, 15 * TILE, 3 * TILE, TILE);
+
+  // 出口
+  ctx.fillStyle = "rgba(198, 163, 95, 0.26)";
+  ctx.fillRect(9 * TILE, 25 * TILE, TILE * 2, TILE * 2);
+  ctx.strokeStyle = "rgba(198, 163, 95, 0.75)";
+  ctx.strokeRect(9 * TILE + 1, 25 * TILE + 1, TILE * 2 - 2, TILE * 2 - 2);
+}
+
 function drawObjects() {
+  if (state.scene === "interior") return;
+
   // ルルガー家 外観仮描画
   drawHouse(4, 1, 12, 6);
 
@@ -471,7 +588,7 @@ function drawObjects() {
   ctx.fillStyle = "#d8d5cf";
   ctx.fillRect(9 * TILE, 6 * TILE, TILE * 2, 2);
 
-  // v0.6 entrance guide: 次工程確認用の入口判定エリア
+  // v0.7 entrance guide: 次工程確認用の入口判定エリア
   ctx.fillStyle = "rgba(198, 163, 95, 0.22)";
   ctx.fillRect(9 * TILE, 7 * TILE, TILE * 2, TILE);
   ctx.strokeStyle = "rgba(198, 163, 95, 0.75)";
@@ -510,7 +627,7 @@ function drawHouse(x, y, w, h) {
 function drawCharacters() {
   const drawable = [
     { type: "land", x: state.land.x, y: state.land.y, image: state.images.land[state.land.frame] },
-    ...state.map.npcs.map((npc) => ({ type: "npc", x: npc.x, y: npc.y, image: state.images[npc.id] })),
+    ...(state.scene === "village" ? state.map.npcs.map((npc) => ({ type: "npc", x: npc.x, y: npc.y, image: state.images[npc.id] })) : []),
     { type: "player", x: state.player.x, y: state.player.y, image: state.images.colpan[state.player.step] },
   ];
 
