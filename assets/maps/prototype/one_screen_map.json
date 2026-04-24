@@ -1126,20 +1126,70 @@
   ],
   "triggers": [
     {
-      "id": "rulgar_house_entrance",
+      "id": "rulgar_house_front_notice",
       "type": "notice",
-      "x": 9,
-      "y": 7,
-      "text": "ルルガー家の入口だ。次の段階では、ここから屋内へ入れるようにする。",
+      "tiles": [
+        [
+          8,
+          8
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          8
+        ],
+        [
+          11,
+          8
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          10,
+          9
+        ],
+        [
+          11,
+          9
+        ]
+      ],
+      "text": "ルルガー家の前まで来た。",
       "once": false
-    },
+    }
+  ],
+  "interactables": [
     {
-      "id": "rulgar_house_entrance_2",
-      "type": "notice",
-      "x": 10,
-      "y": 7,
-      "text": "ルルガー家の入口だ。次の段階では、ここから屋内へ入れるようにする。",
-      "once": false
+      "id": "rulgar_house_entrance",
+      "name": "ルルガー家",
+      "actionLabel": "入る",
+      "tiles": [
+        [
+          9,
+          7
+        ],
+        [
+          10,
+          7
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          8
+        ]
+      ],
+      "text": "ルルガー家の入口だ。次の段階では、ここから屋内へ入れるようにする。"
     }
   ]
 }

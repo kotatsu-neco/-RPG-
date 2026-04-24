@@ -27,6 +27,7 @@ const state = {
   dialogueIndex: 0,
   activeNpc: null,
   noticeTimer: null,
+  lastNoticeId: null,
   keys: new Set(),
   images: {},
 };
@@ -84,6 +85,7 @@ async function boot() {
 
   bindInput();
   syncOverlayState();
+  updateActionButtonLabel();
   requestAnimationFrame(loop);
 }
 
@@ -163,7 +165,10 @@ function movePlayer(dir) {
   const nextX = state.player.x + delta[0];
   const nextY = state.player.y + delta[1];
 
-  if (isBlocked(nextX, nextY)) return;
+  if (isBlocked(nextX, nextY)) {
+    updateActionButtonLabel();
+    return;
+  }
 
   const oldX = state.player.x;
   const oldY = state.player.y;
@@ -178,6 +183,7 @@ function movePlayer(dir) {
   state.land.frame = (state.land.frame + 1) % 4;
 
   checkTileTriggers();
+  updateActionButtonLabel();
 }
 
 function isBlocked(x, y) {
@@ -186,19 +192,31 @@ function isBlocked(x, y) {
 }
 
 
+
 function checkTileTriggers() {
   if (!state.map.triggers || state.dialogueOpen) return;
 
   const trigger = state.map.triggers.find((item) => {
+    if (Array.isArray(item.tiles)) {
+      return item.tiles.some(([tx, ty]) => tx === state.player.x && ty === state.player.y);
+    }
     return item.x === state.player.x && item.y === state.player.y;
   });
 
-  if (!trigger) return;
+  if (!trigger) {
+    state.lastNoticeId = null;
+    return;
+  }
+
+  if (trigger.id === state.lastNoticeId && state.noticeTimer) return;
+  state.lastNoticeId = trigger.id;
 
   if (trigger.type === "notice") {
     showNotice(trigger.text);
   }
 }
+
+
 
 function showNotice(text) {
   if (state.noticeTimer) {
@@ -208,12 +226,58 @@ function showNotice(text) {
   noticeWindow.textContent = text;
   noticeLayer.classList.remove("hidden");
   document.body.classList.add("event-locked");
+  updateActionButtonLabel();
 
   state.noticeTimer = setTimeout(() => {
     noticeLayer.classList.add("hidden");
     document.body.classList.remove("event-locked");
     state.noticeTimer = null;
-  }, 1800);
+    updateActionButtonLabel();
+  }, 2200);
+}
+
+
+
+function getAdjacentNpc() {
+  const target = getFacingTile();
+  return state.map.npcs.find((n) => n.x === target.x && n.y === target.y) || null;
+}
+
+function tileMatches(tileList, x, y) {
+  return Array.isArray(tileList) && tileList.some(([tx, ty]) => tx === x && ty === y);
+}
+
+function getFacingInteractable() {
+  if (!state.map.interactables) return null;
+  const target = getFacingTile();
+  return state.map.interactables.find((item) => {
+    return tileMatches(item.tiles, target.x, target.y) || tileMatches(item.tiles, state.player.x, state.player.y);
+  }) || null;
+}
+
+function updateActionButtonLabel() {
+  if (state.dialogueOpen) {
+    actionButton.textContent = "送る";
+    actionButton.className = "";
+    return;
+  }
+
+  const npc = getAdjacentNpc();
+  if (npc) {
+    actionButton.textContent = "話す";
+    actionButton.className = "action-talk";
+    return;
+  }
+
+  const interactable = getFacingInteractable();
+  if (interactable) {
+    actionButton.textContent = interactable.actionLabel || "調べる";
+    actionButton.className = "action-enter";
+    return;
+  }
+
+  actionButton.textContent = "決定";
+  actionButton.className = "";
 }
 
 function interact() {
@@ -222,6 +286,7 @@ function interact() {
     noticeLayer.classList.add("hidden");
     document.body.classList.remove("event-locked");
     state.noticeTimer = null;
+    updateActionButtonLabel();
     return;
   }
 
@@ -230,10 +295,16 @@ function interact() {
     return;
   }
 
-  const target = getFacingTile();
-  const npc = state.map.npcs.find((n) => n.x === target.x && n.y === target.y);
+  const npc = getAdjacentNpc();
   if (npc) {
     openDialogue(npc);
+    return;
+  }
+
+  const interactable = getFacingInteractable();
+  if (interactable) {
+    showNotice(interactable.text || `${interactable.name}を調べた。`);
+    return;
   }
 }
 
@@ -272,6 +343,7 @@ function openDialogue(npc) {
   choiceBox.classList.add("hidden");
   dialogLayer.classList.remove("hidden");
   syncOverlayState();
+  updateActionButtonLabel();
 }
 
 function advanceDialogue() {
@@ -298,6 +370,7 @@ function advanceDialogue() {
     });
     choiceBox.classList.remove("hidden");
     dialogText.textContent = "どうする？";
+    actionButton.textContent = "選ぶ";
     return;
   }
 
@@ -310,6 +383,7 @@ function closeDialogue() {
   state.activeNpc = null;
   dialogLayer.classList.add("hidden");
   syncOverlayState();
+  updateActionButtonLabel();
 }
 
 function loop() {
@@ -397,7 +471,7 @@ function drawObjects() {
   ctx.fillStyle = "#d8d5cf";
   ctx.fillRect(9 * TILE, 6 * TILE, TILE * 2, 2);
 
-  // v0.5 entrance guide: 次工程確認用の入口判定エリア
+  // v0.6 entrance guide: 次工程確認用の入口判定エリア
   ctx.fillStyle = "rgba(198, 163, 95, 0.22)";
   ctx.fillRect(9 * TILE, 7 * TILE, TILE * 2, TILE);
   ctx.strokeStyle = "rgba(198, 163, 95, 0.75)";

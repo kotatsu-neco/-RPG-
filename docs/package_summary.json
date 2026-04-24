@@ -1,5 +1,5 @@
 {
-  "name": "matsuyoi_one_screen_proto_v0_5_entrance_event",
+  "name": "matsuyoi_one_screen_proto_v0_6_action_label_fix",
   "type": "static_browser_prototype",
   "entry": "index.html",
   "requires_server_for_fetch": true,
@@ -13,7 +13,10 @@
     "dialogue window tap-to-advance on iPhone Safari",
     "wide lower-screen dialogue tap area",
     "Rulgar house entrance trigger",
-    "notice window layer"
+    "notice window layer",
+    "fixed reachable entrance notice trigger",
+    "contextual action button labels",
+    "interactables definition in map JSON"
   ],
-  "version": "0.5"
+  "version": "0.6"
 }

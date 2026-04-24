@@ -331,7 +331,7 @@ body.dialogue-open #dialog-tap-catcher {
   left: 8%;
   right: 8%;
   top: 56px;
-  z-index: 95;
+  z-index: 120;
   pointer-events: none;
 }
 
@@ -352,3 +352,11 @@ body.event-locked #touch-controls,
   display: none !important;
 }
 
+
+#action-button.action-talk {
+  background: rgba(207, 195, 164, 0.96);
+}
+
+#action-button.action-enter {
+  background: rgba(198, 163, 95, 0.96);
+}
