@@ -2,56 +2,45 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <title>待宵物語</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>待宵物語 一画面プロトタイプ v0.1</title>
+  <link rel="stylesheet" href="src/style.css">
 </head>
 <body>
-  <div id="app">
-    <div id="titleScreen" class="screen active">
-      <div class="titlePanel">
-        <div class="eyebrow">スマホ向けブラウザRPG 試作実装版</div>
-        <h1>待宵物語</h1>
-        <p>ガーガル村の導入を、実装優先で安定化した初回再構築版です。</p>
-        <button id="newGameBtn">はじめから</button>
-        <button id="continueBtn">つづきから</button>
-        <div class="smallNote">
-          下の十字ボタンで移動できます。<br>
-          会話中は操作がロックされ、十字キーがグレーアウトします。<br>
-          現在は「自宅開始 → 外へ出る → 村を歩く → ルルガー家へ入る」までを実装しています。
-        </div>
-      </div>
-    </div>
+  <main id="app">
+    <section id="game-shell" aria-label="待宵物語 一画面プロトタイプ">
+      <canvas id="game-canvas" width="320" height="480" aria-label="ゲーム画面"></canvas>
 
-    <div id="gameScreen" class="screen">
-      <div id="hudTop">
-        <div id="objectiveBox"></div>
-        <button id="resetBtn" class="hudBtn">タイトルへ</button>
-      </div>
-
-      <div id="viewportWrap">
-        <canvas id="gameCanvas" width="720" height="540"></canvas>
-        <button id="interactBtn">調べる</button>
-        <div id="dialogueBox" class="hidden">
-          <div id="dialogueName"></div>
-          <div id="dialogueText"></div>
-          <button id="nextDialogueBtn">つぎへ</button>
-        </div>
-      </div>
-
-      <div id="controls">
-        <div class="dpad">
-          <button data-dir="up">▲</button>
-          <div class="midrow">
-            <button data-dir="left">◀</button>
-            <button data-dir="down">▼</button>
-            <button data-dir="right">▶</button>
+      <div id="dialog-layer" class="hidden" aria-live="polite">
+        <div id="nameplate">ルルガー</div>
+        <div id="dialog-window">
+          <p id="dialog-text"></p>
+          <div id="choice-box" class="hidden">
+            <button class="choice selected" type="button">わかりました</button>
+            <button class="choice" type="button">もう一度聞く</button>
           </div>
+          <span id="next-marker">▼</span>
         </div>
       </div>
-    </div>
-  </div>
 
-  <script src="game.js"></script>
+      <nav id="touch-controls" aria-label="移動操作">
+        <div class="dpad">
+          <button data-dir="up" aria-label="上">▲</button>
+          <button data-dir="left" aria-label="左">◀</button>
+          <button data-dir="right" aria-label="右">▶</button>
+          <button data-dir="down" aria-label="下">▼</button>
+        </div>
+        <button id="action-button" aria-label="決定">決定</button>
+      </nav>
+
+      <aside id="debug-panel">
+        <strong>v0.1</strong>
+        <span>矢印キー / WASD：移動</span>
+        <span>Enter / Space：決定</span>
+      </aside>
+    </section>
+  </main>
+
+  <script type="module" src="src/game.js"></script>
 </body>
 </html>
