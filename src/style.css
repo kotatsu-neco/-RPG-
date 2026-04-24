@@ -1,0 +1,251 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-page: #1f2429;
+  --frame: #4a4a4a;
+  --paper: #d8d5cf;
+  --ink: #222222;
+  --dialog-bg: #222938;
+  --dialog-border: #c6a35f;
+  --choice-bg: #beb8ae;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: var(--bg-page);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+  color: var(--ink);
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+#app {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: env(safe-area-inset-top) 12px env(safe-area-inset-bottom);
+}
+
+#game-shell {
+  position: relative;
+  width: min(100vw, 390px);
+  aspect-ratio: 2 / 3;
+  max-height: 100dvh;
+  border: 2px solid #3a3a3a;
+  background: #14171b;
+  overflow: hidden;
+  image-rendering: pixelated;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+#game-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+  background: #5e7a4e;
+}
+
+#dialog-layer {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: 118px;
+  z-index: 20;
+  pointer-events: none;
+}
+
+#nameplate {
+  display: inline-block;
+  min-width: 88px;
+  padding: 5px 12px;
+  margin-left: 8px;
+  margin-bottom: -1px;
+  color: #f5efe2;
+  background: var(--dialog-bg);
+  border: 2px solid var(--dialog-border);
+  border-bottom: none;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+#dialog-window {
+  position: relative;
+  min-height: 88px;
+  padding: 14px 16px 20px;
+  color: #f5efe2;
+  background: var(--dialog-bg);
+  border: 2px solid var(--dialog-border);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+#dialog-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.65;
+  letter-spacing: 0.02em;
+}
+
+#next-marker {
+  position: absolute;
+  right: 12px;
+  bottom: 6px;
+  font-size: 12px;
+  color: #f5efe2;
+  animation: blink 1s steps(2, end) infinite;
+}
+
+#choice-box {
+  margin-top: 8px;
+  display: grid;
+  gap: 6px;
+}
+
+.choice {
+  pointer-events: auto;
+  padding: 7px 10px;
+  color: var(--ink);
+  background: #d8d5cf;
+  border: 1px solid #4a4a4a;
+  font-size: 14px;
+  text-align: left;
+}
+
+.choice.selected::before {
+  content: "▶ ";
+}
+
+.hidden {
+  display: none !important;
+}
+
+#touch-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 14px;
+  z-index: 30;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 18px;
+  pointer-events: none;
+}
+
+.dpad {
+  position: relative;
+  width: 126px;
+  height: 126px;
+  pointer-events: auto;
+}
+
+.dpad button,
+#action-button {
+  position: absolute;
+  border: 2px solid #4a4a4a;
+  background: rgba(216, 213, 207, 0.92);
+  color: #222;
+  font-weight: 700;
+  border-radius: 8px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25);
+}
+
+.dpad button:active,
+#action-button:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+
+.dpad [data-dir="up"] {
+  left: 42px;
+  top: 0;
+  width: 42px;
+  height: 42px;
+}
+
+.dpad [data-dir="left"] {
+  left: 0;
+  top: 42px;
+  width: 42px;
+  height: 42px;
+}
+
+.dpad [data-dir="right"] {
+  right: 0;
+  top: 42px;
+  width: 42px;
+  height: 42px;
+}
+
+.dpad [data-dir="down"] {
+  left: 42px;
+  bottom: 0;
+  width: 42px;
+  height: 42px;
+}
+
+#action-button {
+  position: relative;
+  width: 82px;
+  height: 82px;
+  pointer-events: auto;
+  border-radius: 50%;
+  font-size: 15px;
+}
+
+#debug-panel {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  z-index: 10;
+  display: grid;
+  gap: 2px;
+  padding: 6px 8px;
+  color: #f5efe2;
+  background: rgba(34, 41, 56, 0.72);
+  border: 1px solid rgba(198, 163, 95, 0.8);
+  font-size: 10px;
+  line-height: 1.35;
+  pointer-events: none;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (max-height: 680px) {
+  #dialog-layer {
+    bottom: 98px;
+  }
+
+  #touch-controls {
+    bottom: 8px;
+  }
+
+  .dpad {
+    width: 108px;
+    height: 108px;
+  }
+
+  .dpad button {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .dpad [data-dir="up"],
+  .dpad [data-dir="down"] {
+    left: 36px;
+  }
+
+  #action-button {
+    width: 70px;
+    height: 70px;
+  }
+}
