@@ -434,3 +434,44 @@ body.choice-open .dpad [data-dir="right"] {
   background: var(--choice-bg);
   font-weight: 700;
 }
+
+
+/* v0.9: 操作パネル初期表示を強制復旧。
+   原則: 通常時は表示、会話本文送り中と通知中だけ非表示、選択肢中は表示。 */
+#touch-controls {
+  display: flex !important;
+  z-index: 120;
+}
+
+body.dialogue-open:not(.choice-open):not(.notice-open) #touch-controls {
+  display: none !important;
+}
+
+body.notice-open #touch-controls {
+  display: none !important;
+}
+
+body.choice-open #touch-controls {
+  display: flex !important;
+  z-index: 140;
+}
+
+#dialog-tap-catcher {
+  display: none !important;
+}
+
+body.dialogue-open:not(.choice-open) #dialog-tap-catcher,
+body.notice-open #dialog-tap-catcher {
+  display: block !important;
+}
+
+body.choice-open #dialog-tap-catcher {
+  display: none !important;
+}
+
+#notice-layer.hidden,
+#dialog-layer.hidden,
+#dialog-tap-catcher.hidden {
+  display: none !important;
+}
+

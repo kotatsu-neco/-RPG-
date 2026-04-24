@@ -1,5 +1,5 @@
 {
-  "name": "matsuyoi_one_screen_proto_v0_8_controls_fix",
+  "name": "matsuyoi_one_screen_proto_v0_9_controls_recovery",
   "type": "static_browser_prototype",
   "entry": "index.html",
   "requires_server_for_fetch": true,
@@ -23,7 +23,10 @@
     "contextual action label enter/exit",
     "wide lower tap area closes notices",
     "choice selection via dpad and action button",
-    "Safari long-press text selection suppression"
+    "Safari long-press text selection suppression",
+    "restored initial touch controls",
+    "stable overlay state management",
+    "notice/dialogue/choice control separation"
   ],
-  "version": "0.8"
+  "version": "0.9"
 }

@@ -72,3 +72,10 @@
 - `choice-open` 状態を導入し、選択肢表示中のみ操作キーを再表示。
 - `selectedChoiceIndex` を導入し、上下操作で選択肢を移動できるようにした。
 - Safari長押し選択対策として `user-select: none` / `-webkit-touch-callout: none` を全体に適用。
+
+
+## v0.9 修正メモ
+
+- v0.8ではCSSの `#touch-controls.hidden` と body状態クラスの制御が衝突し、初期状態でも操作キーが消える可能性があった。
+- v0.9では `touchControls.classList.remove("hidden")` を基本とし、表示/非表示は body状態クラスとCSSの最終ルールで制御する。
+- JSも正規化し、通知・会話・選択肢・入退室の状態を明示的に分けた。
