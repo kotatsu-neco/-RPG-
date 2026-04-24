@@ -6,6 +6,7 @@ import { InteractionManager } from "./InteractionManager.js";
 import { DialogueManager } from "./DialogueManager.js";
 import { Renderer } from "./Renderer.js";
 import { directionDelta, ENGINE_VERSION } from "./constants.js";
+import { LayoutManager } from "./LayoutManager.js";
 
 export class Game {
   constructor({ canvas, dataPath, version = ENGINE_VERSION }) {
@@ -13,6 +14,7 @@ export class Game {
     this.dataPath = dataPath;
     this.assetLoader = new AssetLoader({ version });
     this.ui = new UIManager();
+    this.layoutManager = new LayoutManager();
 
     this.actors = {
       player: { x: 0, y: 0, facing: "down", step: 0 },
@@ -28,7 +30,8 @@ export class Game {
   }
 
   async boot() {
-    this.ui.setDebugVersion("v2.0 Engine");
+    this.ui.setDebugVersion("v2.1 Engine");
+    this.layoutManager.bind();
 
     this.gameData = await this.assetLoader.loadJSON(this.dataPath);
     this.sceneManager = new SceneManager({ gameData: this.gameData });
@@ -276,7 +279,7 @@ export class Game {
       return;
     }
 
-    this.ui.setActionButton("決定");
+    this.ui.setActionButton("…", "action-idle");
   }
 
   loop() {

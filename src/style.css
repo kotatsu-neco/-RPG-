@@ -34,8 +34,8 @@ body {
 
 #app {
   width: 100vw;
-  height: 100svh;
-  min-height: 100svh;
+  height: var(--app-height, 100svh);
+  min-height: var(--app-height, 100svh);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -47,7 +47,7 @@ body {
   position: relative;
   width: min(100vw, 390px);
   height: 100%;
-  max-height: 100svh;
+  max-height: var(--app-height, 100svh);
   overflow: hidden;
   background: #14171b;
   image-rendering: pixelated;
@@ -58,7 +58,7 @@ body {
   left: 50%;
   top: 4px;
   transform: translateX(-50%);
-  width: min(100%, calc((100svh - 156px) * 2 / 3));
+  width: min(100%, calc((var(--app-height, 100svh) - 156px) * 2 / 3));
   height: auto;
   aspect-ratio: 2 / 3;
   display: block;
@@ -337,7 +337,7 @@ body.choice-open .dpad [data-dir="right"] {
 @media (max-height: 680px) {
   #game-canvas {
     top: 4px;
-    width: min(100%, calc((100svh - 140px) * 2 / 3));
+    width: min(100%, calc((var(--app-height, 100svh) - 140px) * 2 / 3));
   }
 
   #dialog-layer {
@@ -376,4 +376,16 @@ body.choice-open .dpad [data-dir="right"] {
     height: 76px;
     font-size: 16px;
   }
+}
+
+
+/* v2.1: アクション対象なし */
+#action-button.action-idle {
+  opacity: 0.48;
+  background: rgba(216, 213, 207, 0.58);
+}
+
+#action-button.action-idle:active {
+  transform: none;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25);
 }

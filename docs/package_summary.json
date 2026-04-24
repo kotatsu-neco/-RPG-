@@ -1,6 +1,6 @@
 {
-  "name": "matsuyoi_rpg_engine_v2_0",
-  "version": "2.0",
+  "name": "matsuyoi_rpg_engine_v2_1",
+  "version": "2.1",
   "target": "iPhone SE 2nd generation / Safari",
   "architecture": "engine/game separated",
   "reusable_parts": [
@@ -18,5 +18,10 @@
     "prototype renderer",
     "Matsuyoi scene data",
     "temporary character assets"
+  ],
+  "features": [
+    "LayoutManager for iPhone Safari viewport recalculation",
+    "idle action button state",
+    "contextual action button without default Decision label"
   ]
 }
