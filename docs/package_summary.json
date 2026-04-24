@@ -1,6 +1,6 @@
 {
-  "name": "matsuyoi_rpg_engine_v2_6_redownload",
-  "version": "2.6",
+  "name": "matsuyoi_rpg_engine_v2_7",
+  "version": "2.7",
   "target": "iPhone SE 2nd generation / Safari",
   "architecture": "engine/game separated",
   "reusable_parts": [
@@ -42,6 +42,9 @@
     "action button pointerdown support",
     "fixed missing Game.handleChoiceAction",
     "safe DialogueManager.confirmChoice",
-    "touchend action button handling without double fire"
+    "touchend action button handling without double fire",
+    "self-contained restart choice in DialogueManager",
+    "ensured Game.handleChoiceAction exists",
+    "fixed repeat dialogue choice"
   ]
 }

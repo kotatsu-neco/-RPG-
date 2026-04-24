@@ -97,6 +97,12 @@ export class DialogueManager {
     const choice = this.activeDialogue.choices[this.selectedChoiceIndex];
     if (!choice) return false;
 
+    // restart は会話管理そのものの操作なので、Game側の接続に依存させない。
+    if (choice.action === "restart") {
+      this.restart();
+      return true;
+    }
+
     let handled = false;
     if (choice.action && this.onChoiceAction) {
       handled = this.onChoiceAction(choice, this);

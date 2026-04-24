@@ -137,3 +137,10 @@ CSSの `100svh` だけに依存せず、JS側で `--app-height` を更新し、`
 ### Choice Layout
 
 `body.choice-open #dialog-layer` を上方向へ移動し、操作キーと会話ウィンドウの重なりを避ける。
+
+
+## v2.7 Choice Restart 修正
+
+`restart` は会話管理そのものの操作であるため、`DialogueManager` 側で直接処理する仕様に変更。
+
+`notice` や `transition` など、ゲーム世界側の処理が必要な action は引き続き `Game.handleChoiceAction()` に委譲する。

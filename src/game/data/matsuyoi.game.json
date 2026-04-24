@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "待宵物語",
-    "engineVersion": "2.6",
+    "engineVersion": "2.7",
     "description": "スマホ向けレトロRPG汎用基盤上の待宵物語プロトタイプ"
   },
   "canvas": {

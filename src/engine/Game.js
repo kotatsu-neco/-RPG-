@@ -31,7 +31,7 @@ export class Game {
   }
 
   async boot() {
-    this.ui.setDebugVersion("v2.6 Engine");
+    this.ui.setDebugVersion("v2.7 Engine");
     this.layoutManager.bind();
 
     this.gameData = await this.assetLoader.loadJSON(this.dataPath);
@@ -194,6 +194,31 @@ export class Game {
     if (interactable) {
       this.handleInteractable(interactable);
     }
+  }
+
+  handleChoiceAction(choice, dialogueManager) {
+    if (!choice || !choice.action) return false;
+
+    if (choice.action === "restart") {
+      dialogueManager.restart();
+      this.syncUI();
+      this.updateActionButtonLabel();
+      return true;
+    }
+
+    if (choice.action === "notice") {
+      dialogueManager.close();
+      this.showNotice(choice.text || "");
+      return true;
+    }
+
+    if (choice.action === "transition") {
+      dialogueManager.close();
+      this.transitionScene(choice.targetScene);
+      return true;
+    }
+
+    return false;
   }
 
   handleInteractable(interactable) {
