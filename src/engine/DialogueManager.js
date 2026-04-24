@@ -97,7 +97,11 @@ export class DialogueManager {
     const choice = this.activeDialogue.choices[this.selectedChoiceIndex];
     if (!choice) return false;
 
-    const handled = this.onChoiceAction?.(choice, this);
+    let handled = false;
+    if (choice.action && this.onChoiceAction) {
+      handled = this.onChoiceAction(choice, this);
+    }
+
     if (handled) return true;
 
     if (choice.close !== false) {

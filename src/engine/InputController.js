@@ -18,13 +18,24 @@ export class InputController {
     });
 
     const actionButton = document.getElementById("action-button");
-    const handleActionButton = (event) => {
+    let suppressNextClick = false;
+
+    actionButton.addEventListener("touchend", (event) => {
       event.preventDefault();
       event.stopPropagation();
+      suppressNextClick = true;
       this.onAction();
-    };
-    actionButton.addEventListener("click", handleActionButton);
-    actionButton.addEventListener("pointerdown", handleActionButton);
+      setTimeout(() => {
+        suppressNextClick = false;
+      }, 300);
+    }, { passive: false });
+
+    actionButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (suppressNextClick) return;
+      this.onAction();
+    });
 
     const wideTap = document.getElementById("wide-tap-catcher");
     wideTap.addEventListener("click", (event) => {

@@ -1,6 +1,6 @@
 {
-  "name": "matsuyoi_rpg_engine_v2_5",
-  "version": "2.5",
+  "name": "matsuyoi_rpg_engine_v2_6_redownload",
+  "version": "2.6",
   "target": "iPhone SE 2nd generation / Safari",
   "architecture": "engine/game separated",
   "reusable_parts": [
@@ -39,6 +39,9 @@
     "top-anchored menu window",
     "fixed action button choice confirmation",
     "choice-open dialog position adjustment",
-    "action button pointerdown support"
+    "action button pointerdown support",
+    "fixed missing Game.handleChoiceAction",
+    "safe DialogueManager.confirmChoice",
+    "touchend action button handling without double fire"
   ]
 }

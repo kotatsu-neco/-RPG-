@@ -31,7 +31,7 @@ export class Game {
   }
 
   async boot() {
-    this.ui.setDebugVersion("v2.5 Engine");
+    this.ui.setDebugVersion("v2.6 Engine");
     this.layoutManager.bind();
 
     this.gameData = await this.assetLoader.loadJSON(this.dataPath);
@@ -169,10 +169,10 @@ export class Game {
     }
 
     if (this.dialogueManager?.isChoiceOpen) {
-      const confirmed = this.dialogueManager.confirmChoice();
+      this.dialogueManager.confirmChoice();
       this.syncUI();
       this.updateActionButtonLabel();
-      return confirmed;
+      return;
     }
 
     if (this.dialogueManager?.isOpen) {
