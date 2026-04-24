@@ -422,14 +422,16 @@ body.choice-open .dpad [data-dir="right"] {
   position: absolute;
   inset: 0;
   z-index: 200;
-  display: grid;
-  place-items: center;
-  padding: 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: max(env(safe-area-inset-top), 14px) 14px 14px;
   background: rgba(20, 23, 27, 0.62);
 }
 
 #menu-window {
   width: min(100%, 350px);
+  height: min(520px, calc(var(--app-height, 100svh) - 32px));
   max-height: calc(var(--app-height, 100svh) - 32px);
   display: grid;
   grid-template-rows: auto auto 1fr;
@@ -492,8 +494,7 @@ body.choice-open .dpad [data-dir="right"] {
 }
 
 #menu-content {
-  min-height: 220px;
-  max-height: 430px;
+  min-height: 0;
   overflow: auto;
   padding: 12px;
   font-size: 14px;
@@ -547,12 +548,12 @@ body.notice-open #menu-button {
 
 @media (max-height: 680px) {
   #menu-window {
+    height: min(450px, calc(var(--app-height, 100svh) - 20px));
     max-height: calc(var(--app-height, 100svh) - 20px);
   }
 
   #menu-content {
-    min-height: 170px;
-    max-height: 310px;
+    min-height: 0;
   }
 
   .menu-tab {

@@ -15,7 +15,9 @@ export class DialogueManager {
   }
 
   get isChoiceOpen() {
-    return this.isOpen && this.activeDialogue.choices && this.index >= this.activeDialogue.lines.length;
+    return this.isOpen
+      && this.activeDialogue.choices
+      && this.index >= this.activeDialogue.lines.length;
   }
 
   open(dialogueId) {
@@ -27,6 +29,7 @@ export class DialogueManager {
     this.activeDialogue = dialogue;
     this.index = 0;
     this.selectedChoiceIndex = 0;
+
     this.ui.showDialogue({
       speaker: dialogue.speaker,
       text: dialogue.lines[0] || "",
@@ -58,6 +61,8 @@ export class DialogueManager {
 
   openChoices() {
     this.selectedChoiceIndex = 0;
+    this.index = this.activeDialogue.lines.length;
+
     this.ui.showChoices(
       this.activeDialogue.choices.map((choice) => choice.label),
       this.selectedChoiceIndex,
