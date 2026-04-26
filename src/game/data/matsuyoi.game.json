@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "待宵物語",
-    "engineVersion": "3.4.1",
+    "engineVersion": "3.4.3",
     "description": "スマホ向けレトロRPG汎用基盤上の待宵物語プロトタイプ"
   },
   "canvas": {
@@ -4008,10 +4008,17 @@
   },
   "tilesets": {
     "colpan_house_minimum": "src/game/data/tileset.colpan_house.minimum.json",
-    "rulgar_house_minimum": "src/game/data/tileset.rulgar_house.minimum.json"
+    "rulgar_house_minimum": "src/game/data/tileset.rulgar_house.minimum.json",
+    "ground16_flat_diagnostic": "src/game/data/tileset.ground16.flat.diagnostic.json"
   },
   "tileHouseManifests": {
     "colpan_house": "assets/manifests/matsuyoi_colpan_house_minimum_interior_manifest.csv",
     "rulgar_house": "assets/manifests/matsuyoi_lulgar_house_minimum_manifest.csv"
+  },
+  "groundManifest": "assets/manifests/ground16_flat_diagnostic_manifest.csv",
+  "diagnosticMode": {
+    "enabled": true,
+    "name": "flat_ground_tiles",
+    "purpose": "ground tile grid artifact diagnosis"
   }
 }

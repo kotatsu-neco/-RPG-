@@ -1,0 +1,18 @@
+tile_id,filename,semantic_name,category,layer_type,opaque,collision,width,height,alpha_rule,resize_rule,notes
+0,flat_001_grass.png,grass,diagnostic_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,village base grass flat
+1,flat_002_grass_dark.png,grass_dark,diagnostic_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,dark grass flat
+2,flat_003_dirt_path.png,dirt_path,diagnostic_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,dirt path flat
+3,flat_004_stone_path.png,stone_path,diagnostic_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,stone path flat
+4,flat_005_field_soil.png,field_soil,diagnostic_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,field soil flat
+5,flat_006_crop_field.png,crop_field,diagnostic_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,crop field flat
+6,flat_007_herb_field.png,herb_field,diagnostic_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,herb field flat
+7,flat_008_interior_floor_wood.png,interior_floor_wood,diagnostic_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,wood floor flat
+8,flat_009_interior_floor_stone.png,interior_floor_stone,diagnostic_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,stone floor flat
+9,flat_010_graveyard_path.png,graveyard_path,diagnostic_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,graveyard path flat
+10,flat_011_moss_ground.png,moss_ground,diagnostic_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,moss ground flat
+11,flat_012_outskirts_grass.png,outskirts_grass,diagnostic_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,outskirts grass flat
+12,flat_013_outskirts_path.png,outskirts_path,diagnostic_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,outskirts path flat
+13,flat_014_battle_hint_ground.png,battle_hint_ground,diagnostic_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,battle hint ground flat
+14,flat_015_grass_to_dirt_transition.png,grass_to_dirt_transition,diagnostic_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,transition flat
+15,flat_016_grass_to_stone_transition.png,grass_to_stone_transition,diagnostic_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,transition flat
+16,flat_017_dirt_to_stone_transition.png,dirt_to_stone_transition,diagnostic_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,transition flat

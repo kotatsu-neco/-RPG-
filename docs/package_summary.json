@@ -1,12 +1,15 @@
 {
-  "name": "matsuyoi_rpg_engine_v3_4_2_ground_opaque",
-  "version": "3.4.2",
+  "name": "matsuyoi_rpg_engine_v3_4_3_flat_tile_diagnostic",
+  "version": "3.4.3",
   "features": [
     "ground16 opaque tiles integrated",
     "layer-specific tilesets",
     "ground object decoration tilemap separation",
     "no-resize ground tile policy",
     "village ground layer replaced with opaque tiles",
-    "colpan and rulgar house ground layers replaced with opaque tiles"
+    "colpan and rulgar house ground layers replaced with opaque tiles",
+    "flat ground tile diagnostic mode",
+    "ground16_flat_diagnostic tileset",
+    "ground grid artifact isolation"
   ]
 }

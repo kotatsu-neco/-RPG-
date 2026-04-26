@@ -1,4 +1,4 @@
-# 待宵物語 RPG Engine v3.4.2
+# 待宵物語 RPG Engine v3.4.3
 
 ## この版の目的
 
@@ -556,3 +556,23 @@ tilemap全体だけでなく、layerごとに `tileset` を指定できるよう
 ground layer から透明あり・外周縁あり素材を排除することで、白い格子状表示の主要因を取り除く構造にしました。
 
 ただし、object / decoration 側の旧素材には、まだ縁が残る可能性があります。
+
+
+## v3.4.3 変更点：フラットgroundタイル診断版
+
+v3.4.2でも地面の格子感が残ったため、診断用にground layerをフラットタイルへ差し替えました。
+
+目的は美麗化ではなく、以下の切り分けです。
+
+```text
+エンジン・描画スケーリングの問題か
+groundタイル素材設計の問題か
+```
+
+ground layer:
+
+```text
+ground16_flat_diagnostic
+```
+
+objects / decoration は既存素材を維持しています。
