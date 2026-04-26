@@ -31,15 +31,21 @@ export class TileMapRenderer {
 
     for (const layer of tilemap.layers || []) {
       if (layer.type === "tile") {
+        this.activeLayer = layer;
         this.drawTileLayer(layer.data);
       }
     }
 
+    this.activeLayer = null;
     this.activeTilemap = null;
     return true;
   }
 
   getTilesetForCurrentDraw() {
+    if (this.activeLayer?.tileset && this.tileset?.byId?.[this.activeLayer.tileset]) {
+      return this.tileset.byId[this.activeLayer.tileset];
+    }
+
     if (this.activeTilemap?.tileset && this.tileset?.byId?.[this.activeTilemap.tileset]) {
       return this.tileset.byId[this.activeTilemap.tileset];
     }

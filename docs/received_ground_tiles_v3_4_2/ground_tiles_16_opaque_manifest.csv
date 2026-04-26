@@ -1,0 +1,18 @@
+tile_id,filename,semantic_name,category,layer_type,opaque,collision,width,height,alpha_rule,resize_rule,notes
+0,ground_001_grass.png,grass,outdoor_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,village base grass; fully opaque 16x16
+1,ground_002_grass_dark.png,grass_dark,outdoor_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,darker grass variation; fully opaque 16x16
+2,ground_003_dirt_path.png,dirt_path,outdoor_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,main village dirt path; fully opaque 16x16
+3,ground_004_stone_path.png,stone_path,outdoor_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,stone paved path; fully opaque 16x16
+4,ground_005_field_soil.png,field_soil,outdoor_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,base farmland soil; fully opaque 16x16
+5,ground_006_crop_field.png,crop_field,outdoor_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,cultivated field; fully opaque 16x16
+6,ground_007_herb_field.png,herb_field,outdoor_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,Mogamo house herb field; fully opaque 16x16
+7,ground_008_interior_floor_wood.png,interior_floor_wood,interior_floor,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,Colpan house wood floor; fully opaque 16x16
+8,ground_009_interior_floor_stone.png,interior_floor_stone,interior_floor,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,Lulgar house stone floor; fully opaque 16x16
+9,ground_010_graveyard_path.png,graveyard_path,graveyard,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,quiet graveyard walkway; fully opaque 16x16
+10,ground_011_moss_ground.png,moss_ground,graveyard,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,mossy ground near graves; fully opaque 16x16
+11,ground_012_outskirts_grass.png,outskirts_grass,outskirts,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,village edge grass; fully opaque 16x16
+12,ground_013_outskirts_path.png,outskirts_path,outskirts,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,path toward battle area; fully opaque 16x16
+13,ground_014_battle_hint_ground.png,battle_hint_ground,outskirts,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,subtle flattened ground; not a visible marker; fully opaque 16x16
+14,ground_015_grass_to_dirt_transition.png,grass_to_dirt_transition,transition,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,transition ground; fully opaque 16x16
+15,ground_016_grass_to_stone_transition.png,grass_to_stone_transition,transition,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,transition ground; fully opaque 16x16
+16,ground_017_dirt_to_stone_transition.png,dirt_to_stone_transition,transition,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,transition ground; fully opaque 16x16

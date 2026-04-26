@@ -1,0 +1,16 @@
+tile_id,filename,semantic_name,category,collision,sheet_bbox_x0,sheet_bbox_y0,sheet_bbox_x1,sheet_bbox_y1
+0,tile_001.png,stone_path,outdoor,false,468,25,529,86
+1,tile_011.png,crop_field,outdoor,false,1175,25,1228,86
+2,tile_012.png,grass,outdoor,false,25,26,90,87
+3,tile_013.png,grass_dark,outdoor,false,93,26,157,87
+4,tile_015.png,dirt_path,outdoor,false,250,26,313,87
+5,tile_046.png,stone_wall,outdoor,true,594,153,654,211
+6,tile_051.png,roof,building,true,266,241,370,362
+7,tile_099.png,wood,material,true,1042,374,1102,431
+8,tile_129.png,well,object,true,1067,665,1140,743
+9,tile_134.png,door_highlight,interaction,false,259,671,322,715
+10,tile_145.png,interior_floor_wood,interior,false,712,760,742,798
+11,tile_147.png,interior_wall,interior,true,27,792,151,837
+12,tile_148.png,shelf,interior_object,true,276,794,338,834
+13,tile_149.png,table,interior_object,true,161,795,242,837
+14,tile_150.png,stove,interior_object,true,468,866,732,1014

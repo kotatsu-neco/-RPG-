@@ -1,0 +1,19 @@
+tile_id,filename,semantic_name,category,collision,priority,placement_hint,notes
+0,tile_015.png,stone_wall,building_wall,true,highest,exterior perimeter,prototype_core; main outer wall
+1,tile_020.png,roof_tile_red,building_roof,true,highest,roof area,main roof option
+2,tile_021.png,roof_tile_brown,building_roof,true,highest,roof area,roof variation
+3,tile_023.png,door,building_opening,true,highest,front entrance,main doorway
+4,tile_025.png,window,building_opening,true,highest,front or side wall,house window
+5,tile_042.png,interior_floor_stone,interior_floor,false,highest,room base,recommended for Lulgar house
+6,tile_043.png,interior_wall,interior_wall,true,highest,room perimeter,interior wall
+7,tile_045.png,table,interior_object,true,highest,center area,main dining table
+8,tile_046.png,chair,interior_object,true,highest,adjacent to table,must pair naturally with table
+9,tile_049.png,stove,interior_object,true,highest,wall side,cooking presence
+10,tile_050.png,workbench,interior_object,true,highest,wall side,work / prep area
+11,tile_039.png,mail_bundle,postal_object,true,highest,near desk or sorting area,chapter1_required; postal handling
+12,tile_051.png,cabinet,interior_object,true,highest,wall side,storage
+13,tile_047.png,shelf,interior_object,true,medium,wall side,storage / daily items
+14,tile_053.png,pot,interior_object,true,medium,near stove,small domestic prop
+15,tile_052.png,lamp,interior_object,false,low,table / wall side,warm living tone
+16,tile_033.png,crate,object,true,low,near wall or work area,auxiliary storage
+17,tile_036.png,bucket,object,true,low,near work area,domestic helper prop

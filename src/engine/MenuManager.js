@@ -78,7 +78,7 @@ export class MenuManager {
     };
 
     this.content.innerHTML = renderers[this.currentTab]?.() || "";
-    this.bindDynamicContentEvents();
+    this.bindDynamicContentEvents?.();
   }
 
   renderItems() {
@@ -104,6 +104,27 @@ export class MenuManager {
       <h2 class="menu-panel-title">アイテム</h2>
       <ul class="menu-list">${itemRows}</ul>
     `;
+  }
+
+  bindDynamicContentEvents() {
+    if (!this.content) return;
+
+    this.content.querySelectorAll("[data-key-item-read]").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        const itemId = button.dataset.keyItemRead;
+        this.onReadKeyItem?.(itemId);
+        this.renderDocument(itemId);
+      });
+    });
+
+    const backButton = this.content.querySelector("[data-back-to-key-items]");
+    if (backButton) {
+      backButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        this.render();
+      });
+    }
   }
 
   renderEquipment() {
