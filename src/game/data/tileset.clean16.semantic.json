@@ -1,0 +1,21 @@
+{
+  "id": "clean16_semantic_minimum",
+  "tileSize": 16,
+  "note": "Semantic minimum manifest based mapping. Uses fallback only where semantic rows are absent.",
+  "sourceManifest": "assets/manifests/manifest_tiles_semantic_minimum.csv",
+  "tiles": {
+    "0": "assets/tiles/clean16/tile_012.png",
+    "1": "assets/tiles/clean16/tile_013.png",
+    "2": "assets/tiles/clean16/tile_015.png",
+    "3": "assets/tiles/clean16/tile_001.png",
+    "4": "assets/tiles/clean16/tile_046.png",
+    "5": "assets/tiles/clean16/tile_129.png",
+    "6": "assets/tiles/clean16/tile_145.png",
+    "7": "assets/tiles/clean16/tile_030.png",
+    "8": "assets/tiles/clean16/tile_047.png",
+    "9": "assets/tiles/clean16/tile_051.png",
+    "10": "assets/tiles/clean16/tile_099.png",
+    "11": "assets/tiles/clean16/tile_134.png",
+    "12": "assets/tiles/clean16/tile_147.png"
+  }
+}

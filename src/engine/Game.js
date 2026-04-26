@@ -8,6 +8,7 @@ import { Renderer } from "./Renderer.js";
 import { directionDelta, ENGINE_VERSION } from "./constants.js";
 import { LayoutManager } from "./LayoutManager.js";
 import { MenuManager } from "./MenuManager.js";
+import { FlagManager } from "./FlagManager.js";
 
 export class Game {
   constructor({ canvas, dataPath, version = ENGINE_VERSION }) {
@@ -19,7 +20,7 @@ export class Game {
 
     this.actors = {
       player: { x: 0, y: 0, facing: "down", step: 0 },
-      companion: { x: 0, y: 0, frame: 0 },
+      companion: { x: 0, y: 0, facing: "down", frame: 0 },
     };
 
     this.images = {
@@ -31,10 +32,11 @@ export class Game {
   }
 
   async boot() {
-    this.ui.setDebugVersion("v2.7 Engine");
+    this.ui.setDebugVersion("v3.4 Houses");
     this.layoutManager.bind();
 
     this.gameData = await this.assetLoader.loadJSON(this.dataPath);
+    this.flagManager = new FlagManager({ chapterProgress: this.gameData.chapterProgress });
     this.sceneManager = new SceneManager({ gameData: this.gameData });
 
     this.resetActorsToSceneStart(this.gameData.startScene);
@@ -55,17 +57,23 @@ export class Game {
     });
 
     await this.loadAssets();
+    await this.loadTileset();
+    await this.loadTilemaps();
 
     this.renderer = new Renderer({
       canvas: this.canvas,
       sceneManager: this.sceneManager,
       actors: this.actors,
       images: this.images,
+      tilemaps: this.tilemaps,
+      tileset: this.tileset,
     });
 
     this.menuManager = new MenuManager({
       uiManager: this.ui,
       gameData: this.gameData,
+      flagManager: this.flagManager,
+      onReadKeyItem: (itemId) => this.readKeyItem(itemId),
       getState: () => ({
         sceneId: this.sceneManager.currentSceneId,
         sceneName: this.sceneManager.currentScene?.name || this.sceneManager.currentSceneId,
@@ -85,9 +93,64 @@ export class Game {
     requestAnimationFrame(() => this.loop());
   }
 
+  async loadTileset() {
+    this.tileset = null;
+
+    const loadOneTileset = async (path) => {
+      const tileset = await this.assetLoader.loadJSON(path);
+      const images = {};
+
+      for (const [tileId, imagePath] of Object.entries(tileset.tiles || {})) {
+        images[tileId] = await this.assetLoader.loadImage(imagePath);
+      }
+
+      return {
+        ...tileset,
+        images,
+      };
+    };
+
+    let primary = null;
+    const byId = {};
+
+    if (this.gameData.tileset) {
+      primary = await loadOneTileset(this.gameData.tileset);
+      byId[primary.id] = primary;
+    }
+
+    for (const path of Object.values(this.gameData.tilesets || {})) {
+      const loaded = await loadOneTileset(path);
+      byId[loaded.id] = loaded;
+    }
+
+    this.tileset = {
+      ...(primary || {}),
+      byId,
+    };
+  }
+
+  async loadTilemaps() {
+    this.tilemaps = {};
+
+    const entries = Object.entries(this.gameData.tilemaps || {});
+    for (const [sceneId, path] of entries) {
+      this.tilemaps[sceneId] = await this.assetLoader.loadJSON(path);
+    }
+  }
+
   async loadAssets() {
     this.images.player = await this.assetLoader.loadImageList(this.gameData.assets.player);
     this.images.companion = await this.assetLoader.loadImageList(this.gameData.assets.companion);
+
+    this.images.playerDirections = {};
+    for (const [direction, paths] of Object.entries(this.gameData.assets.playerDirectionFrames || {})) {
+      this.images.playerDirections[direction] = await this.assetLoader.loadImageList(paths);
+    }
+
+    this.images.companionDirections = {};
+    for (const [direction, paths] of Object.entries(this.gameData.assets.companionDirectionFrames || {})) {
+      this.images.companionDirections[direction] = await this.assetLoader.loadImageList(paths);
+    }
 
     for (const [key, path] of Object.entries(this.gameData.assets.npcs || {})) {
       this.images[key] = await this.assetLoader.loadImage(path);
@@ -153,8 +216,10 @@ export class Game {
     this.actors.companion.y = oldPlayerY + 1 <= this.gameData.canvas.rows - 2 && !this.sceneManager.isBlocked(oldPlayerX, oldPlayerY + 1)
       ? oldPlayerY + 1
       : oldPlayerY;
+    this.actors.companion.facing = this.actors.player.facing;
 
-    this.actors.companion.frame = (this.actors.companion.frame + 1) % this.images.companion.length;
+    const frames = this.images.companionDirections?.[this.actors.companion.facing] || this.images.companion;
+    this.actors.companion.frame = (this.actors.companion.frame + 1) % frames.length;
   }
 
   interact() {
@@ -196,6 +261,20 @@ export class Game {
     }
   }
 
+  readKeyItem(itemId) {
+    const keyItem = this.gameData.keyItems?.[itemId];
+    if (!keyItem || !keyItem.readable) return false;
+
+    if (itemId === "mothers_note" && !this.flagManager.hasReached("CH1_02_READ_MOTHERS_NOTE")) {
+      this.flagManager.setMainFlag("CH1_02_READ_MOTHERS_NOTE");
+    }
+
+    this.menuManager?.render();
+    this.syncUI();
+    this.updateActionButtonLabel();
+    return true;
+  }
+
   handleChoiceAction(choice, dialogueManager) {
     if (!choice || !choice.action) return false;
 
@@ -222,6 +301,22 @@ export class Game {
   }
 
   handleInteractable(interactable) {
+    if (interactable.requiredFlag && !this.flagManager.hasReached(interactable.requiredFlag)) {
+      this.showNotice(interactable.blockedText || "まだできない。");
+      return;
+    }
+
+    if (interactable.kind === "notice") {
+      this.showNotice(interactable.text || `${interactable.name}を調べた。`);
+      return;
+    }
+
+    if (interactable.kind === "readKeyItem") {
+      this.readKeyItem(interactable.keyItemId);
+      this.showNotice(interactable.afterText || `${interactable.name}を読んだ。`);
+      return;
+    }
+
     if (interactable.kind === "sceneTransition") {
       this.transitionScene(interactable.targetScene);
       return;

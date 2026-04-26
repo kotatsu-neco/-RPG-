@@ -1,0 +1,20 @@
+{
+  "id": "clean16_initial",
+  "tileSize": 16,
+  "note": "Initial implementation mapping from clean split assets. Semantic mapping is provisional until graphic department provides named tile IDs.",
+  "tiles": {
+    "0": "assets/tiles/clean16/tile_001.png",
+    "1": "assets/tiles/clean16/tile_002.png",
+    "2": "assets/tiles/clean16/tile_012.png",
+    "3": "assets/tiles/clean16/tile_013.png",
+    "4": "assets/tiles/clean16/tile_004.png",
+    "5": "assets/tiles/clean16/tile_018.png",
+    "6": "assets/tiles/clean16/tile_029.png",
+    "7": "assets/tiles/clean16/tile_030.png",
+    "8": "assets/tiles/clean16/tile_047.png",
+    "9": "assets/tiles/clean16/tile_021.png",
+    "10": "assets/tiles/clean16/tile_050.png",
+    "11": "assets/tiles/clean16/tile_053.png",
+    "12": "assets/tiles/clean16/tile_035.png"
+  }
+}

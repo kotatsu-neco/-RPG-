@@ -1,7 +1,8 @@
 import { TILE_SIZE } from "./constants.js";
+import { TileMapRenderer } from "./TileMapRenderer.js";
 
 export class Renderer {
-  constructor({ canvas, sceneManager, actors, images }) {
+  constructor({ canvas, sceneManager, actors, images, tilemaps = {}, tileset = null }) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
     this.ctx.imageSmoothingEnabled = false;
@@ -9,6 +10,7 @@ export class Renderer {
     this.sceneManager = sceneManager;
     this.actors = actors;
     this.images = images;
+    this.tileMapRenderer = new TileMapRenderer({ ctx: this.ctx, tilemaps, tileset });
 
     this.palette = {
       grass: "#5e7a4e",
@@ -33,6 +35,10 @@ export class Renderer {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     const scene = this.sceneManager.currentScene;
+    const drawn = this.tileMapRenderer.draw(scene.id);
+    if (drawn) return;
+
+    // Fallback for scenes that do not yet have tilemap data.
     if (scene.renderer === "interior") {
       this.drawInteriorMap();
     } else {
@@ -105,6 +111,10 @@ export class Renderer {
 
   drawObjects() {
     const scene = this.sceneManager.currentScene;
+
+    // Tilemap scenes already include prototype object layers.
+    if (this.tileMapRenderer.tilemaps[scene.id]) return;
+
     if (scene.renderer !== "village") return;
 
     this.drawHouse(4, 1, 12, 6);
@@ -148,14 +158,14 @@ export class Renderer {
         type: "companion",
         x: this.actors.companion.x,
         y: this.actors.companion.y,
-        image: this.images.companion[this.actors.companion.frame],
+        image: (this.images.companionDirections?.[this.actors.companion.facing] || this.images.companion)[this.actors.companion.frame],
       },
       ...npcs,
       {
         type: "player",
         x: this.actors.player.x,
         y: this.actors.player.y,
-        image: this.images.player[this.actors.player.step],
+        image: (this.images.playerDirections?.[this.actors.player.facing] || this.images.player)[this.actors.player.step],
       },
     ];
 

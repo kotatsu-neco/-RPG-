@@ -1,0 +1,230 @@
+{
+  "colpan_house": [
+    {
+      "tileId": "0",
+      "semantic_name": "interior_floor_wood",
+      "filename": "tile_041.png",
+      "collision": false,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "1",
+      "semantic_name": "interior_wall",
+      "filename": "tile_043.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "2",
+      "semantic_name": "door",
+      "filename": "tile_023.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "3",
+      "semantic_name": "bed",
+      "filename": "tile_048.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "4",
+      "semantic_name": "table",
+      "filename": "tile_045.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "5",
+      "semantic_name": "chair",
+      "filename": "tile_046.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "6",
+      "semantic_name": "shelf",
+      "filename": "tile_047.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "7",
+      "semantic_name": "memo_spot",
+      "filename": "tile_054.png",
+      "collision": false,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "8",
+      "semantic_name": "stove",
+      "filename": "tile_049.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "9",
+      "semantic_name": "cabinet",
+      "filename": "tile_051.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "10",
+      "semantic_name": "pot",
+      "filename": "tile_053.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "11",
+      "semantic_name": "lamp",
+      "filename": "tile_052.png",
+      "collision": false,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "12",
+      "semantic_name": "void",
+      "filename": "tile_047.png",
+      "collision": false,
+      "fallbackUsed": true
+    }
+  ],
+  "rulgar_house": [
+    {
+      "tileId": "0",
+      "semantic_name": "interior_floor_stone",
+      "filename": "tile_042.png",
+      "collision": false,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "1",
+      "semantic_name": "interior_wall",
+      "filename": "tile_043.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "2",
+      "semantic_name": "table",
+      "filename": "tile_045.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "3",
+      "semantic_name": "chair",
+      "filename": "tile_046.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "4",
+      "semantic_name": "stove",
+      "filename": "tile_049.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "5",
+      "semantic_name": "workbench",
+      "filename": "tile_050.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "6",
+      "semantic_name": "mail_bundle",
+      "filename": "tile_039.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "7",
+      "semantic_name": "cabinet",
+      "filename": "tile_051.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "8",
+      "semantic_name": "shelf",
+      "filename": "tile_047.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "9",
+      "semantic_name": "pot",
+      "filename": "tile_053.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "10",
+      "semantic_name": "lamp",
+      "filename": "tile_052.png",
+      "collision": false,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "11",
+      "semantic_name": "crate",
+      "filename": "tile_033.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "12",
+      "semantic_name": "bucket",
+      "filename": "tile_036.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "13",
+      "semantic_name": "door",
+      "filename": "tile_023.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "14",
+      "semantic_name": "window",
+      "filename": "tile_025.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "15",
+      "semantic_name": "stone_wall",
+      "filename": "tile_015.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "16",
+      "semantic_name": "roof_tile_red",
+      "filename": "tile_020.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "17",
+      "semantic_name": "roof_tile_brown",
+      "filename": "tile_021.png",
+      "collision": true,
+      "fallbackUsed": false
+    },
+    {
+      "tileId": "18",
+      "semantic_name": "void",
+      "filename": "tile_047.png",
+      "collision": false,
+      "fallbackUsed": true
+    }
+  ]
+}

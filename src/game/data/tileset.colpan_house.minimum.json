@@ -1,0 +1,50 @@
+{
+  "id": "colpan_house_minimum",
+  "tileSize": 16,
+  "sourceManifest": "assets/manifests/matsuyoi_colpan_house_minimum_interior_manifest.csv",
+  "tiles": {
+    "0": "assets/tiles/clean16/tile_041.png",
+    "1": "assets/tiles/clean16/tile_043.png",
+    "2": "assets/tiles/clean16/tile_023.png",
+    "3": "assets/tiles/clean16/tile_048.png",
+    "4": "assets/tiles/clean16/tile_045.png",
+    "5": "assets/tiles/clean16/tile_046.png",
+    "6": "assets/tiles/clean16/tile_047.png",
+    "7": "assets/tiles/clean16/tile_054.png",
+    "8": "assets/tiles/clean16/tile_049.png",
+    "9": "assets/tiles/clean16/tile_051.png",
+    "10": "assets/tiles/clean16/tile_053.png",
+    "11": "assets/tiles/clean16/tile_052.png",
+    "12": "assets/tiles/clean16/tile_047.png"
+  },
+  "semantic": {
+    "0": "interior_floor_wood",
+    "1": "interior_wall",
+    "2": "door",
+    "3": "bed",
+    "4": "table",
+    "5": "chair",
+    "6": "shelf",
+    "7": "memo_spot",
+    "8": "stove",
+    "9": "cabinet",
+    "10": "pot",
+    "11": "lamp",
+    "12": "void"
+  },
+  "collision": {
+    "0": false,
+    "1": true,
+    "2": true,
+    "3": true,
+    "4": true,
+    "5": true,
+    "6": true,
+    "7": false,
+    "8": true,
+    "9": true,
+    "10": true,
+    "11": false,
+    "12": false
+  }
+}

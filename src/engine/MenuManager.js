@@ -1,7 +1,9 @@
 export class MenuManager {
-  constructor({ uiManager, gameData, getState }) {
+  constructor({ uiManager, gameData, flagManager, onReadKeyItem, getState }) {
     this.ui = uiManager;
     this.gameData = gameData;
+    this.flagManager = flagManager;
+    this.onReadKeyItem = onReadKeyItem;
     this.getState = getState;
     this.isOpen = false;
     this.currentTab = "items";
@@ -68,6 +70,7 @@ export class MenuManager {
 
     const renderers = {
       items: () => this.renderItems(),
+      keyItems: () => this.renderKeyItems(),
       equipment: () => this.renderEquipment(),
       status: () => this.renderStatus(),
       save: () => this.renderSave(),
@@ -75,6 +78,7 @@ export class MenuManager {
     };
 
     this.content.innerHTML = renderers[this.currentTab]?.() || "";
+    this.bindDynamicContentEvents();
   }
 
   renderItems() {

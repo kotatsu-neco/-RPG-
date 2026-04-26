@@ -1,0 +1,13 @@
+tile_id,filename,semantic_name,category,collision,priority,placement_hint,notes
+0,tile_041.png,interior_floor_wood,interior_floor,false,highest,room base,prototype_core; Colpan house base floor
+1,tile_043.png,interior_wall,interior_wall,true,highest,room perimeter,prototype_core; quiet interior wall
+2,tile_023.png,door,building_opening,true,highest,entrance,closed doorway graphic
+3,tile_048.png,bed,interior_object,true,highest,wall side,simple sleeping space for Colpan
+4,tile_045.png,table,interior_object,true,highest,center area,main living table; memo-related focus
+5,tile_046.png,chair,interior_object,true,highest,adjacent to table,must pair naturally with table
+6,tile_047.png,shelf,interior_object,true,highest,wall side,storage and lived-in feeling
+7,tile_054.png,memo_spot,story_object,false,highest,table or table-side,mother's memo placement point
+8,tile_049.png,stove,interior_object,true,medium,corner or wall side,small cooking presence
+9,tile_051.png,cabinet,interior_object,true,medium,wall side,daily storage
+10,tile_053.png,pot,interior_object,true,low,near stove / shelf,small domestic prop
+11,tile_052.png,lamp,interior_object,false,low,table / wall side,warm interior feeling

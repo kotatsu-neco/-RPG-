@@ -470,7 +470,7 @@ body.choice-open .dpad [data-dir="right"] {
 
 #menu-tabs {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1px;
   padding: 8px;
   background: rgba(0, 0, 0, 0.16);
@@ -581,4 +581,38 @@ body.choice-open #action-button {
   body.choice-open #dialog-layer {
     bottom: 136px;
   }
+}
+
+
+/* v3.3: key item document reading */
+.menu-document {
+  display: grid;
+  gap: 10px;
+}
+
+.menu-document-body {
+  white-space: pre-wrap;
+  padding: 12px;
+  color: #2a2118;
+  background: rgba(245, 239, 226, 0.95);
+  border: 2px solid rgba(198, 163, 95, 0.85);
+  line-height: 1.7;
+}
+
+.menu-action-button {
+  min-height: 34px;
+  padding: 7px 12px;
+  border: 1px solid var(--dialog-border);
+  border-radius: 6px;
+  background: rgba(216, 213, 207, 0.95);
+  color: var(--ink);
+  font-weight: 700;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.menu-objective {
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border: 1px solid rgba(198, 163, 95, 0.38);
+  background: rgba(216, 213, 207, 0.09);
 }

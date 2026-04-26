@@ -144,3 +144,17 @@ CSSの `100svh` だけに依存せず、JS側で `--app-height` を更新し、`
 `restart` は会話管理そのものの操作であるため、`DialogueManager` 側で直接処理する仕様に変更。
 
 `notice` や `transition` など、ゲーム世界側の処理が必要な action は引き続き `Game.handleChoiceAction()` に委譲する。
+
+
+## v3.0 TileMapRenderer
+
+`Renderer.js` の直書き背景を置き換える第一歩として、`TileMapRenderer.js` を追加。
+
+現時点では色面ベースのプロトタイプタイルだが、構造としては以下に対応する。
+
+- sceneIdごとのtilemap取得
+- 複数layer描画
+- tileIdベース描画
+- tilemapがない場合のfallback
+
+次段階では、tileIdを画像tilesetに対応させる。
