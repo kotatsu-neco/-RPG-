@@ -1,6 +1,6 @@
 {
-  "name": "matsuyoi_rpg_engine_v4_0_g_4_dom_boot_fix",
-  "version": "4.0-g.4",
+  "name": "matsuyoi_rpg_engine_v4_0_g_5_choice_layout_fix",
+  "version": "4.0-g.5",
   "features": [
     "ground16 opaque tiles integrated",
     "layer-specific tilesets",
@@ -99,6 +99,10 @@
     "app and loading overlay are siblings",
     "BootManager DOM sanity check",
     "Renderer full frame safety fallback",
-    "loading overlay display none after complete"
+    "loading overlay display none after complete",
+    "choice layout fix",
+    "dedicated choice-open dialogue sizing",
+    "scrollable choice box",
+    "iPhone SE choice media query"
   ]
 }

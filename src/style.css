@@ -1077,3 +1077,119 @@ body.choice-open #wide-tap-catcher {
 #loading-overlay .loading-panel {
   transform: translateZ(0);
 }
+
+
+/* v4.0-g.5 choice layout fix */
+body.choice-open #dialog-layer {
+  left: 6%;
+  right: 6%;
+  bottom: calc(var(--control-zone-height) + 104px + env(safe-area-inset-bottom, 0px)) !important;
+  min-height: 228px;
+  max-height: min(54vh, 332px);
+  z-index: 140;
+}
+
+body.choice-open #dialog-window {
+  min-height: 206px;
+  max-height: min(50vh, 306px);
+  display: grid;
+  grid-template-rows: auto minmax(112px, 1fr);
+  padding: 14px 16px 18px;
+  overflow: hidden;
+}
+
+body.choice-open #dialog-text {
+  min-height: auto;
+  max-height: 42px;
+  overflow: hidden;
+  line-height: 1.45;
+}
+
+body.choice-open #choice-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: none;
+  min-height: 112px;
+  overflow-y: auto;
+  padding: 8px 0 2px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+body.choice-open .choice-item {
+  min-height: 46px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+body.choice-open #touch-controls {
+  display: flex !important;
+  z-index: 150;
+}
+
+body.choice-open #wide-tap-catcher {
+  display: none !important;
+}
+
+@media (max-height: 680px) {
+  body.choice-open #dialog-layer {
+    left: 5%;
+    right: 5%;
+    bottom: calc(var(--control-zone-height) + 92px + env(safe-area-inset-bottom, 0px)) !important;
+    min-height: 206px;
+    max-height: min(56vh, 292px);
+  }
+
+  body.choice-open #dialog-window {
+    min-height: 184px;
+    max-height: min(52vh, 270px);
+    padding: 12px 14px 16px;
+    grid-template-rows: auto minmax(104px, 1fr);
+  }
+
+  body.choice-open #choice-box {
+    min-height: 104px;
+    gap: 6px;
+  }
+
+  body.choice-open .choice-item {
+    min-height: 42px;
+    padding: 8px 10px;
+  }
+}
+
+@media (max-height: 600px) {
+  body.choice-open #dialog-layer {
+    bottom: calc(var(--control-zone-height) + 78px + env(safe-area-inset-bottom, 0px)) !important;
+    min-height: 188px;
+    max-height: min(58vh, 252px);
+  }
+
+  body.choice-open #dialog-window {
+    min-height: 166px;
+    max-height: min(54vh, 232px);
+  }
+
+  body.choice-open #choice-box {
+    min-height: 92px;
+  }
+
+  body.choice-open .choice-item {
+    min-height: 40px;
+  }
+}
+
+
+/* v4.0-g.5 compatibility for existing choice class names */
+body.choice-open .choice-option,
+body.choice-open .choice-button,
+body.choice-open button[data-choice-index] {
+  min-height: 46px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}

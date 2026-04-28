@@ -1,4 +1,4 @@
-# 待宵物語 RPG Engine v4.0-g.4
+# 待宵物語 RPG Engine v4.0-g.5
 
 ## この版の目的
 
@@ -966,3 +966,24 @@ Renderer.draw全体をtry/catchで保護
 
 前版のブラックアウトは、描画だけでなくDOM構造が原因でした。  
 ロード完了時にoverlayを非表示にすると、ゲーム本体も一緒に非表示になっていました。
+
+
+## v4.0-g.5 変更点：Choice Layout Fix
+
+### 修正
+
+```text
+選択肢表示領域が狭く、1件しか見えない問題を修正
+choice-open時専用の会話ウィンドウ高さを設定
+choice-boxをscrollable領域化
+choice itemのmin-heightを明示
+iPhone SE相当の低height向けmedia queryを追加
+```
+
+### 確認
+
+```text
+左上が v4.0-g.5 ChoiceFix になる
+選択肢が複数件見える
+選択肢が多い場合はスクロールできる
+```

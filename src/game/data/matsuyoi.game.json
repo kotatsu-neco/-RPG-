@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "待宵物語",
-    "engineVersion": "4.0-g.4",
+    "engineVersion": "4.0-g.5",
     "description": "スマホ向けレトロRPG汎用基盤上の待宵物語プロトタイプ"
   },
   "canvas": {
@@ -4195,9 +4195,9 @@
     "loadingMinimumMs": 700
   },
   "engineStabilization": {
-    "phase": "v4.0-g.4",
-    "name": "DOM Boot Structure Fix",
-    "priority": "fix_loading_overlay_wrapping_app_blackout",
+    "phase": "v4.0-g.5",
+    "name": "Choice Layout Fix",
+    "priority": "make_multiple_choice_options_visible_on_iPhone_SE",
     "singleFileBuild": "not_generated"
   },
   "bootPolicy": {
@@ -4360,5 +4360,10 @@
     "cause": "index.html had loading-overlay without a closing div, so app/main was inside loading-overlay. When BootManager hid the overlay after '準備ができました', the entire game disappeared.",
     "fix": "Rebuild index.html so app and loading-overlay are siblings. Add BootManager DOM sanity check.",
     "renderSafety": "Renderer.draw now catches full-frame errors and paints diagnostic fallback instead of blacking out."
+  },
+  "choiceLayoutPolicy": {
+    "issue": "Choice box was too short; only one option was visible.",
+    "fix": "Use dedicated choice-open layout with taller dialogue window, scrollable choice box, and fixed separation from controls.",
+    "targetDevice": "iPhone SE 2nd gen Safari"
   }
 }
