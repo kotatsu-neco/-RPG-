@@ -1193,3 +1193,95 @@ body.choice-open button[data-choice-index] {
   align-items: center;
   flex-shrink: 0;
 }
+
+
+/* v4.0-g.6 choice count hard fix */
+body.choice-open #dialog-layer {
+  bottom: calc(var(--control-zone-height) + 96px + env(safe-area-inset-bottom, 0px)) !important;
+  min-height: calc(124px + (var(--choice-count, 2) * 56px)) !important;
+  max-height: min(62vh, 392px) !important;
+  z-index: 160 !important;
+}
+
+body.choice-open #dialog-layer.choices-1 {
+  --choice-count: 1;
+}
+
+body.choice-open #dialog-layer.choices-2 {
+  --choice-count: 2;
+}
+
+body.choice-open #dialog-layer.choices-3 {
+  --choice-count: 3;
+}
+
+body.choice-open #dialog-layer.choices-many {
+  --choice-count: 4;
+}
+
+body.choice-open #dialog-window {
+  min-height: calc(104px + (var(--choice-count, 2) * 56px)) !important;
+  max-height: min(58vh, 366px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+body.choice-open #dialog-text {
+  flex: 0 0 auto !important;
+  min-height: 34px !important;
+  max-height: 48px !important;
+  margin-bottom: 8px !important;
+}
+
+body.choice-open #choice-box {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  min-height: calc(var(--choice-count, 2) * 52px) !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  padding: 8px 0 4px !important;
+  box-sizing: border-box !important;
+}
+
+body.choice-open #choice-box .choice,
+body.choice-open #choice-box .choice-item,
+body.choice-open #choice-box button {
+  min-height: 48px !important;
+  height: auto !important;
+  flex: 0 0 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 10px 12px !important;
+  box-sizing: border-box !important;
+  font-size: 16px !important;
+  line-height: 1.35 !important;
+}
+
+@media (max-height: 680px) {
+  body.choice-open #dialog-layer {
+    bottom: calc(var(--control-zone-height) + 82px + env(safe-area-inset-bottom, 0px)) !important;
+    min-height: calc(108px + (var(--choice-count, 2) * 50px)) !important;
+    max-height: min(64vh, 340px) !important;
+  }
+
+  body.choice-open #dialog-window {
+    min-height: calc(92px + (var(--choice-count, 2) * 50px)) !important;
+    max-height: min(60vh, 314px) !important;
+  }
+
+  body.choice-open #choice-box {
+    min-height: calc(var(--choice-count, 2) * 46px) !important;
+    gap: 6px !important;
+  }
+
+  body.choice-open #choice-box .choice,
+  body.choice-open #choice-box .choice-item,
+  body.choice-open #choice-box button {
+    min-height: 44px !important;
+    font-size: 15px !important;
+  }
+}

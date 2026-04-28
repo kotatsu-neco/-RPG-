@@ -1,6 +1,6 @@
 {
-  "name": "matsuyoi_rpg_engine_v4_0_g_5_choice_layout_fix",
-  "version": "4.0-g.5",
+  "name": "matsuyoi_rpg_engine_v4_0_g_6_choice_companion_fix",
+  "version": "4.0-g.6",
   "features": [
     "ground16 opaque tiles integrated",
     "layer-specific tilesets",
@@ -103,6 +103,10 @@
     "choice layout fix",
     "dedicated choice-open dialogue sizing",
     "scrollable choice box",
-    "iPhone SE choice media query"
+    "iPhone SE choice media query",
+    "choice count based layout",
+    "choice button direct CSS target",
+    "explicit companionPosition for scene transitions",
+    "companion warp prevention"
   ]
 }

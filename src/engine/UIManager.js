@@ -52,6 +52,8 @@ export class UIManager {
     this.nameplate.textContent = speaker;
     this.dialogText.textContent = text;
     this.choiceBox.classList.add("hidden");
+    this.dialogLayer.classList.remove("choices-1", "choices-2", "choices-3", "choices-many");
+    this.dialogLayer.style.removeProperty("--choice-count");
     this.dialogLayer.classList.remove("hidden");
   }
 
@@ -62,10 +64,16 @@ export class UIManager {
   showChoices(choices, selectedIndex, onSelect) {
     this.choiceBox.innerHTML = "";
 
+    const count = choices.length;
+    this.dialogLayer.classList.remove("choices-1", "choices-2", "choices-3", "choices-many");
+    this.dialogLayer.classList.add(count >= 4 ? "choices-many" : `choices-${count}`);
+    this.dialogLayer.style.setProperty("--choice-count", String(count));
+
     choices.forEach((choice, index) => {
       const button = document.createElement("button");
       button.type = "button";
-      button.className = `choice ${index === selectedIndex ? "selected" : ""}`;
+      button.className = `choice choice-item ${index === selectedIndex ? "selected" : ""}`;
+      button.dataset.choiceIndex = String(index);
       button.textContent = choice;
       button.addEventListener("click", (event) => {
         event.stopPropagation();

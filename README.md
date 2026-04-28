@@ -1,4 +1,4 @@
-# 待宵物語 RPG Engine v4.0-g.5
+# 待宵物語 RPG Engine v4.0-g.6
 
 ## この版の目的
 
@@ -986,4 +986,23 @@ iPhone SE相当の低height向けmedia queryを追加
 左上が v4.0-g.5 ChoiceFix になる
 選択肢が複数件見える
 選択肢が多い場合はスクロールできる
+```
+
+
+## v4.0-g.6 変更点：Choice Visibility / Companion Spawn Fix
+
+### 修正
+
+```text
+選択肢数に応じてdialog高さを確保
+.choice buttonを直接CSS対象化
+UIManagerでchoices-1 / choices-2 / choices-3 / choices-many classを付与
+コルパン家の出入り時にランドのcompanionPositionを明示
+```
+
+### 確認
+
+```text
+選択肢2件が見える
+コルパン家を出た直後にランドが自然な位置にいる
 ```

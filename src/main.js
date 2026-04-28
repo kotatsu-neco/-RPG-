@@ -19,7 +19,7 @@ bootManager.start("ロード中…");
 const game = new Game({
   canvas,
   dataPath: "src/game/data/matsuyoi.game.json",
-  version: "4.0-g.5",
+  version: "4.0-g.6",
 });
 
 window.matsuyoiBoot = bootManager;

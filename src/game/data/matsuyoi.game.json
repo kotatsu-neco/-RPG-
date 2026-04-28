@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "待宵物語",
-    "engineVersion": "4.0-g.5",
+    "engineVersion": "4.0-g.6",
     "description": "スマホ向けレトロRPG汎用基盤上の待宵物語プロトタイプ"
   },
   "canvas": {
@@ -1224,7 +1224,12 @@
               5,
               19
             ]
-          ]
+          ],
+          "companionPosition": {
+            "x": 8,
+            "y": 24,
+            "facing": "up"
+          }
         },
         {
           "id": "future_rulgar_house_notice",
@@ -4013,6 +4018,11 @@
             "x": 9,
             "y": 18,
             "facing": "down"
+          },
+          "companionPosition": {
+            "x": 9,
+            "y": 17,
+            "facing": "down"
           }
         }
       ],
@@ -4195,9 +4205,9 @@
     "loadingMinimumMs": 700
   },
   "engineStabilization": {
-    "phase": "v4.0-g.5",
-    "name": "Choice Layout Fix",
-    "priority": "make_multiple_choice_options_visible_on_iPhone_SE",
+    "phase": "v4.0-g.6",
+    "name": "Choice Visibility / Companion Spawn Fix",
+    "priority": "make_all_choices_visible_and_prevent_companion_warp_after_scene_transition",
     "singleFileBuild": "not_generated"
   },
   "bootPolicy": {
@@ -4365,5 +4375,9 @@
     "issue": "Choice box was too short; only one option was visible.",
     "fix": "Use dedicated choice-open layout with taller dialogue window, scrollable choice box, and fixed separation from controls.",
     "targetDevice": "iPhone SE 2nd gen Safari"
+  },
+  "choiceAndCompanionFixPolicy": {
+    "choiceFix": "UIManager adds choice count class and CSS variable; CSS sizes choice window based on choice count and targets .choice directly.",
+    "companionFix": "Scene transitions define companionPosition explicitly for colpan house entry/exit."
   }
 }
