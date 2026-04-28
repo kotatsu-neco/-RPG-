@@ -32,7 +32,7 @@ export class Game {
   }
 
   async boot() {
-    this.ui.setDebugVersion("v3.4.3 Flat");
+    this.ui.setDebugVersion("v3.4.6 Structured");
     this.layoutManager.bind();
 
     this.gameData = await this.assetLoader.loadJSON(this.dataPath);
@@ -258,6 +258,25 @@ export class Game {
     const interactable = this.interactionManager.getFacingInteractable();
     if (interactable) {
       this.handleInteractable(interactable);
+    }
+  }
+
+  applyTransitionTargetPosition(interactable) {
+    const target = interactable.targetPosition;
+    if (!target) return;
+
+    this.player.x = target.x;
+    this.player.y = target.y;
+
+    if (target.facing) {
+      this.player.facing = target.facing;
+    }
+
+    if (this.companion) {
+      const offsetX = target.companionOffset?.x ?? -1;
+      const offsetY = target.companionOffset?.y ?? 1;
+      this.companion.x = target.companionX ?? Math.max(0, target.x + offsetX);
+      this.companion.y = target.companionY ?? Math.max(0, target.y + offsetY);
     }
   }
 

@@ -1,0 +1,22 @@
+asset_id,filename,semantic_name,category,layer_type,opaque,collision,width,height,alpha_rule,resize_rule,edge_policy,anchor_x,anchor_y,notes
+0,objects/obj_stone_wall.png,stone_wall,building_wall,object,false,true,16,16,alpha_0_or_255_only,do_not_resize,transparent_clean_edge,8,15,wall tile / object layer
+1,objects/obj_roof_red.png,roof_tile_red,building_roof,object,false,true,16,16,alpha_0_or_255_only,do_not_resize,transparent_clean_edge,8,15,roof object
+2,objects/obj_roof_brown.png,roof_tile_brown,building_roof,object,false,true,16,16,alpha_0_or_255_only,do_not_resize,transparent_clean_edge,8,15,roof object variation
+3,objects/obj_door.png,door,building_opening,object,false,true,16,24,alpha_0_or_255_only,do_not_resize,transparent_clean_edge,8,23,door; anchor at bottom center
+4,objects/obj_window.png,window,building_opening,object,false,true,16,16,alpha_0_or_255_only,do_not_resize,transparent_clean_edge,8,15,window
+5,objects/obj_well.png,well_body,object,object,false,true,32,32,alpha_0_or_255_only,do_not_resize,transparent_clean_edge,16,31,multi-tile well
+6,objects/obj_table.png,table,interior_object,object,false,true,32,20,alpha_0_or_255_only,do_not_resize,transparent_clean_edge,16,19,interior table
+7,objects/obj_chair.png,chair,interior_object,object,false,true,16,16,alpha_0_or_255_only,do_not_resize,transparent_clean_edge,8,15,chair
+8,objects/obj_shelf.png,shelf,interior_object,object,false,true,16,32,alpha_0_or_255_only,do_not_resize,transparent_clean_edge,8,31,shelf
+9,objects/obj_bed.png,bed,interior_object,object,false,true,32,20,alpha_0_or_255_only,do_not_resize,transparent_clean_edge,16,19,bed
+10,objects/obj_stove.png,stove,interior_object,object,false,true,16,16,alpha_0_or_255_only,do_not_resize,transparent_clean_edge,8,15,stove
+11,objects/obj_cabinet.png,cabinet,interior_object,object,false,true,16,32,alpha_0_or_255_only,do_not_resize,transparent_clean_edge,8,31,cabinet
+12,objects/obj_mail_bundle.png,mail_bundle,postal_object,object,false,true,16,16,alpha_0_or_255_only,do_not_resize,transparent_clean_edge,8,15,postal bundle
+13,objects/obj_memo_spot.png,memo_spot,story_object,decoration,false,false,16,16,alpha_0_or_255_only,do_not_resize,transparent_clean_edge,8,15,mother's memo spot / decoration
+14,objects/obj_barrel.png,barrel,object,object,false,true,16,16,alpha_0_or_255_only,do_not_resize,transparent_clean_edge,8,15,barrel
+15,objects/obj_crate.png,crate,object,object,false,true,16,16,alpha_0_or_255_only,do_not_resize,transparent_clean_edge,8,15,crate
+16,decorations/dec_grass_tuft.png,grass_tuft,decoration,decoration,false,false,16,16,alpha_0_or_255_only,do_not_resize,transparent_clean_edge,8,15,overlay grass detail; not ground
+17,decorations/dec_pebbles.png,pebbles,decoration,decoration,false,false,16,16,alpha_0_or_255_only,do_not_resize,transparent_clean_edge,8,15,small stones overlay
+18,decorations/dec_shadow_soft.png,shadow_soft,decoration,decoration,false,false,16,16,alpha_0_or_255_only,do_not_resize,transparent_clean_edge,8,15,pixel shadow helper; no semi-alpha
+19,decorations/dec_moss_patch.png,moss_patch,decoration,decoration,false,false,16,16,alpha_0_or_255_only,do_not_resize,transparent_clean_edge,8,15,graveyard moss overlay
+20,decorations/dec_path_chip.png,path_chip,decoration,decoration,false,false,16,16,alpha_0_or_255_only,do_not_resize,transparent_clean_edge,8,15,roadside chip overlay

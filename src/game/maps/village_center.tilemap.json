@@ -8,7 +8,7 @@
     {
       "name": "ground",
       "type": "tile",
-      "tileset": "ground16_flat_diagnostic",
+      "tileset": "ground16_redesign_v2",
       "data": [
         [
           1,

@@ -1,0 +1,7 @@
+filename,width,height,all_alpha_255,edge_alpha_255,edge_white_like_pixels,edge_policy,status
+ground_001_grass.png,16,16,true,true,0,no_visible_border,ok
+ground_002_grass_dark.png,16,16,true,true,0,no_visible_border,ok
+ground_003_dirt_path.png,16,16,true,true,0,no_visible_border,ok
+ground_004_stone_path.png,16,16,true,true,0,no_visible_border,ok
+ground_005_interior_floor_wood.png,16,16,true,true,0,no_visible_border,ok
+ground_006_interior_floor_stone.png,16,16,true,true,0,no_visible_border,ok

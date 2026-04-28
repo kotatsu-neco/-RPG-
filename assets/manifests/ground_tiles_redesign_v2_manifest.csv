@@ -1,0 +1,7 @@
+tile_id,filename,semantic_name,category,layer_type,opaque,collision,width,height,alpha_rule,resize_rule,edge_policy,notes
+0,ground_001_grass.png,grass,outdoor_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,no_visible_border,flat low-noise grass; no edge pattern
+1,ground_002_grass_dark.png,grass_dark,outdoor_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,no_visible_border,flat darker grass; no edge pattern
+2,ground_003_dirt_path.png,dirt_path,outdoor_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,no_visible_border,flat dirt path base; road edges must be decoration/transition
+3,ground_004_stone_path.png,stone_path,outdoor_ground,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,no_visible_border,very weak stone texture; no tile-edge grout
+4,ground_005_interior_floor_wood.png,interior_floor_wood,interior_floor,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,no_visible_border,subtle wood floor; no per-tile panel border
+5,ground_006_interior_floor_stone.png,interior_floor_stone,interior_floor,ground,true,false,16,16,alpha_255_all_pixels,do_not_resize,no_visible_border,subtle stone floor; no fixed grid seams

@@ -1,4 +1,4 @@
-# 待宵物語 RPG Engine v3.4.3
+# 待宵物語 RPG Engine v3.4.6
 
 ## この版の目的
 
@@ -576,3 +576,44 @@ ground16_flat_diagnostic
 ```
 
 objects / decoration は既存素材を維持しています。
+
+
+## v3.4.4 変更点：暫定フラットground採用版
+
+v3.4.3の診断により、groundの格子状表示はエンジンではなくground素材設計に起因する可能性が高いと確認した。
+
+そのため、v3.4.4では `ground16_flat_diagnostic` を暫定groundとして採用する。
+
+目的:
+
+```text
+ストーリー・イベント実装を止めない
+地面の破綻を抑える
+正式ground再設計までの安定版にする
+```
+
+追加ドキュメント:
+
+```text
+docs/flat_ground_interim_policy_v3_4_4.md
+docs/graphic_department_ground_redesign_request_v3_4_4.md
+```
+
+
+## v3.4.6 変更点：正式ファイル構成運用版
+
+GitHub Desktopによる直接push運用へ切り替えるため、Single File版ではなく正式ファイル構成を前提にしました。
+
+### 主な修正
+
+```text
+Single File由来のキャラクター画像崩れを回避
+colpan_house / rulgar_house の遷移整理
+targetPositionによる遷移後座標指定
+ground redesign v2 維持
+object / decoration clean v1 維持
+```
+
+### 運用
+
+このzipを展開し、リポジトリルートへ上書きコピーしてからGitHub Desktopでcommit / pushしてください。

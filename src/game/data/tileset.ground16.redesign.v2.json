@@ -1,0 +1,43 @@
+{
+  "id": "ground16_redesign_v2",
+  "tileSize": 16,
+  "sourceManifest": "assets/manifests/ground_tiles_redesign_v2_manifest.csv",
+  "rule": {
+    "layer_type": "ground",
+    "opaque": true,
+    "resize": "do_not_resize",
+    "edge_policy": "no_visible_border"
+  },
+  "tiles": {
+    "0": "assets/tiles/ground16_redesign_v2/ground_001_grass.png",
+    "1": "assets/tiles/ground16_redesign_v2/ground_002_grass_dark.png",
+    "2": "assets/tiles/ground16_redesign_v2/ground_003_dirt_path.png",
+    "3": "assets/tiles/ground16_redesign_v2/ground_004_stone_path.png",
+    "4": "assets/tiles/ground16_redesign_v2/ground_005_interior_floor_wood.png",
+    "5": "assets/tiles/ground16_redesign_v2/ground_006_interior_floor_stone.png"
+  },
+  "semantic": {
+    "0": "grass",
+    "1": "grass_dark",
+    "2": "dirt_path",
+    "3": "stone_path",
+    "4": "interior_floor_wood",
+    "5": "interior_floor_stone"
+  },
+  "collision": {
+    "0": false,
+    "1": false,
+    "2": false,
+    "3": false,
+    "4": false,
+    "5": false
+  },
+  "opaque": {
+    "0": true,
+    "1": true,
+    "2": true,
+    "3": true,
+    "4": true,
+    "5": true
+  }
+}

@@ -1,6 +1,6 @@
 {
-  "name": "matsuyoi_rpg_engine_v3_4_3_flat_tile_diagnostic",
-  "version": "3.4.3",
+  "name": "matsuyoi_rpg_engine_v3_4_6_structured_runtime",
+  "version": "3.4.6",
   "features": [
     "ground16 opaque tiles integrated",
     "layer-specific tilesets",
@@ -10,6 +10,15 @@
     "colpan and rulgar house ground layers replaced with opaque tiles",
     "flat ground tile diagnostic mode",
     "ground16_flat_diagnostic tileset",
-    "ground grid artifact isolation"
+    "ground grid artifact isolation",
+    "flat ground adopted as interim production tiles",
+    "graphic department redesign request included",
+    "ground tile artifact conclusion documented",
+    "structured file distribution",
+    "single file workflow deprecated",
+    "ground redesign v2 integrated",
+    "object decoration clean v1 integrated",
+    "transition targetPosition support",
+    "colpan and rulgar house transitions organized"
   ]
 }
