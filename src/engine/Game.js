@@ -32,7 +32,7 @@ export class Game {
   }
 
   async boot() {
-    this.ui.setDebugVersion("v3.4.7 Intro");
+    this.ui.setDebugVersion("v3.4.8 UI");
     this.layoutManager.bind();
 
     this.gameData = await this.assetLoader.loadJSON(this.dataPath);

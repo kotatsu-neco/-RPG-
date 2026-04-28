@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "待宵物語",
-    "engineVersion": "3.4.7",
+    "engineVersion": "3.4.8",
     "description": "スマホ向けレトロRPG汎用基盤上の待宵物語プロトタイプ"
   },
   "canvas": {
@@ -4139,5 +4139,16 @@
     "currentScope": "colpan_house_to_village_only",
     "rule": "Do not unlock locations before the corresponding story flag and event are implemented.",
     "rulgarHouseUnlockTarget": "v3.5 with CH1_03_MET_RULGAR"
+  },
+  "uiStabilityPolicy": {
+    "accidentalZoom": "disabled_during_gameplay",
+    "textSelection": "disabled_during_gameplay",
+    "futureSettings": [
+      "screen_scale",
+      "ui_button_size",
+      "dialogue_font_size",
+      "menu_font_size"
+    ],
+    "note": "Prevent accidental Safari zoom/selection now; provide intentional in-game accessibility settings later."
   }
 }

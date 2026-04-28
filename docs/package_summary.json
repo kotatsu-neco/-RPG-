@@ -1,6 +1,6 @@
 {
-  "name": "matsuyoi_rpg_engine_v3_4_7_intro_flow_fix",
-  "version": "3.4.7",
+  "name": "matsuyoi_rpg_engine_v3_4_8_ui_stability_loading",
+  "version": "3.4.8",
   "features": [
     "ground16 opaque tiles integrated",
     "layer-specific tilesets",
@@ -24,6 +24,12 @@
     "colpan house return route retained",
     "location HUD foundation",
     "objective HUD foundation",
-    "intro notices added"
+    "intro notices added",
+    "accidental zoom prevention",
+    "text selection prevention",
+    "Safari gesture prevention",
+    "loading overlay",
+    "boot error display",
+    "future screen scale and font size settings documented"
   ]
 }

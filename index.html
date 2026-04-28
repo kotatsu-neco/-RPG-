@@ -2,11 +2,18 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, viewport-fit=cover, user-scalable=no">
   <title>待宵物語 RPG Engine v3.0</title>
   <link rel="stylesheet" href="src/style.css?v=3.0">
 </head>
 <body>
+        <div id="loading-overlay" class="loading-overlay" role="status" aria-live="polite">
+          <div class="loading-panel">
+            <div class="loading-title">待宵物語</div>
+            <div class="loading-text">ロード中…</div>
+            <div class="loading-subtext">画面に触れず、そのままお待ちください。</div>
+          </div>
+        </div>
         <div id="hud-info" class="hud-info" aria-live="polite">
           <div id="hud-location" class="hud-location" hidden></div>
           <div id="hud-objective" class="hud-objective" hidden></div>
