@@ -27,16 +27,32 @@ export class Renderer {
   }
 
   draw() {
-    this.drawBaseMap();
-    this.drawObjects();
-
     try {
-      this.drawSceneObjects();
-    } catch (error) {
-      console.error("[Renderer] Object rendering failed:", error);
-    }
+      this.drawBaseMap();
+      this.drawObjects();
 
-    this.drawCharacters();
+      try {
+        this.drawSceneObjects();
+      } catch (error) {
+        console.error("[Renderer] Object rendering failed:", error);
+      }
+
+      this.drawCharacters();
+    } catch (error) {
+      console.error("[Renderer] Frame rendering failed:", error);
+      this.drawFallbackBlackoutSafe(error);
+    }
+  }
+
+  drawFallbackBlackoutSafe(error) {
+    this.ctx.fillStyle = "#5e7a4e";
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.fillStyle = "rgba(20, 23, 27, 0.82)";
+    this.ctx.fillRect(8, 8, this.canvas.width - 16, 48);
+    this.ctx.fillStyle = "#f5efe2";
+    this.ctx.font = "12px system-ui, sans-serif";
+    this.ctx.fillText("描画エラーが発生しました", 16, 28);
+    this.ctx.fillText(String(error?.message || error).slice(0, 36), 16, 46);
   }
 
   drawBaseMap() {

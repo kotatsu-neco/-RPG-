@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "待宵物語",
-    "engineVersion": "4.0-g.3",
+    "engineVersion": "4.0-g.4",
     "description": "スマホ向けレトロRPG汎用基盤上の待宵物語プロトタイプ"
   },
   "canvas": {
@@ -4195,9 +4195,9 @@
     "loadingMinimumMs": 700
   },
   "engineStabilization": {
-    "phase": "v4.0-g.3",
-    "name": "Blackout Fix / ObjectRenderer Safety",
-    "priority": "prevent_render_loop_crash_after_loading",
+    "phase": "v4.0-g.4",
+    "name": "DOM Boot Structure Fix",
+    "priority": "fix_loading_overlay_wrapping_app_blackout",
     "singleFileBuild": "not_generated"
   },
   "bootPolicy": {
@@ -4355,5 +4355,10 @@
     "cause": "Renderer.draw called drawSceneObjects but method was missing; ObjectRenderer render loop also used entry incorrectly.",
     "fix": "restore drawSceneObjects method, wrap object rendering in try/catch, fix ObjectRenderer entry handling.",
     "goal": "Object rendering errors should not stop base map and character drawing."
+  },
+  "domBootFixPolicy": {
+    "cause": "index.html had loading-overlay without a closing div, so app/main was inside loading-overlay. When BootManager hid the overlay after '準備ができました', the entire game disappeared.",
+    "fix": "Rebuild index.html so app and loading-overlay are siblings. Add BootManager DOM sanity check.",
+    "renderSafety": "Renderer.draw now catches full-frame errors and paints diagnostic fallback instead of blacking out."
   }
 }

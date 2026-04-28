@@ -18,10 +18,24 @@ export class BootManager {
     this.error = null;
   }
 
+  validateDomStructure() {
+    const app = document.getElementById("app");
+    if (this.overlay && app && this.overlay.contains(app)) {
+      const message = "DOM構造エラー: loading-overlay の中に app が入っています。";
+      console.error("[BootManager]", message);
+      throw new Error(message);
+    }
+  }
+
   start(message = "ロード中…") {
+    this.validateDomStructure();
     this.startedAt = Date.now();
     this.error = null;
     this.steps = [];
+
+    if (this.overlay) {
+      this.overlay.style.display = "grid";
+    }
 
     this.setMessage(message);
     this.setSubtext("起動準備をしています。");
@@ -84,6 +98,10 @@ export class BootManager {
     this.overlay?.classList.add("hidden", "complete");
     this.overlay?.classList.remove("error");
     this.overlay?.setAttribute("aria-busy", "false");
+
+    if (this.overlay) {
+      this.overlay.style.display = "none";
+    }
   }
 
   fail(error, context = "起動処理") {

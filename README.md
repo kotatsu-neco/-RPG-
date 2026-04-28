@@ -1,4 +1,4 @@
-# 待宵物語 RPG Engine v4.0-g.3
+# 待宵物語 RPG Engine v4.0-g.4
 
 ## この版の目的
 
@@ -949,3 +949,20 @@ ObjectRenderer描画失敗時もゲーム全体が止まらないようtry/catch
 ロード後に黒画面で止まらない
 背景・キャラクターが表示される
 ```
+
+
+## v4.0-g.4 変更点：DOM Boot Structure Fix
+
+### 根本修正
+
+```text
+loading-overlay の閉じタグ欠落により main#app が overlay 内に入っていた問題を修正
+main#app と loading-overlay を兄弟要素に再構築
+BootManagerにDOM構造チェックを追加
+Renderer.draw全体をtry/catchで保護
+```
+
+### 重要
+
+前版のブラックアウトは、描画だけでなくDOM構造が原因でした。  
+ロード完了時にoverlayを非表示にすると、ゲーム本体も一緒に非表示になっていました。

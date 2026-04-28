@@ -1,6 +1,6 @@
 {
-  "name": "matsuyoi_rpg_engine_v4_0_g_3_blackout_fix",
-  "version": "4.0-g.3",
+  "name": "matsuyoi_rpg_engine_v4_0_g_4_dom_boot_fix",
+  "version": "4.0-g.4",
   "features": [
     "ground16 opaque tiles integrated",
     "layer-specific tilesets",
@@ -94,6 +94,11 @@
     "Renderer drawSceneObjects restored",
     "ObjectRenderer entry loop fixed",
     "object rendering try catch safety",
-    "blackout after loading fixed"
+    "blackout after loading fixed",
+    "fixed loading overlay DOM structure",
+    "app and loading overlay are siblings",
+    "BootManager DOM sanity check",
+    "Renderer full frame safety fallback",
+    "loading overlay display none after complete"
   ]
 }
