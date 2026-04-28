@@ -1,4 +1,4 @@
-# 待宵物語 RPG Engine v4.0-g.6
+# 待宵物語 RPG Engine v4.0-g.7
 
 ## この版の目的
 
@@ -1005,4 +1005,28 @@ UIManagerでchoices-1 / choices-2 / choices-3 / choices-many classを付与
 ```text
 選択肢2件が見える
 コルパン家を出た直後にランドが自然な位置にいる
+```
+
+
+## v4.0-g.7 変更点：Detached Choice Overlay Fix
+
+### 方針変更
+
+選択肢を会話ウィンドウ内に表示する方式をやめ、`#game-shell` 直下の独立した `#choice-overlay` に表示します。
+
+### 修正
+
+```text
+UIManager.ensureChoiceOverlay()
+showChoices() は #choice-overlay にbutton生成
+syncChoiceSelection() は #choice-overlay を同期
+inline #choice-box はchoice modeで非表示
+.choice-overlay CSS追加
+```
+
+### 確認
+
+```text
+選択肢2件が独立パネルに表示される
+上下キー・選ぶ・直接タップが使える
 ```

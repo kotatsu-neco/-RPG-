@@ -68,7 +68,7 @@ export class Game {
 
   async boot() {
     this.emitBootStep("game:boot:start", "Game.boot started");
-    this.ui.setDebugVersion("v4.0-g.6 ChoiceDog");
+    this.ui.setDebugVersion("v4.0-g.7 ChoiceOverlay");
     window.matsuyoiCacheDebug = () => this.assetLoader.getCacheDebugInfo();
     this.layoutManager.bind();
 

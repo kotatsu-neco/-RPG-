@@ -4,6 +4,7 @@ export class UIManager {
     this.nameplate = document.getElementById("nameplate");
     this.dialogText = document.getElementById("dialog-text");
     this.choiceBox = document.getElementById("choice-box");
+    this.choiceOverlay = this.ensureChoiceOverlay();
     this.noticeLayer = document.getElementById("notice-layer");
     this.noticeWindow = document.getElementById("notice-window");
     this.actionButton = document.getElementById("action-button");
@@ -52,6 +53,9 @@ export class UIManager {
     this.nameplate.textContent = speaker;
     this.dialogText.textContent = text;
     this.choiceBox.classList.add("hidden");
+    this.choiceBox.innerHTML = "";
+    this.choiceOverlay.classList.add("hidden");
+    this.choiceOverlay.innerHTML = "";
     this.dialogLayer.classList.remove("choices-1", "choices-2", "choices-3", "choices-many");
     this.dialogLayer.style.removeProperty("--choice-count");
     this.dialogLayer.classList.remove("hidden");
@@ -62,7 +66,9 @@ export class UIManager {
   }
 
   showChoices(choices, selectedIndex, onSelect) {
+    this.choiceBox.classList.add("hidden");
     this.choiceBox.innerHTML = "";
+    this.choiceOverlay.innerHTML = "";
 
     const count = choices.length;
     this.dialogLayer.classList.remove("choices-1", "choices-2", "choices-3", "choices-many");
@@ -79,21 +85,27 @@ export class UIManager {
         event.stopPropagation();
         onSelect(index);
       });
-      this.choiceBox.appendChild(button);
+      this.choiceOverlay.appendChild(button);
     });
 
     this.dialogText.textContent = "どうする？";
-    this.choiceBox.classList.remove("hidden");
+    this.choiceOverlay.classList.remove("hidden");
   }
 
   syncChoiceSelection(selectedIndex) {
-    Array.from(this.choiceBox.querySelectorAll(".choice")).forEach((button, index) => {
+    Array.from(this.choiceOverlay.querySelectorAll(".choice")).forEach((button, index) => {
       button.classList.toggle("selected", index === selectedIndex);
+      if (index === selectedIndex) {
+        button.scrollIntoView({ block: "nearest", inline: "nearest" });
+      }
     });
   }
 
   hideDialogue() {
     this.choiceBox.classList.add("hidden");
+    this.choiceBox.innerHTML = "";
+    this.choiceOverlay.classList.add("hidden");
+    this.choiceOverlay.innerHTML = "";
     this.dialogLayer.classList.add("hidden");
   }
 

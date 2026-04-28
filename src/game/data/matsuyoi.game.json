@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "待宵物語",
-    "engineVersion": "4.0-g.6",
+    "engineVersion": "4.0-g.7",
     "description": "スマホ向けレトロRPG汎用基盤上の待宵物語プロトタイプ"
   },
   "canvas": {
@@ -4205,9 +4205,9 @@
     "loadingMinimumMs": 700
   },
   "engineStabilization": {
-    "phase": "v4.0-g.6",
-    "name": "Choice Visibility / Companion Spawn Fix",
-    "priority": "make_all_choices_visible_and_prevent_companion_warp_after_scene_transition",
+    "phase": "v4.0-g.7",
+    "name": "Detached Choice Overlay Fix",
+    "priority": "separate_choices_from_dialog_window_overflow_constraints",
     "singleFileBuild": "not_generated"
   },
   "bootPolicy": {
@@ -4379,5 +4379,10 @@
   "choiceAndCompanionFixPolicy": {
     "choiceFix": "UIManager adds choice count class and CSS variable; CSS sizes choice window based on choice count and targets .choice directly.",
     "companionFix": "Scene transitions define companionPosition explicitly for colpan house entry/exit."
+  },
+  "choiceOverlayPolicy": {
+    "approach": "Choices are rendered into #choice-overlay appended to #game-shell, not inside #dialog-window.",
+    "reason": "iPhone Safari and parent overflow constraints kept hiding inline choices.",
+    "controls": "D-pad and action button remain usable; direct tap on choices is also supported."
   }
 }
