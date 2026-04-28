@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "待宵物語",
-    "engineVersion": "3.4.6",
+    "engineVersion": "3.4.7",
     "description": "スマホ向けレトロRPG汎用基盤上の待宵物語プロトタイプ"
   },
   "canvas": {
@@ -1157,36 +1157,6 @@
           "text": "石組みの古い井戸だ。冷たい空気が、底のほうから静かに上がってくる。"
         },
         {
-          "id": "village_to_rulgar_house",
-          "name": "ルルガーの家",
-          "actionLabel": "入る",
-          "kind": "sceneTransition",
-          "targetScene": "rulgar_house",
-          "targetPosition": {
-            "x": 9,
-            "y": 23,
-            "facing": "up"
-          },
-          "tiles": [
-            [
-              9,
-              7
-            ],
-            [
-              10,
-              7
-            ],
-            [
-              9,
-              8
-            ],
-            [
-              10,
-              8
-            ]
-          ]
-        },
-        {
           "id": "village_to_colpan_house",
           "name": "コルパンの家",
           "actionLabel": "入る",
@@ -1215,6 +1185,81 @@
               18
             ]
           ]
+        },
+        {
+          "id": "future_rulgar_house_notice",
+          "name": "ルルガーの家の方",
+          "actionLabel": "見る",
+          "kind": "notice",
+          "tiles": [
+            [
+              9,
+              7
+            ],
+            [
+              10,
+              7
+            ],
+            [
+              9,
+              8
+            ],
+            [
+              10,
+              8
+            ]
+          ],
+          "text": "この先にルルガーの家がある。次の実装で向かえるようにする。"
+        },
+        {
+          "id": "village_path_notice",
+          "name": "村の道",
+          "actionLabel": "見る",
+          "kind": "notice",
+          "tiles": [
+            [
+              9,
+              14
+            ],
+            [
+              10,
+              14
+            ],
+            [
+              9,
+              15
+            ],
+            [
+              10,
+              15
+            ]
+          ],
+          "text": "ガーガル村の道が続いている。石と土のにおいがする。"
+        },
+        {
+          "id": "field_notice",
+          "name": "畑",
+          "actionLabel": "見る",
+          "kind": "notice",
+          "tiles": [
+            [
+              14,
+              11
+            ],
+            [
+              15,
+              11
+            ],
+            [
+              14,
+              12
+            ],
+            [
+              15,
+              12
+            ]
+          ],
+          "text": "村の畑だ。手入れされた土が静かに広がっている。"
         }
       ],
       "triggers": [
@@ -1257,7 +1302,9 @@
           ],
           "text": "ルルガー家の前まで来た。右下ボタンが「入る」に変わったら、家へ入れる。"
         }
-      ]
+      ],
+      "displayName": "ガーガル村",
+      "objectiveHint": "村の様子を見よう。"
     },
     "rulgar_house": {
       "id": "rulgar_house",
@@ -2597,7 +2644,9 @@
           "text": "ルルガーが扱っている手紙の束だ。まだ今は触らない方がよさそうだ。"
         }
       ],
-      "triggers": []
+      "triggers": [],
+      "displayName": "ルルガー家（準備中）",
+      "lockedUntil": "CH1_03_MET_RULGAR"
     },
     "colpan_house": {
       "id": "colpan_house",
@@ -3927,7 +3976,9 @@
           }
         }
       ],
-      "triggers": []
+      "triggers": [],
+      "displayName": "コルパンの家",
+      "objectiveHint": "母のメモを読もう。"
     }
   },
   "player": {
@@ -4024,8 +4075,9 @@
   },
   "objectives": {
     "CH1_01_START": "母のメモを読もう。",
-    "CH1_02_READ_MOTHERS_NOTE": "ルルガーの家へ向かおう。",
-    "CH1_03_MET_RULUGAR": "ルルガーおじさんの話を聞こう。"
+    "CH1_02_READ_MOTHERS_NOTE": "外へ出て、村の様子を見よう。",
+    "CH1_03_MET_RULUGAR": "ルルガーおじさんの話を聞こう。",
+    "CH1_03_MET_RULGAR": "ルルガーおじさんの話を聞こう。"
   },
   "keyItems": {
     "mothers_note": {
@@ -4076,11 +4128,16 @@
   },
   "distribution": {
     "mode": "structured_files",
-    "note": "Use GitHub Desktop to push the full folder structure. Single File builds are deprecated for the current workflow."
+    "note": "Use GitHub Desktop to push the full folder structure. Single File builds are not generated."
   },
   "objectDecorationAssets": "src/game/data/object_decoration.clean.v1.json",
   "graphicIntegration": {
     "object_decoration_clean_v1": "integrated",
     "largeObjects": "preserved but not fully placed until ObjectRenderer"
+  },
+  "introFlowPolicy": {
+    "currentScope": "colpan_house_to_village_only",
+    "rule": "Do not unlock locations before the corresponding story flag and event are implemented.",
+    "rulgarHouseUnlockTarget": "v3.5 with CH1_03_MET_RULGAR"
   }
 }

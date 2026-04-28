@@ -32,7 +32,7 @@ export class Game {
   }
 
   async boot() {
-    this.ui.setDebugVersion("v3.4.6 Structured");
+    this.ui.setDebugVersion("v3.4.7 Intro");
     this.layoutManager.bind();
 
     this.gameData = await this.assetLoader.loadJSON(this.dataPath);
@@ -407,7 +407,17 @@ export class Game {
     }
   }
 
+  updateHudInfo() {
+    const scene = this.sceneManager?.getCurrentScene?.();
+    const locationName = scene?.displayName || scene?.name || "";
+    const objective = this.flagManager?.getObjective?.(this.gameData.objectives || {}) || scene?.objectiveHint || "";
+
+    this.ui?.setLocationText?.(locationName);
+    this.ui?.setObjectiveText?.(objective);
+  }
+
   syncUI() {
+    this.updateHudInfo?.();
     this.ui.syncBodyState({
       dialogueOpen: this.dialogueManager?.isOpen || false,
       choiceOpen: this.dialogueManager?.isChoiceOpen || false,

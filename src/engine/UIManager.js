@@ -12,6 +12,20 @@ export class UIManager {
     this.debugVersion = document.querySelector("#debug-panel strong");
   }
 
+  setLocationText(text) {
+    const element = document.getElementById("hud-location");
+    if (!element) return;
+    element.textContent = text || "";
+    element.hidden = !text;
+  }
+
+  setObjectiveText(text) {
+    const element = document.getElementById("hud-objective");
+    if (!element) return;
+    element.textContent = text || "";
+    element.hidden = !text;
+  }
+
   setDebugVersion(text) {
     if (this.debugVersion) {
       this.debugVersion.textContent = text;
