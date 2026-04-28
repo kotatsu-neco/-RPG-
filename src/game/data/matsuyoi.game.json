@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "待宵物語",
-    "engineVersion": "4.0-g",
+    "engineVersion": "4.0-g.2",
     "description": "スマホ向けレトロRPG汎用基盤上の待宵物語プロトタイプ"
   },
   "canvas": {
@@ -4195,9 +4195,9 @@
     "loadingMinimumMs": 700
   },
   "engineStabilization": {
-    "phase": "v4.0-g",
-    "name": "Layout / UI Collision Stability",
-    "priority": "dialogue_control_ui_stability_on_mobile_safari",
+    "phase": "v4.0-g.2",
+    "name": "Boot Cache Bust",
+    "priority": "avoid_stale_mobile_safari_assets",
     "singleFileBuild": "not_generated"
   },
   "bootPolicy": {
@@ -4339,5 +4339,16 @@
     "choiceMode": "dialogue lifted by --dialog-choice-bottom, controls remain visible",
     "viewportJitterGuard": "ignore small height-only visualViewport changes",
     "targetDevice": "iPhone SE 2nd gen Safari"
+  },
+  "characterDisplayFixPolicy": {
+    "indexCacheBust": "CSS and JS query strings are updated to v4.0-g.1",
+    "rendererFallback": "directional sprite fallback to base frame, then fallback shape",
+    "reason": "Old v3.0 query strings could cause mobile Safari to load stale JS/CSS."
+  },
+  "cachePolicy": {
+    "forceFreshOnBoot": true,
+    "assetLoaderQuery": "v=<version>&boot=<bootCacheToken>",
+    "runtimeCacheClear": "AssetLoader.clearRuntimeCache resets in-memory request/image cache and boot token.",
+    "note": "Browser HTTP cache cannot be fully cleared by JavaScript, so runtime requests use boot-specific cache busting."
   }
 }

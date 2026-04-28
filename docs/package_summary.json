@@ -1,6 +1,6 @@
 {
-  "name": "matsuyoi_rpg_engine_v4_0_g_layout_ui_collision",
-  "version": "4.0-g",
+  "name": "matsuyoi_rpg_engine_v4_0_g_2_cache_bust",
+  "version": "4.0-g.2",
   "features": [
     "ground16 opaque tiles integrated",
     "layer-specific tilesets",
@@ -81,6 +81,15 @@
     "control zone CSS variables",
     "viewport jitter guard",
     "choice mode layout stabilization",
-    "wide tap region adjustment"
+    "wide tap region adjustment",
+    "index cache bust version fix",
+    "character sprite fallback hardening",
+    "frame modulo guard",
+    "mobile safari contain size adjustment",
+    "boot cache bust token",
+    "AssetLoader forceFreshOnBoot",
+    "runtime cache reset API",
+    "cache debug API",
+    "no-cache meta hints"
   ]
 }

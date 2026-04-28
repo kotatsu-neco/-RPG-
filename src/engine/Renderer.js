@@ -147,6 +147,20 @@ export class Renderer {
     this.ctx.strokeRect(8 * TILE_SIZE + 1, 8 * TILE_SIZE + 1, TILE_SIZE * 4 - 2, TILE_SIZE * 2 - 2);
   }
 
+  pickSpriteFrame(frameSets, baseFrames, facing, index = 0) {
+    const directionalFrames = frameSets?.[facing] || [];
+    const candidates = directionalFrames.length > 0 ? directionalFrames : (baseFrames || []);
+
+    if (!candidates || candidates.length === 0) return null;
+
+    const image = candidates[index % candidates.length];
+    if (image && image.complete !== false && image.naturalWidth !== 0) {
+      return image;
+    }
+
+    return candidates.find((candidate) => candidate && candidate.complete !== false && candidate.naturalWidth !== 0) || null;
+  }
+
   drawCharacters() {
     const npcs = this.sceneManager.getNpcs().map((npc) => ({
       type: "npc",
@@ -160,14 +174,14 @@ export class Renderer {
         type: "companion",
         x: this.actors.companion.x,
         y: this.actors.companion.y,
-        image: (this.images.companionDirections?.[this.actors.companion.facing] || this.images.companion)[this.actors.companion.frame],
+        image: this.pickSpriteFrame(this.images.companionDirections, this.images.companion, this.actors.companion.facing, this.actors.companion.frame),
       },
       ...npcs,
       {
         type: "player",
         x: this.actors.player.x,
         y: this.actors.player.y,
-        image: (this.images.playerDirections?.[this.actors.player.facing] || this.images.player)[this.actors.player.step],
+        image: this.pickSpriteFrame(this.images.playerDirections, this.images.player, this.actors.player.facing, this.actors.player.step),
       },
     ];
 

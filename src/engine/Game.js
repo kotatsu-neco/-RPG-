@@ -68,7 +68,8 @@ export class Game {
 
   async boot() {
     this.emitBootStep("game:boot:start", "Game.boot started");
-    this.ui.setDebugVersion("v4.0-g Layout");
+    this.ui.setDebugVersion("v4.0-g.2 Cache");
+    window.matsuyoiCacheDebug = () => this.assetLoader.getCacheDebugInfo();
     this.layoutManager.bind();
 
     this.gameData = await this.assetLoader.loadJSON(this.dataPath);
@@ -190,6 +191,7 @@ export class Game {
 
     this.syncUI();
     this.updateActionButtonLabel();
+    this.ui?.setDebugDetail?.(`cache: ${this.assetLoader.bootCacheToken.slice(0, 8)}`);
     this.emitBootStep("game:boot:complete", "Game.boot completed");
     requestAnimationFrame(() => this.loop());
   }
@@ -327,7 +329,8 @@ export class Game {
 
     this.actors.player.x = nextX;
     this.actors.player.y = nextY;
-    this.actors.player.step = (this.actors.player.step + 1) % this.images.player.length;
+    const playerFrameCount = this.images.playerDirections?.[direction]?.length || this.images.player.length || 1;
+    this.actors.player.step = (this.actors.player.step + 1) % playerFrameCount;
 
     this.updateCompanionPosition(oldX, oldY);
     this.checkTriggers();
@@ -341,8 +344,8 @@ export class Game {
       : oldPlayerY;
     this.actors.companion.facing = this.actors.player.facing;
 
-    const frames = this.images.companionDirections?.[this.actors.companion.facing] || this.images.companion;
-    this.actors.companion.frame = (this.actors.companion.frame + 1) % frames.length;
+    const frames = this.images.companionDirections?.[this.actors.companion.facing] || this.images.companion || [];
+    this.actors.companion.frame = (this.actors.companion.frame + 1) % (frames.length || 1);
   }
 
   interact() {

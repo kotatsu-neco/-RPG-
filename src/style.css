@@ -885,7 +885,7 @@ body[data-ui-state="choice"] .dpad button[data-dir="right"] {
 }
 
 #game-shell {
-  contain: layout paint size;
+  contain: layout paint;
 }
 
 #touch-controls {
@@ -1036,4 +1036,20 @@ body.choice-open #wide-tap-catcher {
   #choice-box {
     max-height: 64px;
   }
+}
+
+
+/* v4.0-g.1 character display fix */
+#game-canvas {
+  z-index: 1;
+}
+
+#debug-panel,
+#menu-button,
+#dialog-layer,
+#notice-layer,
+#touch-controls,
+#wide-tap-catcher,
+#menu-layer {
+  transform: translateZ(0);
 }

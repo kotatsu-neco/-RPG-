@@ -1,4 +1,4 @@
-# 待宵物語 RPG Engine v4.0-g
+# 待宵物語 RPG Engine v4.0-g.2
 
 ## この版の目的
 
@@ -885,3 +885,48 @@ iPhone SE 2nd gen Safari向けの下部UI安定化
 ### 方針
 
 会話ウィンドウと操作パネルは、場当たり的に重ならないよう逃がすのではなく、操作パネル領域を基準にして安定配置します。
+
+
+## v4.0-g.1 変更点：Character Display / Cache Bust Fix
+
+### 修正
+
+```text
+index.html のCSS/JS参照クエリが v3.0 のまま残っていた問題を修正
+Rendererのsprite選択を堅牢化
+方向別spriteが取れない場合のfallbackを追加
+Game.jsのframe更新で0除算しないよう補強
+CSSの contain:size を外してmobile Safariでの予期しないサイズ挙動を回避
+```
+
+### 確認
+
+```text
+左上が v4.0-g.1 Character になる
+コルパン・ランド・NPCが表示される
+```
+
+
+## v4.0-g.2 変更点：Boot Cache Bust
+
+### 目的
+
+スマホSafariなどで古いアセットが残る問題を避けるため、起動ごとのcache bustを追加しました。
+
+### 主な対応
+
+```text
+AssetLoaderにbootCacheTokenを追加
+JSON / 画像URLへ v=<version>&boot=<token> を付与
+fetch cache: "reload"
+clearRuntimeCache()
+getCacheDebugInfo()
+window.matsuyoiCacheDebug()
+index.htmlのCSS/JS参照をv4.0-g.2へ更新
+no-cache系meta hint追加
+```
+
+### 注意
+
+ブラウザのHTTPキャッシュそのものをJSから完全削除することはできません。  
+その代わり、起動ごとに異なるURLとして読み込ませることで、古いアセット参照を避けます。
