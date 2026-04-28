@@ -29,7 +29,13 @@ export class Renderer {
   draw() {
     this.drawBaseMap();
     this.drawObjects();
-    this.drawSceneObjects();
+
+    try {
+      this.drawSceneObjects();
+    } catch (error) {
+      console.error("[Renderer] Object rendering failed:", error);
+    }
+
     this.drawCharacters();
   }
 

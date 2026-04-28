@@ -56,9 +56,10 @@ export class ObjectRenderer {
     const objects = this.getRenderableObjects(sceneId);
     const sorted = this.sortByZOrder(objects);
 
-    for (const object of sorted) {
-      const asset = this.resolveAsset(object.asset_id);
-      if (!asset) continue;
+    for (const entry of sorted) {
+      const object = entry.object;
+      const asset = entry.asset;
+      if (!object || !asset) continue;
 
       const image = this.assetLoader.getImage(asset.path);
       if (!image) {

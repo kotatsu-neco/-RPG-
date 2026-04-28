@@ -1,6 +1,6 @@
 {
-  "name": "matsuyoi_rpg_engine_v4_0_g_2_cache_bust",
-  "version": "4.0-g.2",
+  "name": "matsuyoi_rpg_engine_v4_0_g_3_blackout_fix",
+  "version": "4.0-g.3",
   "features": [
     "ground16 opaque tiles integrated",
     "layer-specific tilesets",
@@ -90,6 +90,10 @@
     "AssetLoader forceFreshOnBoot",
     "runtime cache reset API",
     "cache debug API",
-    "no-cache meta hints"
+    "no-cache meta hints",
+    "Renderer drawSceneObjects restored",
+    "ObjectRenderer entry loop fixed",
+    "object rendering try catch safety",
+    "blackout after loading fixed"
   ]
 }

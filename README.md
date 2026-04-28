@@ -1,4 +1,4 @@
-# 待宵物語 RPG Engine v4.0-g.2
+# 待宵物語 RPG Engine v4.0-g.3
 
 ## この版の目的
 
@@ -930,3 +930,22 @@ no-cache系meta hint追加
 
 ブラウザのHTTPキャッシュそのものをJSから完全削除することはできません。  
 その代わり、起動ごとに異なるURLとして読み込ませることで、古いアセット参照を避けます。
+
+
+## v4.0-g.3 変更点：Blackout Fix / ObjectRenderer Safety
+
+### 修正
+
+```text
+Renderer.draw() が呼んでいた drawSceneObjects() メソッド欠落を修正
+ObjectRenderer.renderSceneObjects() のentry処理を修正
+ObjectRenderer描画失敗時もゲーム全体が止まらないようtry/catchで保護
+```
+
+### 確認
+
+```text
+左上が v4.0-g.3 BlackoutFix になる
+ロード後に黒画面で止まらない
+背景・キャラクターが表示される
+```

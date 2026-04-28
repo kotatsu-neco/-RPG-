@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "待宵物語",
-    "engineVersion": "4.0-g.2",
+    "engineVersion": "4.0-g.3",
     "description": "スマホ向けレトロRPG汎用基盤上の待宵物語プロトタイプ"
   },
   "canvas": {
@@ -4195,9 +4195,9 @@
     "loadingMinimumMs": 700
   },
   "engineStabilization": {
-    "phase": "v4.0-g.2",
-    "name": "Boot Cache Bust",
-    "priority": "avoid_stale_mobile_safari_assets",
+    "phase": "v4.0-g.3",
+    "name": "Blackout Fix / ObjectRenderer Safety",
+    "priority": "prevent_render_loop_crash_after_loading",
     "singleFileBuild": "not_generated"
   },
   "bootPolicy": {
@@ -4350,5 +4350,10 @@
     "assetLoaderQuery": "v=<version>&boot=<bootCacheToken>",
     "runtimeCacheClear": "AssetLoader.clearRuntimeCache resets in-memory request/image cache and boot token.",
     "note": "Browser HTTP cache cannot be fully cleared by JavaScript, so runtime requests use boot-specific cache busting."
+  },
+  "blackoutFixPolicy": {
+    "cause": "Renderer.draw called drawSceneObjects but method was missing; ObjectRenderer render loop also used entry incorrectly.",
+    "fix": "restore drawSceneObjects method, wrap object rendering in try/catch, fix ObjectRenderer entry handling.",
+    "goal": "Object rendering errors should not stop base map and character drawing."
   }
 }
