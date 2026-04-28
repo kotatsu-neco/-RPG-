@@ -753,3 +753,287 @@ canvas,
 .loading-overlay.error .loading-text {
   color: rgba(255, 210, 202, 0.96);
 }
+
+
+/* v3.4.9 stronger mobile lock */
+html {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  -webkit-text-size-adjust: none;
+}
+
+body {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  -webkit-text-size-adjust: none;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.loading-overlay {
+  display: grid !important;
+}
+
+.loading-overlay.hidden {
+  display: grid !important;
+}
+
+
+/* v4.0-a BootManager loading overlay */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid !important;
+  place-items: center;
+  padding: 24px;
+  background: radial-gradient(circle at center, rgba(45, 55, 46, 0.97), rgba(18, 22, 20, 0.99));
+  color: rgba(247, 242, 231, 0.96);
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  touch-action: none;
+  transition: opacity 180ms ease, visibility 180ms ease;
+}
+
+.loading-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loading-overlay.error {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.loading-overlay.error .loading-panel {
+  border-color: rgba(190, 82, 70, 0.86);
+}
+
+.loading-overlay.error .loading-text {
+  color: rgba(255, 210, 202, 0.96);
+}
+
+.loading-panel {
+  width: min(82vw, 360px);
+  padding: 22px 18px;
+  border: 2px solid rgba(198, 163, 95, 0.62);
+  background: rgba(38, 42, 38, 0.94);
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+
+.loading-title {
+  margin-bottom: 12px;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.loading-text {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.loading-subtext {
+  margin-top: 10px;
+  color: rgba(232, 224, 194, 0.84);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+
+/* v4.0-b UI state body markers */
+body[data-ui-state="loading"] #touch-controls,
+body[data-ui-state="transition"] #touch-controls,
+body[data-ui-state="cutscene"] #touch-controls {
+  pointer-events: none;
+}
+
+body[data-ui-state="menu"] #touch-controls,
+body[data-ui-state="menu"] #wide-tap-catcher {
+  pointer-events: none;
+}
+
+body[data-ui-state="choice"] .dpad button[data-dir="left"],
+body[data-ui-state="choice"] .dpad button[data-dir="right"] {
+  opacity: 0.38;
+}
+
+
+/* v4.0-g layout collision stability */
+:root {
+  --control-zone-height: 132px;
+  --dialog-gap: 12px;
+  --dialog-bottom: calc(var(--control-zone-height) + var(--dialog-gap) + env(safe-area-inset-bottom, 0px));
+  --dialog-choice-bottom: calc(var(--control-zone-height) + 38px + env(safe-area-inset-bottom, 0px));
+  --dialog-font-size: 15px;
+  --menu-font-size: 14px;
+  --control-button-size: 82px;
+}
+
+#game-shell {
+  contain: layout paint size;
+}
+
+#touch-controls {
+  min-height: var(--control-zone-height);
+  bottom: max(8px, env(safe-area-inset-bottom, 0px));
+  align-items: center;
+  padding: 0 18px 4px;
+  z-index: 120;
+}
+
+#dialog-layer {
+  left: 6%;
+  right: 6%;
+  bottom: var(--dialog-bottom) !important;
+  z-index: 90;
+  min-height: 126px;
+  max-height: min(42vh, 214px);
+  display: grid;
+  grid-template-rows: auto 1fr;
+  pointer-events: auto;
+  transform: translateZ(0);
+  will-change: auto;
+}
+
+#dialog-window {
+  min-height: 104px;
+  max-height: 178px;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: 1fr auto;
+}
+
+#dialog-text {
+  min-height: calc(var(--dialog-font-size) * 1.65 * 2);
+  max-height: calc(var(--dialog-font-size) * 1.65 * 3);
+  overflow: hidden;
+  font-size: var(--dialog-font-size);
+}
+
+#choice-box {
+  max-height: 86px;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+body.choice-open #dialog-layer {
+  bottom: var(--dialog-choice-bottom) !important;
+}
+
+body.dialogue-open:not(.choice-open):not(.notice-open) #touch-controls,
+body.notice-open #touch-controls {
+  display: none !important;
+}
+
+body.choice-open #touch-controls {
+  display: flex !important;
+  min-height: var(--control-zone-height);
+}
+
+body.choice-open .dpad {
+  transform: translateY(6px);
+}
+
+body.choice-open #action-button {
+  width: 72px;
+  height: 72px;
+  font-size: 15px;
+  transform: translateY(6px);
+}
+
+#wide-tap-catcher {
+  bottom: 0;
+  height: calc(var(--dialog-bottom) + 168px);
+  z-index: 75;
+}
+
+body.choice-open #wide-tap-catcher {
+  display: none !important;
+}
+
+#notice-layer {
+  top: calc(env(safe-area-inset-top, 0px) + 54px);
+  bottom: calc(var(--control-zone-height) + env(safe-area-inset-bottom, 0px));
+}
+
+#notice-window {
+  max-height: min(34vh, 150px);
+  overflow: hidden;
+}
+
+#menu-window {
+  font-size: var(--menu-font-size);
+}
+
+@media (max-height: 680px) {
+  :root {
+    --control-zone-height: 118px;
+    --dialog-gap: 8px;
+    --dialog-font-size: 14px;
+    --control-button-size: 76px;
+  }
+
+  #dialog-layer {
+    left: 5%;
+    right: 5%;
+    min-height: 112px;
+    max-height: 184px;
+  }
+
+  #dialog-window {
+    min-height: 92px;
+    max-height: 150px;
+    padding: 12px 14px 18px;
+  }
+
+  #dialog-text {
+    max-height: calc(var(--dialog-font-size) * 1.55 * 3);
+    line-height: 1.55;
+  }
+
+  #choice-box {
+    max-height: 72px;
+  }
+
+  body.choice-open #action-button {
+    width: 68px;
+    height: 68px;
+  }
+}
+
+@media (max-height: 600px) {
+  :root {
+    --control-zone-height: 108px;
+    --dialog-choice-bottom: calc(var(--control-zone-height) + 28px + env(safe-area-inset-bottom, 0px));
+  }
+
+  #dialog-layer {
+    min-height: 104px;
+    max-height: 162px;
+  }
+
+  #dialog-window {
+    min-height: 86px;
+    max-height: 132px;
+  }
+
+  #choice-box {
+    max-height: 64px;
+  }
+}

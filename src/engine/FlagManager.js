@@ -42,6 +42,31 @@ export class FlagManager {
     return currentIndex >= targetIndex;
   }
 
+  applyEffect(effect) {
+    if (!effect || !effect.type) return false;
+
+    if (effect.type === "setFlag") {
+      this.setFlag(effect.flag);
+      return true;
+    }
+
+    if (effect.type === "clearFlag") {
+      this.clearFlag(effect.flag);
+      return true;
+    }
+
+    if (effect.type === "setMainFlag") {
+      this.setMainFlag(effect.flag);
+      return true;
+    }
+
+    return false;
+  }
+
+  applyEffects(effects = []) {
+    return effects.map((effect) => this.applyEffect(effect));
+  }
+
   getObjective(objectives = {}) {
     return objectives[this.currentMainFlag] || "";
   }

@@ -1,0 +1,3 @@
+placement_file,sceneId,object_id,asset_id,asset_semantic_name,asset_path,x,y,z_order,asset_width,asset_height,asset_anchor_x,asset_anchor_y,collision_enabled,interactable_id
+village_center.objects.json,village_center,village_well_01,5,well_body,assets/objects/clean_v1/obj_well.png,5,14,y_sort,32,32,16,31,True,village_well
+colpan_house.objects.json,colpan_house,colpan_memo_spot_01,13,memo_spot,assets/objects/clean_v1/obj_memo_spot.png,9,24,decoration_floor,16,16,8,15,False,mothers_note_spot

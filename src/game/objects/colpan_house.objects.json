@@ -1,0 +1,20 @@
+{
+  "sceneId": "colpan_house",
+  "objects": [
+    {
+      "id": "colpan_memo_spot_01",
+      "asset_id": "13",
+      "semantic_name": "memo_spot",
+      "x": 9,
+      "y": 24,
+      "visible": true,
+      "z_order": "decoration_floor",
+      "collision": {
+        "enabled": false,
+        "shape": "none"
+      },
+      "interactable_id": "mothers_note_spot",
+      "notes": "Memo spot visual marker. Kept as floor-level decoration."
+    }
+  ]
+}

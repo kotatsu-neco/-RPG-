@@ -2,7 +2,7 @@ import { TILE_SIZE } from "./constants.js";
 import { TileMapRenderer } from "./TileMapRenderer.js";
 
 export class Renderer {
-  constructor({ canvas, sceneManager, actors, images, tilemaps = {}, tileset = null }) {
+  constructor({ canvas, sceneManager, actors, images, tilemaps = {}, tileset = null, objectRenderer = null }) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
     this.ctx.imageSmoothingEnabled = false;
@@ -11,6 +11,7 @@ export class Renderer {
     this.actors = actors;
     this.images = images;
     this.tileMapRenderer = new TileMapRenderer({ ctx: this.ctx, tilemaps, tileset });
+    this.objectRenderer = objectRenderer;
 
     this.palette = {
       grass: "#5e7a4e",
@@ -28,6 +29,7 @@ export class Renderer {
   draw() {
     this.drawBaseMap();
     this.drawObjects();
+    this.drawSceneObjects();
     this.drawCharacters();
   }
 

@@ -1,7 +1,8 @@
 export class InteractionManager {
-  constructor({ sceneManager, actors }) {
+  constructor({ sceneManager, actors, interactableResolver = null }) {
     this.sceneManager = sceneManager;
     this.actors = actors;
+    this.interactableResolver = interactableResolver;
     this.lastTriggerId = null;
   }
 
@@ -13,10 +14,16 @@ export class InteractionManager {
   getFacingInteractable() {
     const target = this.sceneManager.getFacingTile(this.actors.player);
 
-    return this.sceneManager.getInteractables().find((item) => {
+    const candidates = this.sceneManager.getInteractables().filter((item) => {
       return this.sceneManager.tileListIncludes(item.tiles, target.x, target.y)
         || this.sceneManager.tileListIncludes(item.tiles, this.actors.player.x, this.actors.player.y);
-    }) || null;
+    });
+
+    if (this.interactableResolver) {
+      return this.interactableResolver.firstAvailable(candidates);
+    }
+
+    return candidates[0] || null;
   }
 
   getCurrentTrigger() {

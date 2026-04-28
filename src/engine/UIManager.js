@@ -26,6 +26,22 @@ export class UIManager {
     element.hidden = !text;
   }
 
+  setDebugDetail(text) {
+    const panel = document.getElementById("debug-panel");
+    if (!panel || !text) return;
+
+    const existing = panel.querySelector(".debug-detail");
+    if (existing) {
+      existing.textContent = text;
+      return;
+    }
+
+    const detail = document.createElement("span");
+    detail.className = "debug-detail";
+    detail.textContent = text;
+    panel.appendChild(detail);
+  }
+
   setDebugVersion(text) {
     if (this.debugVersion) {
       this.debugVersion.textContent = text;
@@ -87,10 +103,12 @@ export class UIManager {
     this.actionButton.className = className;
   }
 
-  syncBodyState({ dialogueOpen, choiceOpen, noticeOpen }) {
+  syncBodyState({ dialogueOpen, choiceOpen, noticeOpen, menuOpen = false, uiState = "exploration" }) {
     document.body.classList.toggle("dialogue-open", dialogueOpen);
     document.body.classList.toggle("choice-open", choiceOpen);
     document.body.classList.toggle("notice-open", noticeOpen);
+    document.body.classList.toggle("menu-open", menuOpen);
+    document.body.dataset.uiState = uiState;
 
     const showWideTap = (dialogueOpen && !choiceOpen) || noticeOpen;
     this.wideTapCatcher.classList.toggle("hidden", !showWideTap);

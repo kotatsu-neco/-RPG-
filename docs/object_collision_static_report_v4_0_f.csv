@@ -1,0 +1,3 @@
+sceneId,object_id,asset_id,semantic_name,collision_enabled,collision_shape,collision_tiles,interactable_id,notes
+village_center,village_well_01,5,well_body,True,tiles,"4,13;5,13;4,14;5,14",village_well,First ObjectRenderer target. Existing tilemap object remains until full cleanup.
+colpan_house,colpan_memo_spot_01,13,memo_spot,False,none,,mothers_note_spot,Memo spot visual marker. Kept as floor-level decoration.

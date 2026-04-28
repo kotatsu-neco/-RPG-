@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "待宵物語",
-    "engineVersion": "3.4.8",
+    "engineVersion": "4.0-g",
     "description": "スマホ向けレトロRPG汎用基盤上の待宵物語プロトタイプ"
   },
   "canvas": {
@@ -1169,6 +1169,26 @@
           },
           "tiles": [
             [
+              3,
+              16
+            ],
+            [
+              4,
+              16
+            ],
+            [
+              5,
+              16
+            ],
+            [
+              6,
+              16
+            ],
+            [
+              3,
+              17
+            ],
+            [
               4,
               17
             ],
@@ -1177,12 +1197,32 @@
               17
             ],
             [
+              6,
+              17
+            ],
+            [
+              3,
+              18
+            ],
+            [
               4,
               18
             ],
             [
               5,
               18
+            ],
+            [
+              6,
+              18
+            ],
+            [
+              4,
+              19
+            ],
+            [
+              5,
+              19
             ]
           ]
         },
@@ -4138,10 +4178,11 @@
   "introFlowPolicy": {
     "currentScope": "colpan_house_to_village_only",
     "rule": "Do not unlock locations before the corresponding story flag and event are implemented.",
-    "rulgarHouseUnlockTarget": "v3.5 with CH1_03_MET_RULGAR"
+    "rulgarHouseUnlockTarget": "v3.5 with CH1_03_MET_RULGAR",
+    "colpanHouseReentryFix": "village entrance tiles expanded and notice overlap avoided"
   },
   "uiStabilityPolicy": {
-    "accidentalZoom": "disabled_during_gameplay",
+    "accidentalZoom": "capture_level_prevent_default",
     "textSelection": "disabled_during_gameplay",
     "futureSettings": [
       "screen_scale",
@@ -4149,6 +4190,154 @@
       "dialogue_font_size",
       "menu_font_size"
     ],
-    "note": "Prevent accidental Safari zoom/selection now; provide intentional in-game accessibility settings later."
+    "note": "Prevent accidental Safari zoom/selection now; provide intentional in-game accessibility settings later.",
+    "version": "3.4.9",
+    "loadingMinimumMs": 700
+  },
+  "engineStabilization": {
+    "phase": "v4.0-g",
+    "name": "Layout / UI Collision Stability",
+    "priority": "dialogue_control_ui_stability_on_mobile_safari",
+    "singleFileBuild": "not_generated"
+  },
+  "bootPolicy": {
+    "minimumLoadingMs": 700,
+    "showLoadingBeforeBoot": true,
+    "showBootStep": true,
+    "showErrorOnScreen": true,
+    "preserveCurrentStoryScope": true
+  },
+  "inputStatePolicy": {
+    "states": [
+      "loading",
+      "exploration",
+      "dialogue",
+      "choice",
+      "notice",
+      "menu",
+      "transition",
+      "cutscene"
+    ],
+    "rules": {
+      "loading": {
+        "move": false,
+        "action": false,
+        "tap": false,
+        "menu": false
+      },
+      "exploration": {
+        "move": true,
+        "action": true,
+        "tap": true,
+        "menu": true
+      },
+      "dialogue": {
+        "move": false,
+        "action": "advance",
+        "tap": "advance",
+        "menu": false
+      },
+      "choice": {
+        "move": "up_down_only",
+        "action": "confirm",
+        "tap": "choice_only",
+        "menu": false
+      },
+      "notice": {
+        "move": false,
+        "action": "close",
+        "tap": "close",
+        "menu": false
+      },
+      "menu": {
+        "move": false,
+        "action": "close_menu",
+        "tap": "menu_only",
+        "menu": true
+      },
+      "transition": {
+        "move": false,
+        "action": false,
+        "tap": false,
+        "menu": false
+      },
+      "cutscene": {
+        "move": false,
+        "action": "conditional",
+        "tap": "conditional",
+        "menu": false
+      }
+    }
+  },
+  "eventFoundationPolicy": {
+    "conditionEvaluator": "enabled",
+    "effectRunner": "enabled",
+    "eventFlagManager": "enabled",
+    "sceneTransitionManager": "enabled",
+    "interactableResolver": "enabled",
+    "reservedEffects": [
+      "fade",
+      "wait",
+      "playSound",
+      "cameraShake",
+      "grantItem",
+      "removeItem",
+      "addPartyMember",
+      "removePartyMember",
+      "battle"
+    ],
+    "goal": "Support complex event flags, conditions, and effect chains before chapter event expansion."
+  },
+  "assetValidationPolicy": {
+    "enabled": true,
+    "strict": false,
+    "purpose": "Prevent gameplay, collision, visual immersion, and art-direction mismatches caused by incomplete asset definitions.",
+    "requiredObjectFields": [
+      "path",
+      "semantic_name",
+      "layer_type",
+      "collision",
+      "width",
+      "height",
+      "anchor_x",
+      "anchor_y",
+      "edge_policy",
+      "resize_rule"
+    ],
+    "groundRules": {
+      "layer_type": "ground",
+      "opaque": true,
+      "resize_rule": "do_not_resize",
+      "edge_policy": "no_visible_border"
+    },
+    "coordinationWithGraphicsTeam": "docs/asset_handoff_spec_for_graphics_team_v4_0_d.md",
+    "objectPlacementValidation": true
+  },
+  "objectRenderingPolicy": {
+    "enabled": true,
+    "preloadBeforeSceneDisplay": true,
+    "drawWithoutAwait": true,
+    "anchorDefault": "bottom_center",
+    "zOrderDefault": "y_sort",
+    "initialTarget": "village_well_01"
+  },
+  "objectPlacements": {
+    "village_center": "src/game/objects/village_center.objects.json",
+    "colpan_house": "src/game/objects/colpan_house.objects.json",
+    "rulgar_house": "src/game/objects/rulgar_house.objects.json"
+  },
+  "objectCollisionPolicy": {
+    "enabled": true,
+    "sourceOfTruth": "object placement collision.tiles or collision.rect",
+    "assetCollisionRole": "default semantic hint; placement collision is runtime footprint",
+    "integration": "SceneManager.isBlocked checks scene blockedTiles first, then object collisions",
+    "principle": "Collision should match visible object footprint and player expectation; do not guess silently when placement can define precise tiles."
+  },
+  "layoutStabilityPolicy": {
+    "dialoguePosition": "fixed_to_control_zone",
+    "controlZoneHeight": "css variable --control-zone-height",
+    "choiceMode": "dialogue lifted by --dialog-choice-bottom, controls remain visible",
+    "viewportJitterGuard": "ignore small height-only visualViewport changes",
+    "targetDevice": "iPhone SE 2nd gen Safari"
   }
 }

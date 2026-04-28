@@ -1,10 +1,12 @@
 export class MenuManager {
-  constructor({ uiManager, gameData, flagManager, onReadKeyItem, getState }) {
+  constructor({ uiManager, gameData, flagManager, onReadKeyItem, getState, onOpen, onClose }) {
     this.ui = uiManager;
     this.gameData = gameData;
     this.flagManager = flagManager;
     this.onReadKeyItem = onReadKeyItem;
     this.getState = getState;
+    this.onOpen = onOpen;
+    this.onClose = onClose;
     this.isOpen = false;
     this.currentTab = "items";
 
@@ -40,6 +42,7 @@ export class MenuManager {
     this.isOpen = true;
     this.menuLayer.classList.remove("hidden");
     document.body.classList.add("menu-open");
+    this.onOpen?.();
     this.render();
   }
 
@@ -47,6 +50,7 @@ export class MenuManager {
     this.isOpen = false;
     this.menuLayer.classList.add("hidden");
     document.body.classList.remove("menu-open");
+    this.onClose?.();
   }
 
   toggle() {

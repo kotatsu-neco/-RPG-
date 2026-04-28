@@ -2,6 +2,7 @@ export class AssetLoader {
   constructor({ version = "2.0" } = {}) {
     this.version = version;
     this.cache = new Map();
+    this.imageCache = new Map();
   }
 
   cacheBust(path) {
@@ -23,7 +24,10 @@ export class AssetLoader {
 
     const promise = new Promise((resolve) => {
       const img = new Image();
-      img.onload = () => resolve(img);
+      img.onload = () => {
+        this.imageCache.set(path, img);
+        resolve(img);
+      };
       img.onerror = () => resolve(null);
       img.src = this.cacheBust(path);
     });
@@ -34,5 +38,13 @@ export class AssetLoader {
 
   async loadImageList(paths) {
     return Promise.all(paths.map((path) => this.loadImage(path)));
+  }
+
+  getImage(path) {
+    return this.imageCache.get(path) || null;
+  }
+
+  hasImage(path) {
+    return this.imageCache.has(path);
   }
 }

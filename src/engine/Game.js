@@ -9,6 +9,16 @@ import { directionDelta, ENGINE_VERSION } from "./constants.js";
 import { LayoutManager } from "./LayoutManager.js";
 import { MenuManager } from "./MenuManager.js";
 import { FlagManager } from "./FlagManager.js";
+import { UIStateController, UI_STATES } from "./UIStateController.js";
+import { ActionResolver } from "./ActionResolver.js";
+import { ConditionEvaluator } from "./ConditionEvaluator.js";
+import { EventFlagManager } from "./EventFlagManager.js";
+import { EffectRunner } from "./EffectRunner.js";
+import { SceneTransitionManager } from "./SceneTransitionManager.js";
+import { InteractableResolver } from "./InteractableResolver.js";
+import { AssetValidator } from "./AssetValidator.js";
+import { ObjectRenderer } from "./ObjectRenderer.js";
+import { ObjectCollisionManager } from "./ObjectCollisionManager.js";
 
 export class Game {
   constructor({ canvas, dataPath, version = ENGINE_VERSION }) {
@@ -17,6 +27,8 @@ export class Game {
     this.assetLoader = new AssetLoader({ version });
     this.ui = new UIManager();
     this.layoutManager = new LayoutManager();
+    this.uiState = new UIStateController({ initialState: UI_STATES.LOADING, debug: true });
+    this.actionResolver = new ActionResolver({ uiStateController: this.uiState });
 
     this.actors = {
       player: { x: 0, y: 0, facing: "down", step: 0 },
@@ -31,19 +43,57 @@ export class Game {
     this.noticeOpen = false;
   }
 
+  emitBootStep(step, detail = "") {
+    window.dispatchEvent(new CustomEvent("matsuyoi:game-boot-step", {
+      detail: { step, detail, at: Date.now() },
+    }));
+    console.info("[GameBoot]", step, detail);
+  }
+
+  async validateAssets() {
+    this.assetValidator = new AssetValidator({
+      assetLoader: this.assetLoader,
+      gameData: this.gameData,
+      strict: false,
+    });
+
+    const results = await this.assetValidator.validate();
+    window.matsuyoiAssetValidation = results;
+
+    const summary = this.assetValidator.getSummary();
+    this.ui?.setDebugDetail?.(`assets: ${summary.errors} errors / ${summary.warnings} warnings`);
+
+    return results;
+  }
+
   async boot() {
-    this.ui.setDebugVersion("v3.4.8 UI");
+    this.emitBootStep("game:boot:start", "Game.boot started");
+    this.ui.setDebugVersion("v4.0-g Layout");
     this.layoutManager.bind();
 
     this.gameData = await this.assetLoader.loadJSON(this.dataPath);
     this.flagManager = new FlagManager({ chapterProgress: this.gameData.chapterProgress });
     this.sceneManager = new SceneManager({ gameData: this.gameData });
 
+    this.conditionEvaluator = new ConditionEvaluator({
+      flagManager: this.flagManager,
+      getRuntimeState: () => ({
+        sceneId: this.sceneManager?.currentSceneId,
+        uiState: this.uiState?.state,
+      }),
+    });
+
+    this.eventFlagManager = new EventFlagManager({ flagManager: this.flagManager });
+    this.interactableResolver = new InteractableResolver({
+      conditionEvaluator: this.conditionEvaluator,
+    });
+
     this.resetActorsToSceneStart(this.gameData.startScene);
 
     this.interactionManager = new InteractionManager({
       sceneManager: this.sceneManager,
       actors: this.actors,
+      interactableResolver: this.interactableResolver,
     });
 
     this.dialogueManager = new DialogueManager({
@@ -56,9 +106,56 @@ export class Game {
       },
     });
 
+    this.sceneTransitionManager = new SceneTransitionManager({
+      sceneManager: this.sceneManager,
+      actors: this.actors,
+      interactionManager: this.interactionManager,
+      gameData: this.gameData,
+    });
+
+    this.effectRunner = new EffectRunner({
+      flagEffects: this.eventFlagManager,
+      showNotice: (text) => this.showNotice(text),
+      openDialogue: (dialogueId) => {
+        this.dialogueManager.open(dialogueId);
+        this.syncUI();
+        this.updateActionButtonLabel();
+      },
+      transitionScene: (definition) => { void this.transitionScene(definition); },
+      readKeyItem: (itemId) => this.readKeyItem(itemId),
+      updateUI: () => {
+        this.syncUI();
+        this.updateActionButtonLabel();
+      },
+    });
+
     await this.loadAssets();
+    this.emitBootStep("game:tileset", "Loading tilesets");
     await this.loadTileset();
+    this.emitBootStep("game:tilemaps", "Loading tilemaps");
     await this.loadTilemaps();
+    this.emitBootStep("game:object-assets", "Loading object asset definitions");
+    await this.loadObjectAssets();
+    this.emitBootStep("game:object-placements", "Loading object placements");
+    await this.loadObjectPlacements();
+
+    this.objectCollisionManager = new ObjectCollisionManager({
+      objectPlacements: this.objectPlacements,
+      objectAssets: this.objectAssetData,
+      debug: true,
+    });
+    this.sceneManager.setObjectCollisionManager(this.objectCollisionManager);
+
+    this.objectRenderer = new ObjectRenderer({
+      ctx: this.canvas.getContext("2d"),
+      assetLoader: this.assetLoader,
+      objectAssets: this.objectAssetData,
+      objectPlacements: this.objectPlacements,
+      tileSize: this.gameData.canvas.tileSize,
+    });
+
+    this.emitBootStep("game:object-preload", "Preloading current scene objects");
+    await this.preloadSceneObjects(this.sceneManager.currentSceneId);
 
     this.renderer = new Renderer({
       canvas: this.canvas,
@@ -67,6 +164,7 @@ export class Game {
       images: this.images,
       tilemaps: this.tilemaps,
       tileset: this.tileset,
+      objectRenderer: this.objectRenderer,
     });
 
     this.menuManager = new MenuManager({
@@ -78,6 +176,8 @@ export class Game {
         sceneId: this.sceneManager.currentSceneId,
         sceneName: this.sceneManager.currentScene?.name || this.sceneManager.currentSceneId,
       }),
+      onOpen: () => this.syncUI(),
+      onClose: () => this.syncUI(),
     });
     this.menuManager.bind();
 
@@ -90,7 +190,28 @@ export class Game {
 
     this.syncUI();
     this.updateActionButtonLabel();
+    this.emitBootStep("game:boot:complete", "Game.boot completed");
     requestAnimationFrame(() => this.loop());
+  }
+
+  async loadObjectAssets() {
+    this.objectAssetData = this.gameData.objectDecorationAssets
+      ? await this.assetLoader.loadJSON(this.gameData.objectDecorationAssets)
+      : { assets: {} };
+  }
+
+  async loadObjectPlacements() {
+    this.objectPlacements = { scenes: {} };
+
+    const entries = Object.entries(this.gameData.objectPlacements || {});
+    for (const [sceneId, path] of entries) {
+      this.objectPlacements.scenes[sceneId] = await this.assetLoader.loadJSON(path);
+    }
+  }
+
+  async preloadSceneObjects(sceneId) {
+    if (!this.objectRenderer) return null;
+    return this.objectRenderer.preloadSceneObjects(sceneId);
   }
 
   async loadTileset() {
@@ -173,14 +294,16 @@ export class Game {
   }
 
   handleDirection(direction) {
-    if (this.menuManager?.isOpen) return;
+    this.syncUI();
 
-    if (this.dialogueManager?.isChoiceOpen) {
+    if (this.actionResolver.canMoveChoice(direction)) {
       this.dialogueManager.moveChoice(direction);
       this.syncUI();
       this.updateActionButtonLabel();
       return;
     }
+
+    if (!this.actionResolver.canMove()) return;
 
     this.movePlayer(direction);
   }
@@ -223,29 +346,39 @@ export class Game {
   }
 
   interact() {
-    if (this.menuManager?.isOpen) {
+    this.syncUI();
+
+    if (!this.actionResolver.canAction()) return;
+
+    const actionKind = this.actionResolver.actionKind();
+
+    if (actionKind === "closeMenu") {
       this.menuManager.close();
+      this.syncUI();
+      this.updateActionButtonLabel();
       return;
     }
 
-    if (this.noticeOpen) {
+    if (actionKind === "closeNotice") {
       this.closeNotice();
       return;
     }
 
-    if (this.dialogueManager?.isChoiceOpen) {
+    if (actionKind === "confirmChoice") {
       this.dialogueManager.confirmChoice();
       this.syncUI();
       this.updateActionButtonLabel();
       return;
     }
 
-    if (this.dialogueManager?.isOpen) {
+    if (actionKind === "advanceDialogue") {
       this.dialogueManager.advance();
       this.syncUI();
       this.updateActionButtonLabel();
       return;
     }
+
+    if (actionKind !== "interact") return;
 
     const npc = this.interactionManager.getAdjacentNpc();
     if (npc) {
@@ -265,19 +398,31 @@ export class Game {
     const target = interactable.targetPosition;
     if (!target) return;
 
-    this.player.x = target.x;
-    this.player.y = target.y;
+    this.actors.player.x = target.x;
+    this.actors.player.y = target.y;
 
     if (target.facing) {
-      this.player.facing = target.facing;
+      this.actors.player.facing = target.facing;
     }
 
     if (this.companion) {
       const offsetX = target.companionOffset?.x ?? -1;
       const offsetY = target.companionOffset?.y ?? 1;
-      this.companion.x = target.companionX ?? Math.max(0, target.x + offsetX);
-      this.companion.y = target.companionY ?? Math.max(0, target.y + offsetY);
+      this.actors.companion.x = target.companionX ?? Math.max(0, target.x + offsetX);
+      this.actors.companion.y = target.companionY ?? Math.max(0, target.y + offsetY);
     }
+  }
+
+  checkEventConditions(definition = {}) {
+    const blockedText = this.conditionEvaluator?.firstFailedReason(definition) || "";
+    return {
+      ok: !blockedText,
+      blockedText,
+    };
+  }
+
+  runEffects(effects = []) {
+    return this.effectRunner?.runMany(effects) || [];
   }
 
   readKeyItem(itemId) {
@@ -288,6 +433,8 @@ export class Game {
       this.flagManager.setMainFlag("CH1_02_READ_MOTHERS_NOTE");
     }
 
+    this.runEffects(keyItem.onReadEffects || keyItem.effects || []);
+
     this.menuManager?.render();
     this.syncUI();
     this.updateActionButtonLabel();
@@ -295,7 +442,24 @@ export class Game {
   }
 
   handleChoiceAction(choice, dialogueManager) {
-    if (!choice || !choice.action) return false;
+    if (!choice) return false;
+
+    const conditionResult = this.checkEventConditions(choice);
+    if (!conditionResult.ok) {
+      dialogueManager.close();
+      this.showNotice(conditionResult.blockedText);
+      return true;
+    }
+
+    if (choice.effects || choice.onSelectEffects) {
+      dialogueManager.close();
+      this.runEffects(choice.effects || choice.onSelectEffects);
+      this.syncUI();
+      this.updateActionButtonLabel();
+      return true;
+    }
+
+    if (!choice.action) return false;
 
     if (choice.action === "restart") {
       dialogueManager.restart();
@@ -312,7 +476,7 @@ export class Game {
 
     if (choice.action === "transition") {
       dialogueManager.close();
-      this.transitionScene(choice.targetScene);
+      void this.transitionScene(choice);
       return true;
     }
 
@@ -320,37 +484,65 @@ export class Game {
   }
 
   handleInteractable(interactable) {
-    if (interactable.requiredFlag && !this.flagManager.hasReached(interactable.requiredFlag)) {
-      this.showNotice(interactable.blockedText || "まだできない。");
+    const conditionResult = this.checkEventConditions(interactable);
+    if (!conditionResult.ok) {
+      this.showNotice(conditionResult.blockedText);
+      return;
+    }
+
+    this.runEffects(interactable.beforeEffects || []);
+
+    if (interactable.effects && !interactable.kind) {
+      this.runEffects(interactable.effects);
+      this.syncUI();
+      this.updateActionButtonLabel();
       return;
     }
 
     if (interactable.kind === "notice") {
       this.showNotice(interactable.text || `${interactable.name}を調べた。`);
+      this.runEffects(interactable.afterEffects || []);
       return;
     }
 
     if (interactable.kind === "readKeyItem") {
       this.readKeyItem(interactable.keyItemId);
       this.showNotice(interactable.afterText || `${interactable.name}を読んだ。`);
+      this.runEffects(interactable.afterEffects || []);
+      return;
+    }
+
+    if (interactable.kind === "dialogue") {
+      this.dialogueManager.open(interactable.dialogueId);
+      this.syncUI();
+      this.updateActionButtonLabel();
+      this.runEffects(interactable.afterEffects || []);
       return;
     }
 
     if (interactable.kind === "sceneTransition") {
-      this.transitionScene(interactable.targetScene);
+      void this.transitionScene(interactable);
+      this.runEffects(interactable.afterEffects || []);
       return;
     }
 
     this.showNotice(interactable.text || `${interactable.name}を調べた。`);
+    this.runEffects(interactable.afterEffects || []);
   }
 
   handleWideTap() {
-    if (this.noticeOpen) {
+    this.syncUI();
+
+    if (!this.actionResolver.canWideTap()) return;
+
+    const wideTapKind = this.actionResolver.wideTapKind();
+
+    if (wideTapKind === "closeNotice") {
       this.closeNotice();
       return;
     }
 
-    if (this.dialogueManager.isOpen && !this.dialogueManager.isChoiceOpen) {
+    if (wideTapKind === "advanceDialogue" && this.dialogueManager.isOpen && !this.dialogueManager.isChoiceOpen) {
       this.dialogueManager.advance();
       this.syncUI();
       this.updateActionButtonLabel();
@@ -362,6 +554,14 @@ export class Game {
 
     const trigger = this.interactionManager.getCurrentTrigger();
     if (!trigger) return;
+
+    const conditionResult = this.checkEventConditions(trigger);
+    if (!conditionResult.ok) return;
+
+    if (trigger.effects) {
+      this.runEffects(trigger.effects);
+      return;
+    }
 
     if (trigger.type === "notice") {
       this.showNotice(trigger.text);
@@ -383,28 +583,38 @@ export class Game {
     this.updateActionButtonLabel();
   }
 
-  transitionScene(targetScene) {
+  async transitionScene(transitionDefinition) {
     this.closeNotice();
-    this.sceneManager.setScene(targetScene);
-    this.interactionManager.resetTriggerMemory();
 
-    const playerStart = this.sceneManager.getStartPosition(targetScene);
-    const companionStart = this.sceneManager.getCompanionStart(targetScene);
+    this.uiState.setState(UI_STATES.TRANSITION, "scene-transition");
+    this.syncUI();
 
-    this.actors.player.x = playerStart.x;
-    this.actors.player.y = playerStart.y;
-    this.actors.player.facing = playerStart.facing || "down";
+    const result = await this.sceneTransitionManager.transitionAsync(transitionDefinition, {
+      preloadScene: (sceneId) => this.preloadSceneObjects(sceneId),
+    });
 
-    this.actors.companion.x = companionStart.x;
-    this.actors.companion.y = companionStart.y;
+    if (!result.changed) {
+      this.syncUI();
+      this.updateActionButtonLabel();
+      return;
+    }
 
-    const message = this.sceneManager.currentScene.enterNotice;
-    if (message) {
-      this.showNotice(message);
+    if (result.enterNotice) {
+      this.showNotice(result.enterNotice);
     } else {
       this.syncUI();
       this.updateActionButtonLabel();
     }
+  }
+
+  updateCollisionDebug() {
+    const count = this.objectCollisionManager?.getSceneCollisionTiles(this.sceneManager.currentSceneId)?.length || 0;
+    window.matsuyoiObjectCollision = {
+      sceneId: this.sceneManager.currentSceneId,
+      tiles: this.objectCollisionManager?.getSceneCollisionTiles(this.sceneManager.currentSceneId) || [],
+    };
+
+    return count;
   }
 
   updateHudInfo() {
@@ -418,10 +628,26 @@ export class Game {
 
   syncUI() {
     this.updateHudInfo?.();
-    this.ui.syncBodyState({
+    this.updateCollisionDebug?.();
+
+    const runtimeState = {
+      loading: false,
+      menuOpen: this.menuManager?.isOpen || false,
       dialogueOpen: this.dialogueManager?.isOpen || false,
       choiceOpen: this.dialogueManager?.isChoiceOpen || false,
       noticeOpen: this.noticeOpen,
+      transition: false,
+      cutscene: false,
+    };
+
+    this.uiState.syncFromRuntime(runtimeState);
+
+    this.ui.syncBodyState({
+      dialogueOpen: runtimeState.dialogueOpen,
+      choiceOpen: runtimeState.choiceOpen,
+      noticeOpen: runtimeState.noticeOpen,
+      menuOpen: runtimeState.menuOpen,
+      uiState: this.uiState.state,
     });
   }
 

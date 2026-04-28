@@ -1,9 +1,14 @@
 import { directionDelta } from "./constants.js";
 
 export class SceneManager {
-  constructor({ gameData }) {
+  constructor({ gameData, objectCollisionManager = null }) {
     this.gameData = gameData;
     this.currentSceneId = gameData.startScene;
+    this.objectCollisionManager = objectCollisionManager;
+  }
+
+  setObjectCollisionManager(objectCollisionManager) {
+    this.objectCollisionManager = objectCollisionManager;
   }
 
   get currentScene() {
@@ -38,7 +43,15 @@ export class SceneManager {
       return true;
     }
 
-    return this.tileListIncludes(this.currentScene.blockedTiles || [], x, y);
+    if (this.tileListIncludes(this.currentScene.blockedTiles || [], x, y)) {
+      return true;
+    }
+
+    return this.objectCollisionManager?.isBlocked(this.currentSceneId, x, y) || false;
+  }
+
+  getObjectCollisionAt(x, y) {
+    return this.objectCollisionManager?.getCollisionAt(this.currentSceneId, x, y) || null;
   }
 
   getFacingTile(actor) {

@@ -1,4 +1,4 @@
-# 待宵物語 RPG Engine v3.4.8
+# 待宵物語 RPG Engine v4.0-g
 
 ## この版の目的
 
@@ -665,3 +665,223 @@ UIボタンサイズ
 会話文字サイズ
 メニュー文字サイズ
 ```
+
+
+## v3.4.9 変更点：UI安定化・再入場修正
+
+### 修正
+
+```text
+ロード中表示が見えない問題を修正
+ロード表示の最低表示時間を700msに設定
+ダブルタップ拡大抑止をcapture段階に強化
+html/bodyをfixed化してSafariの画面変動を抑制
+コルパンの家への再入場判定を拡張
+```
+
+
+## v4.0-a 変更点：Boot / Loading / Error
+
+### 目的
+
+第一章ストーリー追加前に、起動処理・ロード表示・エラー表示を安定化する。
+
+### 追加・変更
+
+```text
+src/engine/BootManager.js
+src/main.js の起動処理整理
+Game.boot() の起動ステップログ
+ロード表示の一元管理
+起動失敗時の画面表示
+```
+
+### 注意
+
+この版ではストーリー進行は追加していません。  
+ルルガー家解放、タート来訪、配達、墓地、戦闘は未実装のまま維持しています。
+
+
+## v4.0-b 変更点：BrowserGestureGuard / Input / UIState
+
+### 目的
+
+第一章ストーリー追加前に、スマホ操作・入力制御・UI状態管理を安定化する。
+
+### 追加
+
+```text
+src/engine/BrowserGestureGuard.js
+src/engine/UIStateController.js
+src/engine/ActionResolver.js
+```
+
+### 変更
+
+```text
+main.js内のブラウザジェスチャー抑止処理をBrowserGestureGuardへ分離
+Game.jsでUIStateController / ActionResolverを利用
+MenuManagerにonOpen / onClose callbackを追加
+UIManagerがbodyのdata-ui-stateを更新
+```
+
+### 注意
+
+この版ではストーリー進行は追加していません。  
+ルルガー家解放、タート来訪、配達、墓地、戦闘は未実装のまま維持しています。
+
+
+## v4.0-c 変更点：Event Foundation / SceneTransition / Interactable
+
+### 目的
+
+複雑なイベントフラグ、条件分岐、演出効果に耐えられるように、イベント基盤を整備しました。
+
+### 追加
+
+```text
+src/engine/ConditionEvaluator.js
+src/engine/EventFlagManager.js
+src/engine/EffectRunner.js
+src/engine/SceneTransitionManager.js
+src/engine/InteractableResolver.js
+```
+
+### 主な対応
+
+```text
+condition / conditions の評価
+requiredFlag / blockedText の後方互換
+effects / beforeEffects / afterEffects の実行基盤
+sceneTransitionの専用管理
+targetPosition / companionPosition対応
+interactable優先順位の整理
+将来演出効果の予約
+```
+
+### 重点
+
+個別のストーリー追加ではなく、第一章全体の複雑なフラグ・演出に耐える保守性を優先しています。
+
+
+## v4.0-d 変更点：AssetLoader / AssetValidator
+
+### 目的
+
+アセット定義の抜けやグラフィック担当との認識齟齬を早期検出するため、AssetValidatorを追加しました。
+
+### 追加
+
+```text
+src/engine/AssetValidator.js
+docs/asset_handoff_spec_for_graphics_team_v4_0_d.md
+docs/asset_validation_static_report_v4_0_d.csv
+docs/v4_0_d_asset_validator_report.md
+```
+
+### 検証対象
+
+```text
+画像ファイル存在
+tileset定義
+tilemap定義
+sprite frame
+object / decoration asset
+semantic_name
+collision
+layer_type
+width / height
+anchor_x / anchor_y
+edge_policy
+resize_rule
+ground運用ルール
+```
+
+### 方針
+
+アセットは単なる画像ではなく、ゲーム性・美観・没入感に影響する定義体として扱います。
+
+
+## v4.0-e 変更点：ObjectRenderer
+
+### 目的
+
+16×16タイルでは扱いにくい大型オブジェクトを、原寸・anchor基準・z-order/y-sort付きで描画できるようにしました。
+
+### 追加
+
+```text
+src/engine/ObjectRenderer.js
+src/game/objects/village_center.objects.json
+src/game/objects/colpan_house.objects.json
+src/game/objects/rulgar_house.objects.json
+```
+
+### 主な対応
+
+```text
+object placement定義
+scene表示前object preload
+描画時await禁止
+AssetLoaderの同期画像取得cache
+ObjectRendererの原寸描画
+anchor_x / anchor_y対応
+z_order / y_sort対応
+AssetValidatorのobject placement検証
+```
+
+### 表示遅延対策
+
+scene表示前に対象sceneのobject画像をpreloadし、描画時はcache済み画像を同期取得します。
+
+
+## v4.0-f 変更点：Object Collision Integration
+
+### 目的
+
+ObjectRendererで描画される大型オブジェクトについて、見た目と体感がずれないようにcollisionを通行判定へ統合しました。
+
+### 追加
+
+```text
+src/engine/ObjectCollisionManager.js
+docs/object_collision_static_report_v4_0_f.csv
+docs/v4_0_f_object_collision_report.md
+```
+
+### 主な対応
+
+```text
+object placement の collision tiles / rect をruntime collision map化
+SceneManager.isBlocked へ object collision を統合
+asset collision と placement collision の役割を分離
+AssetValidatorにcollision shape検証を追加
+window.matsuyoiObjectCollision にdebug情報を保持
+```
+
+### 方針
+
+asset collisionは意味的ヒント、placement collisionは実際の通行判定として扱います。  
+見た目と体感のズレを避けるため、実際の判定はplacement側の明示定義を優先します。
+
+
+## v4.0-g 変更点：Layout / UI Collision Stability
+
+### 目的
+
+操作系UIと会話ウィンドウの衝突により、タップのたびに会話ウィンドウ位置が変わる問題をできる限り回避します。
+
+### 主な対応
+
+```text
+control zoneのCSS変数化
+会話ウィンドウの基準位置固定
+選択肢中のdialog位置を固定量だけ上へ移動
+visualViewportの小さなheight揺れを無視
+広域タップ領域の整理
+iPhone SE 2nd gen Safari向けの下部UI安定化
+```
+
+### 方針
+
+会話ウィンドウと操作パネルは、場当たり的に重ならないよう逃がすのではなく、操作パネル領域を基準にして安定配置します。

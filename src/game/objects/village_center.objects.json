@@ -1,0 +1,38 @@
+{
+  "sceneId": "village_center",
+  "objects": [
+    {
+      "id": "village_well_01",
+      "asset_id": "5",
+      "semantic_name": "well_body",
+      "x": 5,
+      "y": 14,
+      "visible": true,
+      "z_order": "y_sort",
+      "collision": {
+        "enabled": true,
+        "shape": "tiles",
+        "tiles": [
+          [
+            4,
+            13
+          ],
+          [
+            5,
+            13
+          ],
+          [
+            4,
+            14
+          ],
+          [
+            5,
+            14
+          ]
+        ]
+      },
+      "interactable_id": "village_well",
+      "notes": "First ObjectRenderer target. Existing tilemap object remains until full cleanup."
+    }
+  ]
+}
