@@ -13,6 +13,19 @@ export class UIManager {
     this.debugVersion = document.querySelector("#debug-panel strong");
   }
 
+  ensureChoiceOverlay() {
+    let overlay = document.getElementById("choice-overlay");
+    if (overlay) return overlay;
+
+    const shell = document.getElementById("game-shell") || document.body;
+    overlay = document.createElement("div");
+    overlay.id = "choice-overlay";
+    overlay.className = "choice-overlay hidden";
+    overlay.setAttribute("aria-label", "選択肢");
+    shell.appendChild(overlay);
+    return overlay;
+  }
+
   setLocationText(text) {
     const element = document.getElementById("hud-location");
     if (!element) return;
@@ -78,7 +91,7 @@ export class UIManager {
     choices.forEach((choice, index) => {
       const button = document.createElement("button");
       button.type = "button";
-      button.className = `choice choice-item ${index === selectedIndex ? "selected" : ""}`;
+      button.className = `choice ${index === selectedIndex ? "selected" : ""}`;
       button.dataset.choiceIndex = String(index);
       button.textContent = choice;
       button.addEventListener("click", (event) => {

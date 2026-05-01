@@ -34,7 +34,10 @@ export class Renderer {
       try {
         this.drawSceneObjects();
       } catch (error) {
-        console.error("[Renderer] Object rendering failed:", error);
+        if (!this.objectRenderErrorLogged) {
+          console.error("[Renderer] Object rendering failed:", error);
+          this.objectRenderErrorLogged = true;
+        }
       }
 
       this.drawCharacters();
@@ -167,6 +170,12 @@ export class Renderer {
     this.ctx.fillRect(8 * TILE_SIZE, 8 * TILE_SIZE, TILE_SIZE * 4, TILE_SIZE * 2);
     this.ctx.strokeStyle = "rgba(198, 163, 95, 0.65)";
     this.ctx.strokeRect(8 * TILE_SIZE + 1, 8 * TILE_SIZE + 1, TILE_SIZE * 4 - 2, TILE_SIZE * 2 - 2);
+  }
+
+  drawSceneObjects() {
+    const sceneId = this.sceneManager?.currentScene?.id || this.sceneManager?.currentSceneId;
+    if (!sceneId || !this.objectRenderer) return;
+    this.objectRenderer.renderSceneObjects(sceneId);
   }
 
   pickSpriteFrame(frameSets, baseFrames, facing, index = 0) {

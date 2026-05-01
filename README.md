@@ -1,4 +1,4 @@
-# 待宵物語 RPG Engine v4.0-g.7
+# 待宵物語 RPG Engine v4.0-h.2
 
 ## この版の目的
 
@@ -1029,4 +1029,74 @@ inline #choice-box はchoice modeで非表示
 ```text
 選択肢2件が独立パネルに表示される
 上下キー・選ぶ・直接タップが使える
+```
+
+
+## v4.0-g.8 変更点：Loading Fix
+
+### 修正
+
+```text
+UIManager.ensureChoiceOverlay() 欠落を修正
+Game constructor の例外も BootManager.fail に渡す
+AssetLoaderにJSON / 画像読み込みtimeoutを追加
+```
+
+### 原因
+
+v4.0-g.7では、Game constructor中にUIManagerで例外が発生し、boot処理に入る前に止まっていました。
+
+
+## v4.0-h 変更点：UI Architecture Reset
+
+### 方針
+
+v4.0-g系で重なったUI修正を整理し、UI構造を再構築しました。
+
+### 主な変更
+
+```text
+style.cssを整理版へ置き換え
+dialog-layerを会話本文専用化
+choice-overlayを選択肢専用化
+choice-boxは後方互換DOMとして残すが非使用
+touch-controls / notice / menu / loadingの責務分離
+UI構造の正本docsを追加
+```
+
+### 重要
+
+以後、選択肢は会話ウィンドウ内ではなく `#choice-overlay` に表示します。
+
+
+## v4.0-h.1 変更点：UIManager Constructor Fix
+
+### 修正
+
+```text
+UIManager constructor から呼ばれていた ensureChoiceOverlay() のメソッド定義欠落を修正
+```
+
+### 原因
+
+v4.0-hでは `this.ensureChoiceOverlay()` の呼び出しだけが存在し、メソッド定義が存在していませんでした。  
+静的検査時に、呼び出しをメソッド定義と誤判定していました。
+
+
+## v4.0-h.2 変更点：Renderer Object Draw Fix
+
+### 修正
+
+```text
+Renderer.draw() が呼んでいた drawSceneObjects() メソッド欠落を修正
+ObjectRenderer未接続時は無害に通過
+ObjectRenderer描画エラーのconsole floodを抑制
+favicon 404抑制用に data URI favicon を追加
+```
+
+### 確認
+
+```text
+左上が v4.0-h.2 RenderFix になる
+consoleに this.drawSceneObjects is not a function が出ない
 ```

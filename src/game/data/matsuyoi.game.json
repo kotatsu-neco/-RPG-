@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "待宵物語",
-    "engineVersion": "4.0-g.7",
+    "engineVersion": "4.0-h.2",
     "description": "スマホ向けレトロRPG汎用基盤上の待宵物語プロトタイプ"
   },
   "canvas": {
@@ -4205,9 +4205,9 @@
     "loadingMinimumMs": 700
   },
   "engineStabilization": {
-    "phase": "v4.0-g.7",
-    "name": "Detached Choice Overlay Fix",
-    "priority": "separate_choices_from_dialog_window_overflow_constraints",
+    "phase": "v4.0-h.2",
+    "name": "Renderer Object Draw Fix",
+    "priority": "remove_per_frame_console_error_before_real_device_check",
     "singleFileBuild": "not_generated"
   },
   "bootPolicy": {
@@ -4384,5 +4384,35 @@
     "approach": "Choices are rendered into #choice-overlay appended to #game-shell, not inside #dialog-window.",
     "reason": "iPhone Safari and parent overflow constraints kept hiding inline choices.",
     "controls": "D-pad and action button remain usable; direct tap on choices is also supported."
+  },
+  "loadingFixPolicy": {
+    "cause": "UIManager constructor called ensureChoiceOverlay(), but method was missing. The Game constructor failed before BootManager.runStep, leaving loading screen stuck.",
+    "fix": "Add ensureChoiceOverlay method, wrap Game constructor in try/catch, and add AssetLoader timeouts.",
+    "assetTimeouts": {
+      "requestTimeoutMs": 12000,
+      "imageTimeoutMs": 12000
+    }
+  },
+  "uiArchitecturePolicy": {
+    "principle": "Do not patch UI by stacking duplicate CSS selectors. Maintain one source of truth per UI layer.",
+    "layers": {
+      "dialogLayer": "Dialogue text only",
+      "choiceOverlay": "Choices only; appended under game-shell; inline choice-box is disabled",
+      "touchControls": "D-pad and action button only",
+      "noticeLayer": "Temporary notices only",
+      "menuLayer": "Menu only",
+      "loadingOverlay": "Boot/loading only"
+    },
+    "reason": "Previous versions accumulated conflicting dialog/choice/control CSS and became fragile."
+  },
+  "uiConstructorFixPolicy": {
+    "cause": "UIManager constructor called this.ensureChoiceOverlay(), but the method definition was missing.",
+    "staticCheckCorrection": "Use regex for method definition, not substring search that also matches method calls.",
+    "fix": "Add ensureChoiceOverlay() method to UIManager."
+  },
+  "rendererObjectFixPolicy": {
+    "cause": "Renderer.draw() called this.drawSceneObjects(), but Renderer class did not define drawSceneObjects().",
+    "fix": "Add drawSceneObjects() method and guard ObjectRenderer errors without flooding console.",
+    "favicon404": "Add data URI favicon in index.html to suppress default browser favicon 404."
   }
 }

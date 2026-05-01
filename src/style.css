@@ -1,3 +1,17 @@
+/*
+  待宵物語 RPG Engine v4.0-h
+  UI Architecture Reset
+
+  Principle:
+  - dialogue UI, choice UI, controls, notice, menu are separate layers.
+  - choices are rendered only in #choice-overlay, not inside #dialog-window.
+  - do not stack repeated body.choice-open overrides.
+*/
+
+/* =========================================================
+   0. Base / Variables
+   ========================================================= */
+
 *,
 *::before,
 *::after {
@@ -8,14 +22,37 @@
 }
 
 :root {
+  --app-height: 100svh;
+  --viewport-width: 100vw;
+
   --bg-page: #1f2429;
+  --bg-shell: #14171b;
   --frame: #4a4a4a;
   --paper: #d8d5cf;
   --ink: #222222;
+
   --dialog-bg: #222938;
   --dialog-border: #c6a35f;
-  --choice-bg: #beb8ae;
+  --dialog-text: #f5efe2;
+
+  --choice-bg: #d8d5cf;
   --choice-selected: #cfc3a4;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  --shell-width: min(100vw, 390px);
+  --control-zone-height: 132px;
+  --dialog-gap: 10px;
+
+  --control-bottom: max(8px, var(--safe-bottom));
+  --dialog-bottom: calc(var(--control-zone-height) + var(--dialog-gap) + var(--safe-bottom));
+  --choice-overlay-bottom: calc(var(--control-zone-height) + 10px + var(--safe-bottom));
+  --choice-dialog-bottom: calc(var(--control-zone-height) + 166px + var(--safe-bottom));
+
+  --dialog-font-size: 15px;
+  --menu-font-size: 14px;
+  --control-button-size: 82px;
 }
 
 html,
@@ -32,33 +69,41 @@ body {
   touch-action: manipulation;
 }
 
+/* =========================================================
+   1. Application Shell / Canvas
+   ========================================================= */
+
 #app {
+  position: relative;
+  z-index: 1;
   width: 100vw;
-  height: var(--app-height, 100svh);
-  min-height: var(--app-height, 100svh);
+  height: var(--app-height);
+  min-height: var(--app-height);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: max(env(safe-area-inset-top), 4px) 4px max(env(safe-area-inset-bottom), 4px);
+  padding: max(var(--safe-top), 4px) 4px max(var(--safe-bottom), 4px);
   background: var(--bg-page);
 }
 
 #game-shell {
   position: relative;
-  width: min(100vw, 390px);
+  width: var(--shell-width);
   height: 100%;
-  max-height: var(--app-height, 100svh);
+  max-height: var(--app-height);
   overflow: hidden;
-  background: #14171b;
+  background: var(--bg-shell);
   image-rendering: pixelated;
+  contain: layout paint;
 }
 
 #game-canvas {
   position: absolute;
   left: 50%;
   top: 4px;
+  z-index: 1;
   transform: translateX(-50%);
-  width: min(100%, calc((var(--app-height, 100svh) - 156px) * 2 / 3));
+  width: min(100%, calc((var(--app-height) - var(--control-zone-height) - 20px) * 2 / 3));
   height: auto;
   aspect-ratio: 2 / 3;
   display: block;
@@ -67,15 +112,21 @@ body {
   image-rendering: pixelated;
 }
 
+/* =========================================================
+   2. Debug / HUD
+   ========================================================= */
+
 #debug-panel {
   position: absolute;
   left: 8px;
   top: 8px;
-  z-index: 20;
+  z-index: 30;
   display: grid;
   gap: 2px;
+  min-width: 112px;
+  max-width: 240px;
   padding: 6px 8px;
-  color: #f5efe2;
+  color: var(--dialog-text);
   background: rgba(34, 41, 56, 0.82);
   border: 1px solid rgba(198, 163, 95, 0.85);
   font-size: 10px;
@@ -83,16 +134,37 @@ body {
   pointer-events: none;
 }
 
+.debug-detail {
+  opacity: 0.9;
+}
+
+.hud-info {
+  position: absolute;
+  left: 46px;
+  top: 106px;
+  z-index: 25;
+  max-width: 300px;
+  color: rgba(245, 239, 226, 0.85);
+  font-size: 12px;
+  line-height: 1.35;
+  pointer-events: none;
+}
+
+/* =========================================================
+   3. Controls
+   ========================================================= */
+
 #touch-controls {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 10px;
-  z-index: 120;
+  bottom: var(--control-bottom);
+  z-index: 130;
+  min-height: var(--control-zone-height);
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-end;
-  padding: 0 18px;
+  padding: 0 18px 4px;
   pointer-events: none;
 }
 
@@ -105,15 +177,22 @@ body {
 }
 
 .dpad button,
+#action-button,
+#menu-button,
+#menu-close-button,
+.menu-tab,
+.choice {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.dpad button,
 #action-button {
   border: 2px solid var(--frame);
   background: rgba(216, 213, 207, 0.96);
   color: var(--ink);
   font-weight: 700;
-  border-radius: 8px;
   box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25);
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
 }
 
 .dpad button {
@@ -121,6 +200,7 @@ body {
   width: 42px;
   height: 42px;
   padding: 0;
+  border-radius: 8px;
   font-size: 18px;
 }
 
@@ -146,11 +226,16 @@ body {
 
 #action-button {
   position: relative;
-  width: 82px;
-  height: 82px;
+  width: var(--control-button-size);
+  height: var(--control-button-size);
   border-radius: 50%;
   pointer-events: auto;
   font-size: 17px;
+}
+
+#action-button.action-idle {
+  opacity: 0.48;
+  background: rgba(216, 213, 207, 0.58);
 }
 
 #action-button.action-talk {
@@ -171,12 +256,32 @@ body {
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
 }
 
+/* UI state rules for controls */
+body.dialogue-open:not(.choice-open):not(.notice-open) #touch-controls,
+body.notice-open #touch-controls,
+body.menu-open #touch-controls {
+  display: none;
+}
+
+body.choice-open #touch-controls {
+  display: flex;
+}
+
+body.choice-open .dpad [data-dir="left"],
+body.choice-open .dpad [data-dir="right"] {
+  opacity: 0.38;
+}
+
+/* =========================================================
+   4. Dialogue UI
+   ========================================================= */
+
 #dialog-layer {
   position: absolute;
   left: 6%;
   right: 6%;
-  bottom: 116px;
-  z-index: 90;
+  bottom: var(--dialog-bottom);
+  z-index: 100;
   pointer-events: auto;
 }
 
@@ -186,7 +291,7 @@ body {
   padding: 5px 12px;
   margin-left: 8px;
   margin-bottom: -1px;
-  color: #f5efe2;
+  color: var(--dialog-text);
   background: var(--dialog-bg);
   border: 2px solid var(--dialog-border);
   border-bottom: none;
@@ -196,20 +301,24 @@ body {
 
 #dialog-window {
   position: relative;
-  min-height: 88px;
+  min-height: 96px;
+  max-height: 156px;
   padding: 14px 16px 20px;
-  color: #f5efe2;
+  color: var(--dialog-text);
   background: var(--dialog-bg);
   border: 2px solid var(--dialog-border);
   box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+  overflow: hidden;
   pointer-events: auto;
   cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
 }
 
 #dialog-text {
   margin: 0;
-  font-size: 15px;
+  min-height: calc(var(--dialog-font-size) * 1.65 * 2);
+  max-height: calc(var(--dialog-font-size) * 1.65 * 3);
+  overflow: hidden;
+  font-size: var(--dialog-font-size);
   line-height: 1.65;
   letter-spacing: 0.02em;
 }
@@ -218,25 +327,77 @@ body {
   position: absolute;
   right: 12px;
   bottom: 6px;
+  color: var(--dialog-text);
   font-size: 12px;
-  color: #f5efe2;
   animation: blink 1s steps(2, end) infinite;
 }
 
+/* The inline choice box is retained for compatibility but not used. */
 #choice-box {
-  margin-top: 8px;
-  display: grid;
-  gap: 6px;
+  display: none !important;
+}
+
+/* In choice mode, dialogue is compact and sits above the independent choices. */
+body.choice-open #dialog-layer {
+  bottom: var(--choice-dialog-bottom);
+  z-index: 150;
+}
+
+body.choice-open #dialog-window {
+  min-height: 92px;
+  max-height: 126px;
+  padding: 12px 16px 16px;
+}
+
+body.choice-open #dialog-text {
+  min-height: auto;
+  max-height: 48px;
+}
+
+/* =========================================================
+   5. Choice UI
+   ========================================================= */
+
+.choice-overlay {
+  position: absolute;
+  left: 6%;
+  right: 24%;
+  bottom: var(--choice-overlay-bottom);
+  z-index: 220;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: min(30vh, 156px);
+  overflow-y: auto;
+  padding: 8px;
+  color: var(--ink);
+  background: rgba(34, 41, 56, 0.98);
+  border: 2px solid var(--dialog-border);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.28);
+  pointer-events: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.choice-overlay.hidden {
+  display: none !important;
 }
 
 .choice {
-  pointer-events: auto;
-  padding: 7px 10px;
+  min-height: 44px;
+  height: auto;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 9px 12px;
   color: var(--ink);
-  background: #d8d5cf;
+  background: var(--choice-bg);
   border: 1px solid var(--frame);
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 1.35;
   text-align: left;
+  pointer-events: auto;
 }
 
 .choice.selected {
@@ -248,40 +409,55 @@ body {
   content: "▶ ";
 }
 
+/* =========================================================
+   6. Wide Tap Layer / Notice
+   ========================================================= */
+
 #wide-tap-catcher {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 52%;
+  height: 56%;
   z-index: 70;
   padding: 0;
   margin: 0;
   border: none;
   background: transparent;
   pointer-events: auto;
-  -webkit-tap-highlight-color: transparent;
+}
+
+body:not(.dialogue-open):not(.notice-open) #wide-tap-catcher,
+body.choice-open #wide-tap-catcher,
+body.menu-open #wide-tap-catcher {
+  display: none;
+}
+
+body.dialogue-open:not(.choice-open) #wide-tap-catcher,
+body.notice-open #wide-tap-catcher {
+  display: block;
 }
 
 #notice-layer {
   position: absolute;
   left: 8%;
   right: 8%;
-  top: 56px;
-  z-index: 120;
+  top: calc(var(--safe-top) + 56px);
+  z-index: 180;
   display: block;
   padding: 0;
   border: 0;
   background: transparent;
   pointer-events: auto;
-  -webkit-tap-highlight-color: transparent;
 }
 
 #notice-window {
   display: block;
   position: relative;
+  max-height: min(34vh, 150px);
+  overflow: hidden;
   padding: 10px 14px 18px;
-  color: #f5efe2;
+  color: var(--dialog-text);
   background: rgba(34, 41, 56, 0.96);
   border: 2px solid var(--dialog-border);
   box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
@@ -299,33 +475,206 @@ body {
   opacity: 0.78;
 }
 
+/* =========================================================
+   7. Menu UI
+   ========================================================= */
+
+#menu-button {
+  position: absolute;
+  right: 10px;
+  top: 8px;
+  z-index: 40;
+  width: 42px;
+  height: 36px;
+  border: 2px solid var(--frame);
+  border-radius: 8px;
+  background: rgba(216, 213, 207, 0.94);
+  color: var(--ink);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25);
+}
+
+#menu-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: max(var(--safe-top), 14px) 14px 14px;
+  background: rgba(20, 23, 27, 0.62);
+}
+
+#menu-window {
+  width: min(100%, 350px);
+  height: min(520px, calc(var(--app-height) - 32px));
+  max-height: calc(var(--app-height) - 32px);
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  overflow: hidden;
+  color: var(--dialog-text);
+  background: rgba(34, 41, 56, 0.98);
+  border: 2px solid var(--dialog-border);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.28);
+  font-size: var(--menu-font-size);
+}
+
+.menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(198, 163, 95, 0.45);
+}
+
+.menu-title {
+  margin: 0;
+  font-size: 16px;
+}
+
+#menu-close-button {
+  min-width: 42px;
+  min-height: 34px;
+  border: 1px solid var(--dialog-border);
+  background: rgba(216, 213, 207, 0.94);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.menu-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px;
+  border-bottom: 1px solid rgba(198, 163, 95, 0.32);
+}
+
+.menu-tab {
+  flex: 1 1 30%;
+  min-height: 30px;
+  border: 1px solid rgba(198, 163, 95, 0.72);
+  background: rgba(216, 213, 207, 0.9);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.menu-tab.selected {
+  background: var(--choice-selected);
+}
+
+#menu-content {
+  overflow: auto;
+  padding: 12px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.menu-panel-title {
+  margin: 0 0 10px;
+  font-size: 15px;
+}
+
+.menu-muted {
+  opacity: 0.76;
+}
+
+.menu-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.menu-list-item {
+  padding: 8px;
+  border: 1px solid rgba(198, 163, 95, 0.38);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.menu-status-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 12px;
+}
+
+/* =========================================================
+   8. Loading Overlay
+   ========================================================= */
+
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: rgba(247, 242, 231, 0.96);
+  background: radial-gradient(circle at center, rgba(45, 55, 46, 0.97), rgba(18, 22, 20, 0.99));
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  touch-action: none;
+  transition: opacity 180ms ease, visibility 180ms ease;
+}
+
+.loading-overlay.hidden,
+.loading-overlay.complete {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loading-overlay.error {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.loading-panel {
+  width: min(82vw, 360px);
+  padding: 22px 18px;
+  text-align: center;
+  background: rgba(38, 42, 38, 0.94);
+  border: 2px solid rgba(198, 163, 95, 0.62);
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.25);
+}
+
+.loading-overlay.error .loading-panel {
+  border-color: rgba(190, 82, 70, 0.86);
+}
+
+.loading-title {
+  margin-bottom: 12px;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.loading-text {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.loading-subtext {
+  margin-top: 10px;
+  color: rgba(232, 224, 194, 0.84);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.loading-overlay.error .loading-text {
+  color: rgba(255, 210, 202, 0.96);
+}
+
+/* =========================================================
+   9. Utilities / State
+   ========================================================= */
+
 .hidden {
   display: none !important;
-}
-
-body.dialogue-open:not(.choice-open):not(.notice-open) #touch-controls,
-body.notice-open #touch-controls {
-  display: none !important;
-}
-
-body.choice-open #touch-controls {
-  display: flex !important;
-  z-index: 140;
-}
-
-body:not(.dialogue-open):not(.notice-open) #wide-tap-catcher,
-body.choice-open #wide-tap-catcher {
-  display: none !important;
-}
-
-body.dialogue-open:not(.choice-open) #wide-tap-catcher,
-body.notice-open #wide-tap-catcher {
-  display: block !important;
-}
-
-body.choice-open .dpad [data-dir="left"],
-body.choice-open .dpad [data-dir="right"] {
-  opacity: 0.38;
 }
 
 @keyframes blink {
@@ -334,19 +683,26 @@ body.choice-open .dpad [data-dir="right"] {
   }
 }
 
+/* =========================================================
+   10. Small viewport tuning
+   ========================================================= */
+
 @media (max-height: 680px) {
-  #game-canvas {
-    top: 4px;
-    width: min(100%, calc((var(--app-height, 100svh) - 140px) * 2 / 3));
+  :root {
+    --control-zone-height: 116px;
+    --control-button-size: 76px;
+    --choice-overlay-bottom: calc(var(--control-zone-height) + 8px + var(--safe-bottom));
+    --choice-dialog-bottom: calc(var(--control-zone-height) + 142px + var(--safe-bottom));
+    --dialog-font-size: 14px;
   }
 
-  #dialog-layer {
-    bottom: 102px;
+  #game-canvas {
+    top: 4px;
+    width: min(100%, calc((var(--app-height) - var(--control-zone-height) - 18px) * 2 / 3));
   }
 
   #touch-controls {
-    bottom: 8px;
-    padding: 0 20px;
+    padding: 0 20px 2px;
   }
 
   .dpad {
@@ -371,1040 +727,39 @@ body.choice-open .dpad [data-dir="right"] {
     top: 37px;
   }
 
-  #action-button {
-    width: 76px;
-    height: 76px;
-    font-size: 16px;
-  }
-}
-
-
-/* v2.1: アクション対象なし */
-#action-button.action-idle {
-  opacity: 0.48;
-  background: rgba(216, 213, 207, 0.58);
-}
-
-#action-button.action-idle:active {
-  transform: none;
-  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25);
-}
-
-
-/* v2.3: Main menu foundation */
-
-#menu-button {
-  position: absolute;
-  right: 10px;
-  top: 8px;
-  z-index: 35;
-  width: 42px;
-  height: 36px;
-  border: 2px solid var(--frame);
-  border-radius: 8px;
-  background: rgba(216, 213, 207, 0.94);
-  color: var(--ink);
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1;
-  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25);
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-}
-
-#menu-button:active,
-#menu-close-button:active,
-.menu-tab:active {
-  transform: translateY(1px);
-}
-
-#menu-layer {
-  position: absolute;
-  inset: 0;
-  z-index: 200;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: max(env(safe-area-inset-top), 14px) 14px 14px;
-  background: rgba(20, 23, 27, 0.62);
-}
-
-#menu-window {
-  width: min(100%, 350px);
-  height: min(520px, calc(var(--app-height, 100svh) - 32px));
-  max-height: calc(var(--app-height, 100svh) - 32px);
-  display: grid;
-  grid-template-rows: auto auto 1fr;
-  overflow: hidden;
-  color: #f5efe2;
-  background: rgba(34, 41, 56, 0.98);
-  border: 2px solid var(--dialog-border);
-  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.28);
-}
-
-#menu-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 10px 12px;
-  border-bottom: 1px solid rgba(198, 163, 95, 0.55);
-}
-
-#menu-header h1 {
-  margin: 0;
-  font-size: 17px;
-  letter-spacing: 0.08em;
-}
-
-#menu-close-button {
-  width: 36px;
-  height: 32px;
-  border: 1px solid var(--dialog-border);
-  border-radius: 6px;
-  background: rgba(216, 213, 207, 0.95);
-  color: var(--ink);
-  font-size: 20px;
-  font-weight: 700;
-}
-
-#menu-tabs {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  padding: 8px;
-  background: rgba(0, 0, 0, 0.16);
-}
-
-.menu-tab {
-  min-height: 36px;
-  padding: 4px 2px;
-  border: 1px solid rgba(198, 163, 95, 0.45);
-  background: rgba(216, 213, 207, 0.15);
-  color: #f5efe2;
-  font-size: 12px;
-  font-weight: 700;
-  border-radius: 5px;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.menu-tab.selected {
-  background: rgba(198, 163, 95, 0.75);
-  color: #1f2429;
-}
-
-#menu-content {
-  min-height: 0;
-  overflow: auto;
-  padding: 12px;
-  font-size: 14px;
-  line-height: 1.55;
-}
-
-.menu-panel-title {
-  margin: 0 0 8px;
-  font-size: 15px;
-  color: #f5efe2;
-}
-
-.menu-list {
-  display: grid;
-  gap: 7px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.menu-list-item {
-  padding: 8px 10px;
-  border: 1px solid rgba(198, 163, 95, 0.38);
-  background: rgba(216, 213, 207, 0.09);
-}
-
-.menu-muted {
-  opacity: 0.75;
-}
-
-.menu-status-grid {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 6px 14px;
-  padding: 10px;
-  border: 1px solid rgba(198, 163, 95, 0.38);
-  background: rgba(216, 213, 207, 0.09);
-}
-
-body.menu-open #touch-controls,
-body.menu-open #dialog-layer,
-body.menu-open #notice-layer,
-body.menu-open #wide-tap-catcher {
-  display: none !important;
-}
-
-body.dialogue-open #menu-button,
-body.notice-open #menu-button {
-  display: none !important;
-}
-
-@media (max-height: 680px) {
-  #menu-window {
-    height: min(450px, calc(var(--app-height, 100svh) - 20px));
-    max-height: calc(var(--app-height, 100svh) - 20px);
-  }
-
-  #menu-content {
-    min-height: 0;
-  }
-
-  .menu-tab {
-    min-height: 32px;
-    font-size: 11px;
-  }
-}
-
-
-/* v2.5: 選択肢表示中は操作キーと会話ウィンドウが重ならないよう上へ逃がす */
-body.choice-open #dialog-layer {
-  bottom: 150px;
-}
-
-body.choice-open #touch-controls {
-  display: flex !important;
-  z-index: 120;
-}
-
-body.choice-open #action-button {
-  z-index: 130;
-}
-
-@media (max-height: 680px) {
-  body.choice-open #dialog-layer {
-    bottom: 136px;
-  }
-}
-
-
-/* v3.3: key item document reading */
-.menu-document {
-  display: grid;
-  gap: 10px;
-}
-
-.menu-document-body {
-  white-space: pre-wrap;
-  padding: 12px;
-  color: #2a2118;
-  background: rgba(245, 239, 226, 0.95);
-  border: 2px solid rgba(198, 163, 95, 0.85);
-  line-height: 1.7;
-}
-
-.menu-action-button {
-  min-height: 34px;
-  padding: 7px 12px;
-  border: 1px solid var(--dialog-border);
-  border-radius: 6px;
-  background: rgba(216, 213, 207, 0.95);
-  color: var(--ink);
-  font-weight: 700;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.menu-objective {
-  margin: 0 0 10px;
-  padding: 8px 10px;
-  border: 1px solid rgba(198, 163, 95, 0.38);
-  background: rgba(216, 213, 207, 0.09);
-}
-
-
-/* v3.4.7 intro HUD */
-.hud-info {
-  position: absolute;
-  top: calc(env(safe-area-inset-top, 0px) + 56px);
-  left: 18px;
-  z-index: 18;
-  max-width: min(70vw, 340px);
-  display: grid;
-  gap: 4px;
-  pointer-events: none;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.hud-location,
-.hud-objective {
-  width: fit-content;
-  max-width: 100%;
-  padding: 4px 8px;
-  border: 1px solid rgba(198, 163, 95, 0.48);
-  background: rgba(30, 36, 40, 0.74);
-  color: rgba(246, 242, 232, 0.94);
-  font-size: 11px;
-  line-height: 1.35;
-  letter-spacing: 0.03em;
-  box-shadow: 0 2px 0 rgba(0,0,0,0.25);
-}
-
-.hud-objective {
-  color: rgba(232, 224, 194, 0.94);
-}
-
-@media (max-height: 680px) {
-  .hud-info {
-    top: calc(env(safe-area-inset-top, 0px) + 50px);
-    left: 12px;
-  }
-
-  .hud-location,
-  .hud-objective {
-    font-size: 10px;
-    padding: 3px 6px;
-  }
-}
-
-
-/* v3.4.8 UI stability */
-html,
-body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  overscroll-behavior: none;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-  -webkit-text-size-adjust: 100%;
-}
-
-button,
-canvas,
-.game-shell,
-.controls,
-.dpad,
-.action-button,
-.menu-button,
-.dialogue,
-.notice,
-.menu-window {
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-}
-
-.loading-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  background: radial-gradient(circle at center, rgba(45, 55, 46, 0.96), rgba(18, 22, 20, 0.98));
-  color: rgba(247, 242, 231, 0.96);
-  opacity: 1;
-  visibility: visible;
-  transition: opacity 180ms ease, visibility 180ms ease;
-  pointer-events: auto;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.loading-overlay.hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.loading-panel {
-  width: min(82vw, 360px);
-  padding: 22px 18px;
-  border: 2px solid rgba(198, 163, 95, 0.62);
-  background: rgba(38, 42, 38, 0.92);
-  box-shadow: 0 10px 0 rgba(0,0,0,0.25);
-  text-align: center;
-}
-
-.loading-title {
-  margin-bottom: 12px;
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-}
-
-.loading-text {
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.loading-subtext {
-  margin-top: 10px;
-  color: rgba(232, 224, 194, 0.82);
-  font-size: 11px;
-  line-height: 1.5;
-}
-
-.loading-overlay.error .loading-panel {
-  border-color: rgba(190, 82, 70, 0.82);
-}
-
-.loading-overlay.error .loading-text {
-  color: rgba(255, 210, 202, 0.96);
-}
-
-
-/* v3.4.9 stronger mobile lock */
-html {
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
-  width: 100%;
-  height: 100%;
-  touch-action: none;
-  -webkit-text-size-adjust: none;
-}
-
-body {
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
-  width: 100%;
-  height: 100%;
-  touch-action: none;
-  -webkit-text-size-adjust: none;
-}
-
-* {
-  -webkit-tap-highlight-color: transparent;
-}
-
-.loading-overlay {
-  display: grid !important;
-}
-
-.loading-overlay.hidden {
-  display: grid !important;
-}
-
-
-/* v4.0-a BootManager loading overlay */
-.loading-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: grid !important;
-  place-items: center;
-  padding: 24px;
-  background: radial-gradient(circle at center, rgba(45, 55, 46, 0.97), rgba(18, 22, 20, 0.99));
-  color: rgba(247, 242, 231, 0.96);
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  touch-action: none;
-  transition: opacity 180ms ease, visibility 180ms ease;
-}
-
-.loading-overlay.hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.loading-overlay.error {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-}
-
-.loading-overlay.error .loading-panel {
-  border-color: rgba(190, 82, 70, 0.86);
-}
-
-.loading-overlay.error .loading-text {
-  color: rgba(255, 210, 202, 0.96);
-}
-
-.loading-panel {
-  width: min(82vw, 360px);
-  padding: 22px 18px;
-  border: 2px solid rgba(198, 163, 95, 0.62);
-  background: rgba(38, 42, 38, 0.94);
-  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.25);
-  text-align: center;
-}
-
-.loading-title {
-  margin-bottom: 12px;
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-}
-
-.loading-text {
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.loading-subtext {
-  margin-top: 10px;
-  color: rgba(232, 224, 194, 0.84);
-  font-size: 11px;
-  line-height: 1.5;
-}
-
-
-/* v4.0-b UI state body markers */
-body[data-ui-state="loading"] #touch-controls,
-body[data-ui-state="transition"] #touch-controls,
-body[data-ui-state="cutscene"] #touch-controls {
-  pointer-events: none;
-}
-
-body[data-ui-state="menu"] #touch-controls,
-body[data-ui-state="menu"] #wide-tap-catcher {
-  pointer-events: none;
-}
-
-body[data-ui-state="choice"] .dpad button[data-dir="left"],
-body[data-ui-state="choice"] .dpad button[data-dir="right"] {
-  opacity: 0.38;
-}
-
-
-/* v4.0-g layout collision stability */
-:root {
-  --control-zone-height: 132px;
-  --dialog-gap: 12px;
-  --dialog-bottom: calc(var(--control-zone-height) + var(--dialog-gap) + env(safe-area-inset-bottom, 0px));
-  --dialog-choice-bottom: calc(var(--control-zone-height) + 38px + env(safe-area-inset-bottom, 0px));
-  --dialog-font-size: 15px;
-  --menu-font-size: 14px;
-  --control-button-size: 82px;
-}
-
-#game-shell {
-  contain: layout paint;
-}
-
-#touch-controls {
-  min-height: var(--control-zone-height);
-  bottom: max(8px, env(safe-area-inset-bottom, 0px));
-  align-items: center;
-  padding: 0 18px 4px;
-  z-index: 120;
-}
-
-#dialog-layer {
-  left: 6%;
-  right: 6%;
-  bottom: var(--dialog-bottom) !important;
-  z-index: 90;
-  min-height: 126px;
-  max-height: min(42vh, 214px);
-  display: grid;
-  grid-template-rows: auto 1fr;
-  pointer-events: auto;
-  transform: translateZ(0);
-  will-change: auto;
-}
-
-#dialog-window {
-  min-height: 104px;
-  max-height: 178px;
-  overflow: hidden;
-  display: grid;
-  grid-template-rows: 1fr auto;
-}
-
-#dialog-text {
-  min-height: calc(var(--dialog-font-size) * 1.65 * 2);
-  max-height: calc(var(--dialog-font-size) * 1.65 * 3);
-  overflow: hidden;
-  font-size: var(--dialog-font-size);
-}
-
-#choice-box {
-  max-height: 86px;
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-}
-
-body.choice-open #dialog-layer {
-  bottom: var(--dialog-choice-bottom) !important;
-}
-
-body.dialogue-open:not(.choice-open):not(.notice-open) #touch-controls,
-body.notice-open #touch-controls {
-  display: none !important;
-}
-
-body.choice-open #touch-controls {
-  display: flex !important;
-  min-height: var(--control-zone-height);
-}
-
-body.choice-open .dpad {
-  transform: translateY(6px);
-}
-
-body.choice-open #action-button {
-  width: 72px;
-  height: 72px;
-  font-size: 15px;
-  transform: translateY(6px);
-}
-
-#wide-tap-catcher {
-  bottom: 0;
-  height: calc(var(--dialog-bottom) + 168px);
-  z-index: 75;
-}
-
-body.choice-open #wide-tap-catcher {
-  display: none !important;
-}
-
-#notice-layer {
-  top: calc(env(safe-area-inset-top, 0px) + 54px);
-  bottom: calc(var(--control-zone-height) + env(safe-area-inset-bottom, 0px));
-}
-
-#notice-window {
-  max-height: min(34vh, 150px);
-  overflow: hidden;
-}
-
-#menu-window {
-  font-size: var(--menu-font-size);
-}
-
-@media (max-height: 680px) {
-  :root {
-    --control-zone-height: 118px;
-    --dialog-gap: 8px;
-    --dialog-font-size: 14px;
-    --control-button-size: 76px;
-  }
-
-  #dialog-layer {
-    left: 5%;
-    right: 5%;
-    min-height: 112px;
-    max-height: 184px;
-  }
-
-  #dialog-window {
-    min-height: 92px;
-    max-height: 150px;
-    padding: 12px 14px 18px;
-  }
-
-  #dialog-text {
-    max-height: calc(var(--dialog-font-size) * 1.55 * 3);
-    line-height: 1.55;
-  }
-
-  #choice-box {
-    max-height: 72px;
-  }
-
-  body.choice-open #action-button {
-    width: 68px;
-    height: 68px;
-  }
-}
-
-@media (max-height: 600px) {
-  :root {
-    --control-zone-height: 108px;
-    --dialog-choice-bottom: calc(var(--control-zone-height) + 28px + env(safe-area-inset-bottom, 0px));
-  }
-
-  #dialog-layer {
-    min-height: 104px;
-    max-height: 162px;
-  }
-
-  #dialog-window {
-    min-height: 86px;
-    max-height: 132px;
-  }
-
-  #choice-box {
-    max-height: 64px;
-  }
-}
-
-
-/* v4.0-g.1 character display fix */
-#game-canvas {
-  z-index: 1;
-}
-
-#debug-panel,
-#menu-button,
-#dialog-layer,
-#notice-layer,
-#touch-controls,
-#wide-tap-catcher,
-#menu-layer {
-  transform: translateZ(0);
-}
-
-
-/* v4.0-g.4 DOM boot fix */
-#app {
-  position: relative;
-  z-index: 1;
-}
-
-#loading-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-}
-
-#loading-overlay.hidden,
-#loading-overlay.complete {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-#loading-overlay .loading-panel {
-  transform: translateZ(0);
-}
-
-
-/* v4.0-g.5 choice layout fix */
-body.choice-open #dialog-layer {
-  left: 6%;
-  right: 6%;
-  bottom: calc(var(--control-zone-height) + 104px + env(safe-area-inset-bottom, 0px)) !important;
-  min-height: 228px;
-  max-height: min(54vh, 332px);
-  z-index: 140;
-}
-
-body.choice-open #dialog-window {
-  min-height: 206px;
-  max-height: min(50vh, 306px);
-  display: grid;
-  grid-template-rows: auto minmax(112px, 1fr);
-  padding: 14px 16px 18px;
-  overflow: hidden;
-}
-
-body.choice-open #dialog-text {
-  min-height: auto;
-  max-height: 42px;
-  overflow: hidden;
-  line-height: 1.45;
-}
-
-body.choice-open #choice-box {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-height: none;
-  min-height: 112px;
-  overflow-y: auto;
-  padding: 8px 0 2px;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-}
-
-body.choice-open .choice-item {
-  min-height: 46px;
-  padding: 10px 12px;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-body.choice-open #touch-controls {
-  display: flex !important;
-  z-index: 150;
-}
-
-body.choice-open #wide-tap-catcher {
-  display: none !important;
-}
-
-@media (max-height: 680px) {
-  body.choice-open #dialog-layer {
-    left: 5%;
-    right: 5%;
-    bottom: calc(var(--control-zone-height) + 92px + env(safe-area-inset-bottom, 0px)) !important;
-    min-height: 206px;
-    max-height: min(56vh, 292px);
-  }
-
-  body.choice-open #dialog-window {
-    min-height: 184px;
-    max-height: min(52vh, 270px);
-    padding: 12px 14px 16px;
-    grid-template-rows: auto minmax(104px, 1fr);
-  }
-
-  body.choice-open #choice-box {
-    min-height: 104px;
-    gap: 6px;
-  }
-
-  body.choice-open .choice-item {
-    min-height: 42px;
-    padding: 8px 10px;
-  }
-}
-
-@media (max-height: 600px) {
-  body.choice-open #dialog-layer {
-    bottom: calc(var(--control-zone-height) + 78px + env(safe-area-inset-bottom, 0px)) !important;
-    min-height: 188px;
-    max-height: min(58vh, 252px);
-  }
-
-  body.choice-open #dialog-window {
-    min-height: 166px;
-    max-height: min(54vh, 232px);
-  }
-
-  body.choice-open #choice-box {
-    min-height: 92px;
-  }
-
-  body.choice-open .choice-item {
-    min-height: 40px;
-  }
-}
-
-
-/* v4.0-g.5 compatibility for existing choice class names */
-body.choice-open .choice-option,
-body.choice-open .choice-button,
-body.choice-open button[data-choice-index] {
-  min-height: 46px;
-  padding: 10px 12px;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-
-/* v4.0-g.6 choice count hard fix */
-body.choice-open #dialog-layer {
-  bottom: calc(var(--control-zone-height) + 96px + env(safe-area-inset-bottom, 0px)) !important;
-  min-height: calc(124px + (var(--choice-count, 2) * 56px)) !important;
-  max-height: min(62vh, 392px) !important;
-  z-index: 160 !important;
-}
-
-body.choice-open #dialog-layer.choices-1 {
-  --choice-count: 1;
-}
-
-body.choice-open #dialog-layer.choices-2 {
-  --choice-count: 2;
-}
-
-body.choice-open #dialog-layer.choices-3 {
-  --choice-count: 3;
-}
-
-body.choice-open #dialog-layer.choices-many {
-  --choice-count: 4;
-}
-
-body.choice-open #dialog-window {
-  min-height: calc(104px + (var(--choice-count, 2) * 56px)) !important;
-  max-height: min(58vh, 366px) !important;
-  display: flex !important;
-  flex-direction: column !important;
-  overflow: hidden !important;
-  box-sizing: border-box !important;
-}
-
-body.choice-open #dialog-text {
-  flex: 0 0 auto !important;
-  min-height: 34px !important;
-  max-height: 48px !important;
-  margin-bottom: 8px !important;
-}
-
-body.choice-open #choice-box {
-  flex: 1 1 auto !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 8px !important;
-  min-height: calc(var(--choice-count, 2) * 52px) !important;
-  max-height: none !important;
-  overflow-y: auto !important;
-  padding: 8px 0 4px !important;
-  box-sizing: border-box !important;
-}
-
-body.choice-open #choice-box .choice,
-body.choice-open #choice-box .choice-item,
-body.choice-open #choice-box button {
-  min-height: 48px !important;
-  height: auto !important;
-  flex: 0 0 auto !important;
-  display: flex !important;
-  align-items: center !important;
-  padding: 10px 12px !important;
-  box-sizing: border-box !important;
-  font-size: 16px !important;
-  line-height: 1.35 !important;
-}
-
-@media (max-height: 680px) {
-  body.choice-open #dialog-layer {
-    bottom: calc(var(--control-zone-height) + 82px + env(safe-area-inset-bottom, 0px)) !important;
-    min-height: calc(108px + (var(--choice-count, 2) * 50px)) !important;
-    max-height: min(64vh, 340px) !important;
-  }
-
-  body.choice-open #dialog-window {
-    min-height: calc(92px + (var(--choice-count, 2) * 50px)) !important;
-    max-height: min(60vh, 314px) !important;
-  }
-
-  body.choice-open #choice-box {
-    min-height: calc(var(--choice-count, 2) * 46px) !important;
-    gap: 6px !important;
-  }
-
-  body.choice-open #choice-box .choice,
-  body.choice-open #choice-box .choice-item,
-  body.choice-open #choice-box button {
-    min-height: 44px !important;
-    font-size: 15px !important;
-  }
-}
-
-
-/* v4.0-g.7 detached choice overlay */
-.choice-overlay {
-  position: absolute;
-  left: 6%;
-  right: 24%;
-  bottom: calc(var(--control-zone-height) + 16px + env(safe-area-inset-bottom, 0px));
-  z-index: 210;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-height: min(28vh, 148px);
-  overflow-y: auto;
-  padding: 8px;
-  box-sizing: border-box;
-  background: rgba(34, 41, 56, 0.98);
-  border: 2px solid var(--dialog-border);
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.28);
-  pointer-events: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-}
-
-.choice-overlay.hidden {
-  display: none !important;
-}
-
-.choice-overlay .choice {
-  min-height: 44px !important;
-  height: auto !important;
-  flex: 0 0 auto !important;
-  display: flex !important;
-  align-items: center !important;
-  padding: 9px 12px !important;
-  box-sizing: border-box !important;
-  color: var(--ink);
-  background: #d8d5cf;
-  border: 1px solid var(--frame);
-  font-size: 15px !important;
-  line-height: 1.35 !important;
-  text-align: left;
-  pointer-events: auto;
-}
-
-.choice-overlay .choice.selected {
-  background: var(--choice-selected);
-  font-weight: 700;
-}
-
-.choice-overlay .choice.selected::before {
-  content: "▶ ";
-}
-
-/* Inline choice-box is intentionally disabled in choice mode. */
-body.choice-open #dialog-window #choice-box {
-  display: none !important;
-}
-
-/* Dialogue stays compact; choices are outside of it. */
-body.choice-open #dialog-layer {
-  bottom: calc(var(--control-zone-height) + 188px + env(safe-area-inset-bottom, 0px)) !important;
-  min-height: 132px !important;
-  max-height: 172px !important;
-  z-index: 150 !important;
-}
-
-body.choice-open #dialog-window {
-  min-height: 96px !important;
-  max-height: 132px !important;
-  display: block !important;
-  overflow: hidden !important;
-  padding: 14px 16px 18px !important;
-}
-
-body.choice-open #dialog-text {
-  min-height: auto !important;
-  max-height: 48px !important;
-  overflow: hidden !important;
-}
-
-@media (max-height: 680px) {
   .choice-overlay {
     left: 6%;
     right: 26%;
-    bottom: calc(var(--control-zone-height) + 8px + env(safe-area-inset-bottom, 0px));
-    max-height: min(26vh, 126px);
+    max-height: min(28vh, 126px);
     gap: 6px;
     padding: 7px;
   }
 
-  .choice-overlay .choice {
-    min-height: 40px !important;
-    padding: 8px 10px !important;
-    font-size: 14px !important;
-  }
-
-  body.choice-open #dialog-layer {
-    bottom: calc(var(--control-zone-height) + 150px + env(safe-area-inset-bottom, 0px)) !important;
-    min-height: 118px !important;
-    max-height: 150px !important;
+  .choice {
+    min-height: 40px;
+    padding: 8px 10px;
+    font-size: 14px;
   }
 
   body.choice-open #dialog-window {
-    min-height: 88px !important;
-    max-height: 116px !important;
+    min-height: 84px;
+    max-height: 112px;
   }
 }
 
 @media (max-height: 600px) {
+  :root {
+    --control-zone-height: 106px;
+    --choice-overlay-bottom: calc(var(--control-zone-height) + 6px + var(--safe-bottom));
+    --choice-dialog-bottom: calc(var(--control-zone-height) + 124px + var(--safe-bottom));
+  }
+
   .choice-overlay {
     right: 28%;
     max-height: min(25vh, 112px);
   }
 
-  .choice-overlay .choice {
-    min-height: 38px !important;
-  }
-
-  body.choice-open #dialog-layer {
-    bottom: calc(var(--control-zone-height) + 132px + env(safe-area-inset-bottom, 0px)) !important;
+  .choice {
+    min-height: 38px;
   }
 }

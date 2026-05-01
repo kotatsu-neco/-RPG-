@@ -1,12 +1,16 @@
 export class AssetLoader {
   constructor({
-    version = "2.0",
+    version = "4.0-g.8",
     forceFreshOnBoot = true,
     bootCacheToken = null,
+    requestTimeoutMs = 12000,
+    imageTimeoutMs = 12000,
   } = {}) {
     this.version = version;
     this.forceFreshOnBoot = forceFreshOnBoot;
     this.bootCacheToken = bootCacheToken || this.createBootCacheToken();
+    this.requestTimeoutMs = requestTimeoutMs;
+    this.imageTimeoutMs = imageTimeoutMs;
     this.cache = new Map();
     this.imageCache = new Map();
   }
@@ -39,19 +43,29 @@ export class AssetLoader {
       bootCacheToken: this.bootCacheToken,
       requestCacheEntries: this.cache.size,
       imageCacheEntries: this.imageCache.size,
+      requestTimeoutMs: this.requestTimeoutMs,
+      imageTimeoutMs: this.imageTimeoutMs,
     };
   }
 
   async loadJSON(path) {
-    const response = await fetch(this.cacheBust(path), {
-      cache: this.forceFreshOnBoot ? "reload" : "default",
-    });
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), this.requestTimeoutMs);
 
-    if (!response.ok) {
-      throw new Error(`Failed to load JSON: ${path}`);
+    try {
+      const response = await fetch(this.cacheBust(path), {
+        cache: this.forceFreshOnBoot ? "reload" : "default",
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to load JSON: ${path}`);
+      }
+
+      return response.json();
+    } finally {
+      window.clearTimeout(timer);
     }
-
-    return response.json();
   }
 
   async loadImage(path) {
@@ -61,11 +75,30 @@ export class AssetLoader {
 
     const promise = new Promise((resolve) => {
       const img = new Image();
+      let settled = false;
+
+      const finish = (value) => {
+        if (settled) return;
+        settled = true;
+        window.clearTimeout(timer);
+        resolve(value);
+      };
+
+      const timer = window.setTimeout(() => {
+        console.warn("[AssetLoader] Image load timeout:", path);
+        finish(null);
+      }, this.imageTimeoutMs);
+
       img.onload = () => {
         this.imageCache.set(path, img);
-        resolve(img);
+        finish(img);
       };
-      img.onerror = () => resolve(null);
+
+      img.onerror = () => {
+        console.warn("[AssetLoader] Image load failed:", path);
+        finish(null);
+      };
+
       img.src = this.cacheBust(path);
     });
 
